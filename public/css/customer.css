@@ -1,0 +1,70 @@
+/* Animation keyframes */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+}
+
+/* Animation classes */
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-fadeOut {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+.animate-slideIn {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-slideOut {
+    animation: slideOut 0.3s ease-out forwards;
+}
+
+/* Hover effect for customer cards */
+.customer-card {
+    transition: all 0.3s ease;
+}
+
+.customer-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Modal backdrop blur effect */
+#customer-detail-modal {
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Modal content transition */
+#customer-detail-modal .relative.bg-white {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+} 

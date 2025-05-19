@@ -21,10 +21,10 @@ class AuthController extends Controller
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
+        
         $remember = $request->has('remember');
-        if (Auth::attempt($credentials, $remember))
-
-        if (Auth::attempt($credentials)) {
+        
+        if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
             
             if ($request->ajax()) {
@@ -56,6 +56,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/login');
+        return redirect('/');
     }
 }

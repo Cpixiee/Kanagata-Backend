@@ -10,6 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
     <link rel="stylesheet" href="{{ asset('src/scroll-hover.css') }}">
+    <link rel="stylesheet" href="{{ asset('src/table-styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/project.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
@@ -212,74 +214,90 @@
                     </div>
                 </div>
 
-                <div id="project-details" class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead class="text-xs text-gray-700 text-center uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th scope="col" class="px-6 py-3" data-orderable="false">No</th>
-                                <th scope="col" class="px-6 py-3">Customer</th>
-                                <th scope="col" class="px-6 py-3">Tutor</th>
-                                <th scope="col" class="px-6 py-3">Tahun Ajaran</th>
-                                <th scope="col" class="px-6 py-3">Kegiatan</th>
-                                <th scope="col" class="px-6 py-3">Prodi</th>
-                                <th scope="col" class="px-6 py-3">Grade</th>
-                                <th scope="col" class="px-6 py-3">Quantity</th>
-                                <th scope="col" class="px-6 py-3">Rate Tutor</th>
-                                <th scope="col" class="px-6 py-3">GT Rev</th>
-                                <th scope="col" class="px-6 py-3">Jam Pertemuan</th>
-                                <th scope="col" class="px-6 py-3">SUM AP</th>
-                                <th scope="col" class="px-6 py-3">GT COST</th>
-                                <th scope="col" class="px-6 py-3">GT MARGIN</th>
-                                <th scope="col" class="px-6 py-3">AR</th>
-                                <th scope="col" class="px-6 py-3">AR OUT</th>
-                                <th scope="col" class="px-6 py-3">SUM AR</th>
-                                <th scope="col" class="px-6 py-3">AR PAID</th>
-                                <th scope="col" class="px-6 py-3">TO DO</th>
-                                <th scope="col" class="px-6 py-3">ARUS KAS</th>
-                                <th scope="col" class="px-6 py-3" data-orderable="false">ACTION</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-center">
-                            @foreach($projects as $project)
-                            <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                                <td class="px-6 py-4"></td>
-                                <td class="px-6 py-4">{{ $project->customer_name }}</td>
-                                <td class="px-6 py-4">{{ $project->tutor_name }}</td>
-                                <td class="px-6 py-4">{{ $project->tahun_ajaran }}</td>
-                                <td class="px-6 py-4">{{ $project->activity }}</td>
-                                <td class="px-6 py-4">{{ $project->prodi }}</td>
-                                <td class="px-6 py-4">{{ $project->grade }}</td>
-                                <td class="px-6 py-4">{{ $project->quantity }}</td>
-                                <td class="px-6 py-4">{{ $project->rate_tutor }}</td>
-                                <td class="px-6 py-4">{{ $project->gt_rev }}</td>
-                                <td class="px-6 py-4">{{ $project->jam_pertemuan }}</td>
-                                <td class="px-6 py-4">{{ $project->sum_ip }}</td>
-                                <td class="px-6 py-4">{{ $project->gt_cost }}</td>
-                                <td class="px-6 py-4">{{ $project->gt_margin }}</td>
-                                <td class="px-6 py-4">{{ $project->ar }}</td>
-                                <td class="px-6 py-4">{{ $project->ar_outstanding }}</td>
-                                <td class="px-6 py-4">{{ $project->sum_ar }}</td>
-                                <td class="px-6 py-4">{{ $project->sum_ar_paid }}</td>
-                                <td class="px-6 py-4">{{ $project->todo }}</td>
-                                <td class="px-6 py-4">{{ $project->arus_kas }}</td>
-                                <td class="px-6 py-4 flex justify-center">
-                                    <button type="button" 
-                                        data-modal-target="edit-project-modal" 
-                                        data-modal-toggle="edit-project-modal"
-                                        data-project-id="{{ $project->id }}" 
-                                        class="mx-2 font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 hover:bg-blue-200 dark:hover:bg-blue-700 px-4 py-1 rounded-md edit-project">
-                                        Edit
-                                    </button>
-                                    <form action="{{ route('projects.destroy', $project->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="mx-2 font-medium text-red-600 dark:text-red-200 bg-red-100 dark:bg-red-600 hover:bg-red-200 dark:hover:bg-red-700 px-4 py-1 rounded-md">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                <div class="relative overflow-x-auto">
+                    <div class="dataTables_scroll">
+                        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                            <thead class="text-xs text-gray-700 text-center uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3" data-orderable="false">No</th>
+                                    <!-- Basic Information -->
+                                    <th scope="col" class="px-6 py-3">COA</th>
+                                    <th scope="col" class="px-6 py-3">Customer</th>
+                                    <th scope="col" class="px-6 py-3">Activity</th>
+                                    <th scope="col" class="px-6 py-3">Prodi</th>
+                                    <th scope="col" class="px-6 py-3">Grade</th>
+                                    <!-- Revenue Details -->
+                                    <th scope="col" class="px-6 py-3">Quantity (Revenue)</th>
+                                    <th scope="col" class="px-6 py-3">Rate (Revenue)</th>
+                                    <th scope="col" class="px-6 py-3">GT Rev</th>
+                                    <!-- Cost Details -->
+                                    <th scope="col" class="px-6 py-3">Quantity (Cost)</th>
+                                    <th scope="col" class="px-6 py-3">Rate (Cost)</th>
+                                    <th scope="col" class="px-6 py-3">GT Cost</th>
+                                    <th scope="col" class="px-6 py-3">GT Margin</th>
+                                    <!-- AR Details -->
+                                    <th scope="col" class="px-6 py-3">Sum AR</th>
+                                    <th scope="col" class="px-6 py-3">AR Paid</th>
+                                    <th scope="col" class="px-6 py-3">AR OS</th>
+                                    <!-- AP Details -->
+                                    <th scope="col" class="px-6 py-3">Sum AP</th>
+                                    <th scope="col" class="px-6 py-3">AP Paid</th>
+                                    <th scope="col" class="px-6 py-3">AP OS</th>
+                                    <!-- Additional Fields -->
+                                    <th scope="col" class="px-6 py-3">Todo</th>
+                                    <th scope="col" class="px-6 py-3">AR AP</th>
+                                    <th scope="col" class="px-6 py-3" data-orderable="false">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-center">
+                                @foreach($projects as $project)
+                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
+                                    <td class="px-6 py-4">{{ $loop->iteration }}</td>
+                                    <!-- Basic Information -->
+                                    <td class="px-6 py-4">{{ $project->coa }}</td>
+                                    <td class="px-6 py-4">{{ $project->customer }}</td>
+                                    <td class="px-6 py-4">{{ $project->activity }}</td>
+                                    <td class="px-6 py-4">{{ $project->prodi }}</td>
+                                    <td class="px-6 py-4">{{ $project->grade }}</td>
+                                    <!-- Revenue Details -->
+                                    <td class="px-6 py-4">{{ $project->quantity_1 }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->rate_1, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->gt_rev, 0, ',', '.') }}</td>
+                                    <!-- Cost Details -->
+                                    <td class="px-6 py-4">{{ $project->quantity_2 }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->rate_2, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->gt_cost, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->gt_margin, 0, ',', '.') }}</td>
+                                    <!-- AR Details -->
+                                    <td class="px-6 py-4">{{ number_format($project->sum_ar, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->ar_paid, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->ar_os, 0, ',', '.') }}</td>
+                                    <!-- AP Details -->
+                                    <td class="px-6 py-4">{{ number_format($project->sum_ap, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->ap_paid, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->ap_os, 0, ',', '.') }}</td>
+                                    <!-- Additional Fields -->
+                                    <td class="px-6 py-4">{{ $project->todo }}</td>
+                                    <td class="px-6 py-4">{{ $project->ar_ap }}</td>
+                                    <td class="px-6 py-4 flex justify-center">
+                                        <button type="button" 
+                                            data-modal-target="edit-project-modal" 
+                                            data-modal-toggle="edit-project-modal"
+                                            data-project-id="{{ $project->id }}" 
+                                            class="mx-2 font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 hover:bg-blue-200 dark:hover:bg-blue-700 px-4 py-1 rounded-md edit-project">
+                                            Edit
+                                        </button>
+                                        <form action="{{ route('projects.destroy', $project->id) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="delete-project mx-2 font-medium text-red-600 dark:text-red-200 bg-red-100 dark:bg-red-600 hover:bg-red-200 dark:hover:bg-red-700 px-4 py-1 rounded-md">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -307,150 +325,90 @@
                 <div class="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-200px)]">
                     <form id="add-project-form" method="POST" action="{{ route('projects.store') }}" class="space-y-6">
                         @csrf
-                        <!-- Form fields will be dynamically updated for edit -->
-                        <input type="hidden" name="_method" value="POST">
-                        
-                        <!-- Customer & Tutor Section -->
+                        <!-- Basic Information -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label for="customer_name" class="block text-sm font-medium text-gray-900 dark:text-white">Jenis Institusi</label>
-                                <select id="customer_name" name="customer_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                    <option value="" selected disabled>Pilih Jenis Institusi</option>
-                                    @foreach(App\Models\Project::getCustomerNames() as $customer)
+                                <label for="coa" class="block text-sm font-medium text-gray-900 dark:text-white">COA</label>
+                                <input type="text" id="coa" name="coa" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="customer" class="block text-sm font-medium text-gray-900 dark:text-white">Customer</label>
+                                <select id="customer" name="customer" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                    <option value="" selected disabled>Select Customer</option>
+                                    @foreach(['SMKN 20', 'SMKN 59', 'SMKN 43', 'SMKN 70', 'SMKN 22', 'SMKN 18', 'SMKN 37'] as $customer)
                                         <option value="{{ $customer }}">{{ $customer }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="tutor_name" class="block text-sm font-medium text-gray-900 dark:text-white">Nama Tutor</label>
-                                <select id="tutor_name" name="tutor_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                    <option value="" selected disabled>Pilih Tutor</option>
-                                    @foreach(App\Models\Project::getTutorNames() as $tutor)
-                                        <option value="{{ $tutor }}">{{ ucwords($tutor) }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Tahun Ajaran & Kegiatan Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label for="tahun_ajaran" class="block text-sm font-medium text-gray-900 dark:text-white">Tahun Ajaran</label>
-                                <input type="text" id="tahun_ajaran" name="tahun_ajaran" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="2023/2024" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="activity" class="block text-sm font-medium text-gray-900 dark:text-white">Jenis Kegiatan</label>
+                                <label for="activity" class="block text-sm font-medium text-gray-900 dark:text-white">Activity</label>
                                 <select id="activity" name="activity" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                    <option value="" selected disabled>Pilih Kegiatan</option>
-                                    @foreach(App\Models\Project::getActivity() as $activity)
+                                    <option value="" selected disabled>Select Activity</option>
+                                    @foreach(['INKUBASI', 'WORKSHOP', 'Kelas SDNR', 'Seminar', 'Sinkronisasi'] as $activity)
                                         <option value="{{ $activity }}">{{ $activity }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                        </div>
 
-                        <!-- Prodi & Grade Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label for="prodi" class="block text-sm font-medium text-gray-900 dark:text-white">Program Studi</label>
+                                <label for="prodi" class="block text-sm font-medium text-gray-900 dark:text-white">Program Study</label>
                                 <select id="prodi" name="prodi" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                    <option value="" selected disabled>Pilih Program Studi</option>
-                                    @foreach(App\Models\Project::getProdi() as $prodi)
+                                    <option value="" selected disabled>Select Program</option>
+                                    @foreach(['BD', 'RPL', 'MM', 'TKJ', 'GNRL'] as $prodi)
                                         <option value="{{ $prodi }}">{{ $prodi }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="grade" class="block text-sm font-medium text-gray-900 dark:text-white">Tingkat Kelas</label>
+                                <label for="grade" class="block text-sm font-medium text-gray-900 dark:text-white">Grade</label>
                                 <select id="grade" name="grade" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                    <option value="" selected disabled>Pilih Kelas</option>
-                                    @foreach(App\Models\Project::getGrade() as $grade)
-                                        <option value="{{ $grade }}">Kelas {{ $grade }}</option>
+                                    <option value="" selected disabled>Select Grade</option>
+                                    @foreach(App\Models\Project::getGradeOptions() as $grade)
+                                        <option value="{{ $grade }}">{{ $grade }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Quantity & Rate Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="space-y-2">
-                                <label for="quantity" class="block text-sm font-medium text-gray-900 dark:text-white">Quantity</label>
-                                <input type="number" id="quantity" name="quantity" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="rate_tutor" class="block text-sm font-medium text-gray-900 dark:text-white">Rate Tutor</label>
-                                <input type="number" id="rate_tutor" name="rate_tutor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="jam_pertemuan" class="block text-sm font-medium text-gray-900 dark:text-white">Jam Pertemuan</label>
-                                <input type="number" id="jam_pertemuan" name="jam_pertemuan" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-                        </div>
-
-                        <!-- Financial Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="space-y-2">
-                                <label for="gt_rev" class="block text-sm font-medium text-gray-900 dark:text-white">GT Revenue</label>
-                                <input type="number" id="gt_rev" name="gt_rev" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="gt_cost" class="block text-sm font-medium text-gray-900 dark:text-white">GT Cost</label>
-                                <input type="number" id="gt_cost" name="gt_cost" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="gt_margin" class="block text-sm font-medium text-gray-900 dark:text-white">GT Margin</label>
-                                <input type="number" id="gt_margin" name="gt_margin" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-                        </div>
-
-                        <!-- AR Section -->
+                        <!-- Revenue Details -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label for="ar" class="block text-sm font-medium text-gray-900 dark:text-white">AR</label>
-                                <input type="number" id="ar" name="ar" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                <label for="quantity_1" class="block text-sm font-medium text-gray-900 dark:text-white">Quantity (Revenue)</label>
+                                <input type="number" id="quantity_1" name="quantity_1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="ar_outstanding" class="block text-sm font-medium text-gray-900 dark:text-white">AR Outstanding</label>
-                                <input type="number" id="ar_outstanding" name="ar_outstanding" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                <label for="rate_1" class="block text-sm font-medium text-gray-900 dark:text-white">Rate (Revenue)</label>
+                                <input type="number" id="rate_1" name="rate_1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                             </div>
                         </div>
 
-                        <!-- Summary Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="space-y-2">
-                                <label for="sum_ip" class="block text-sm font-medium text-gray-900 dark:text-white">Summary AP</label>
-                                <input type="number" id="sum_ip" name="sum_ip" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="sum_ar" class="block text-sm font-medium text-gray-900 dark:text-white">Summary AR</label>
-                                <input type="number" id="sum_ar" name="sum_ar" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="sum_ar_paid" class="block text-sm font-medium text-gray-900 dark:text-white">AR Paid</label>
-                                <input type="number" id="sum_ar_paid" name="sum_ar_paid" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-                        </div>
-
-                        <!-- Final Section -->
+                        <!-- Cost Details -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label for="todo" class="block text-sm font-medium text-gray-900 dark:text-white">To Do</label>
+                                <label for="quantity_2" class="block text-sm font-medium text-gray-900 dark:text-white">Quantity (Cost)</label>
+                                <input type="number" id="quantity_2" name="quantity_2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="rate_2" class="block text-sm font-medium text-gray-900 dark:text-white">Rate (Cost)</label>
+                                <input type="number" id="rate_2" name="rate_2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            </div>
+                        </div>
+
+                        <!-- Additional Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label for="todo" class="block text-sm font-medium text-gray-900 dark:text-white">Todo</label>
                                 <input type="number" id="todo" name="todo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="arus_kas" class="block text-sm font-medium text-gray-900 dark:text-white">Arus Kas</label>
-                                <input type="number" id="arus_kas" name="arus_kas" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <label for="ar_ap" class="block text-sm font-medium text-gray-900 dark:text-white">AR AP</label>
+                                <input type="number" id="ar_ap" name="ar_ap" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                             </div>
                         </div>
                     </form>
@@ -473,6 +431,7 @@
     <div id="edit-project-modal" 
         tabindex="-1" 
         aria-hidden="true" 
+        data-modal-target="edit-project-modal"
         data-modal-backdrop="static"
         class="hidden fixed inset-0 z-50 items-center justify-center overflow-y-auto">
         <div class="relative p-4 w-full max-w-4xl max-h-[90vh]">
@@ -483,7 +442,9 @@
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                         Edit Project
                     </h3>
-                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="edit-project-modal">
+                    <button type="button" 
+                        data-modal-hide="edit-project-modal"
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                         </svg>
@@ -497,147 +458,93 @@
                         @csrf
                         @method('PUT')
                         
-                        <!-- Customer & Tutor Section -->
+                        <!-- Basic Information -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label for="edit-customer_name" class="block text-sm font-medium text-gray-900 dark:text-white">Jenis Institusi</label>
-                                <select id="edit-customer_name" name="customer_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                    <option value="" selected disabled>Pilih Jenis Institusi</option>
-                                    @foreach(App\Models\Project::getCustomerNames() as $customer)
+                                <label for="edit-coa" class="block text-sm font-medium text-gray-900 dark:text-white">COA</label>
+                                <input type="text" id="edit-coa" name="coa" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="edit-customer" class="block text-sm font-medium text-gray-900 dark:text-white">Customer</label>
+                                <select id="edit-customer" name="customer" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                    <option value="" selected disabled>Select Customer</option>
+                                    @foreach(App\Models\Project::getCustomerOptions() as $customer)
                                         <option value="{{ $customer }}">{{ $customer }}</option>
                                     @endforeach
                                 </select>
                             </div>
-
-                            <div class="space-y-2">
-                                <label for="edit-tutor_name" class="block text-sm font-medium text-gray-900 dark:text-white">Nama Tutor</label>
-                                <select id="edit-tutor_name" name="tutor_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                    <option value="" selected disabled>Pilih Tutor</option>
-                                    @foreach(App\Models\Project::getTutorNames() as $tutor)
-                                        <option value="{{ $tutor }}">{{ ucwords($tutor) }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
                         </div>
 
-                        <!-- Tahun Ajaran & Kegiatan Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Activity & Program -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="space-y-2">
-                                <label for="edit-tahun_ajaran" class="block text-sm font-medium text-gray-900 dark:text-white">Tahun Ajaran</label>
-                                <input type="text" id="edit-tahun_ajaran" name="tahun_ajaran" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="2023/2024" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="edit-activity" class="block text-sm font-medium text-gray-900 dark:text-white">Jenis Kegiatan</label>
+                                <label for="edit-activity" class="block text-sm font-medium text-gray-900 dark:text-white">Activity</label>
                                 <select id="edit-activity" name="activity" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                    <option value="" selected disabled>Pilih Kegiatan</option>
-                                    @foreach(App\Models\Project::getActivity() as $activity)
+                                    <option value="" selected disabled>Select Activity</option>
+                                    @foreach(App\Models\Project::getActivityOptions() as $activity)
                                         <option value="{{ $activity }}">{{ $activity }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                        </div>
 
-                        <!-- Prodi & Grade Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label for="edit-prodi" class="block text-sm font-medium text-gray-900 dark:text-white">Program Studi</label>
+                                <label for="edit-prodi" class="block text-sm font-medium text-gray-900 dark:text-white">Program Study</label>
                                 <select id="edit-prodi" name="prodi" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                    <option value="" selected disabled>Pilih Program Studi</option>
-                                    @foreach(App\Models\Project::getProdi() as $prodi)
+                                    <option value="" selected disabled>Select Program</option>
+                                    @foreach(App\Models\Project::getProdiOptions() as $prodi)
                                         <option value="{{ $prodi }}">{{ $prodi }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="edit-grade" class="block text-sm font-medium text-gray-900 dark:text-white">Tingkat Kelas</label>
+                                <label for="edit-grade" class="block text-sm font-medium text-gray-900 dark:text-white">Grade</label>
                                 <select id="edit-grade" name="grade" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                    <option value="" selected disabled>Pilih Kelas</option>
-                                    @foreach(App\Models\Project::getGrade() as $grade)
-                                        <option value="{{ $grade }}">Kelas {{ $grade }}</option>
+                                    <option value="" selected disabled>Select Grade</option>
+                                    @foreach(App\Models\Project::getGradeOptions() as $grade)
+                                        <option value="{{ $grade }}">{{ $grade }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Quantity & Rate Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="space-y-2">
-                                <label for="edit-quantity" class="block text-sm font-medium text-gray-900 dark:text-white">Quantity</label>
-                                <input type="number" id="edit-quantity" name="quantity" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="edit-rate_tutor" class="block text-sm font-medium text-gray-900 dark:text-white">Rate Tutor</label>
-                                <input type="number" id="edit-rate_tutor" name="rate_tutor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="edit-jam_pertemuan" class="block text-sm font-medium text-gray-900 dark:text-white">Jam Pertemuan</label>
-                                <input type="number" id="edit-jam_pertemuan" name="jam_pertemuan" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-                        </div>
-
-                        <!-- Financial Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="space-y-2">
-                                <label for="edit-gt_rev" class="block text-sm font-medium text-gray-900 dark:text-white">GT Revenue</label>
-                                <input type="number" id="edit-gt_rev" name="gt_rev" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="edit-gt_cost" class="block text-sm font-medium text-gray-900 dark:text-white">GT Cost</label>
-                                <input type="number" id="edit-gt_cost" name="gt_cost" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="edit-gt_margin" class="block text-sm font-medium text-gray-900 dark:text-white">GT Margin</label>
-                                <input type="number" id="edit-gt_margin" name="gt_margin" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-                        </div>
-
-                        <!-- AR Section -->
+                        <!-- Revenue Details -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label for="edit-ar" class="block text-sm font-medium text-gray-900 dark:text-white">AR</label>
-                                <input type="number" id="edit-ar" name="ar" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                <label for="edit-quantity_1" class="block text-sm font-medium text-gray-900 dark:text-white">Quantity (Revenue)</label>
+                                <input type="number" id="edit-quantity_1" name="quantity_1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="edit-ar_outstanding" class="block text-sm font-medium text-gray-900 dark:text-white">AR Outstanding</label>
-                                <input type="number" id="edit-ar_outstanding" name="ar_outstanding" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                <label for="edit-rate_1" class="block text-sm font-medium text-gray-900 dark:text-white">Rate (Revenue)</label>
+                                <input type="number" id="edit-rate_1" name="rate_1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                             </div>
                         </div>
 
-                        <!-- Summary Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="space-y-2">
-                                <label for="edit-sum_ip" class="block text-sm font-medium text-gray-900 dark:text-white">Summary AP</label>
-                                <input type="number" id="edit-sum_ip" name="sum_ip" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="edit-sum_ar" class="block text-sm font-medium text-gray-900 dark:text-white">Summary AR</label>
-                                <input type="number" id="edit-sum_ar" name="sum_ar" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="edit-sum_ar_paid" class="block text-sm font-medium text-gray-900 dark:text-white">AR Paid</label>
-                                <input type="number" id="edit-sum_ar_paid" name="sum_ar_paid" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-                        </div>
-
-                        <!-- Final Section -->
+                        <!-- Cost Details -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label for="edit-todo" class="block text-sm font-medium text-gray-900 dark:text-white">To Do</label>
+                                <label for="edit-quantity_2" class="block text-sm font-medium text-gray-900 dark:text-white">Quantity (Cost)</label>
+                                <input type="number" id="edit-quantity_2" name="quantity_2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="edit-rate_2" class="block text-sm font-medium text-gray-900 dark:text-white">Rate (Cost)</label>
+                                <input type="number" id="edit-rate_2" name="rate_2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                            </div>
+                        </div>
+
+                        <!-- Additional Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label for="edit-todo" class="block text-sm font-medium text-gray-900 dark:text-white">Todo</label>
                                 <input type="number" id="edit-todo" name="todo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="edit-arus_kas" class="block text-sm font-medium text-gray-900 dark:text-white">Arus Kas</label>
-                                <input type="number" id="edit-arus_kas" name="arus_kas" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <label for="edit-ar_ap" class="block text-sm font-medium text-gray-900 dark:text-white">AR AP</label>
+                                <input type="number" id="edit-ar_ap" name="ar_ap" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                             </div>
                         </div>
                     </form>
@@ -659,9 +566,9 @@
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/project.js') }}"></script>
+   
 
     @if(session('success'))
     <script>

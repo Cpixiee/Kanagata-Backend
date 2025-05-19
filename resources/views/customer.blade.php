@@ -8,6 +8,7 @@
     <title>Kanagata - Customer</title>
     <link rel="stylesheet" href="{{ asset('src/output.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('css/customer.css') }}">
 </head>
 
 <body class="font-poppins">
@@ -143,7 +144,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#"
+                    <a href="{{ route('logsheet.index') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -189,21 +190,51 @@
                 </div>
                 <div class="grid lg:grid-cols-2 sm:grid-cols-1 gap-4">
                     @forelse($customers as $customer)
-                    <div class="flex rounded-sm bg-gray-50 h-auto dark:bg-gray-800">
-                        <a href="#"
-                            class="flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
-                            <img class="p-4 object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
-                                src="{{ $customer->image ? asset('storage/' . $customer->image) : asset('img/default-customer.png') }}" 
-                                alt="{{ $customer->name }}">
-                            <div class="justify-between p-4 leading-normal">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ $customer->name }}</h5>
-                                <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">{{ $customer->address }}</p>
-                                <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                    <strong>Phone:</strong> {{ $customer->phone }}<br>
-                                    <strong>Email:</strong> {{ $customer->email }}
-                                </p>
-                                @if($customer->description)
-                                <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">{{ $customer->description }}</p>
+                    <div class="flex rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                        <a href="#" class="customer-card flex flex-col items-center md:flex-row w-full" data-customer='@json($customer)'>
+                            <div class="w-full md:w-48 h-48 flex-shrink-0 flex items-center justify-center">
+                                <img class="max-w-full max-h-full object-contain p-2 rounded-t-lg md:rounded-none md:rounded-l-lg"
+                                    src="{{ $customer->image ? asset('storage/' . $customer->image) : asset('img/default-customer.png') }}" 
+                                    alt="{{ $customer->name }}">
+                            </div>
+                            <div class="flex flex-col justify-between p-4 leading-normal w-full">
+                                <div>
+                                    <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{{ $customer->name }}</h5>
+                                    <p class="mb-3 text-sm text-gray-700 dark:text-gray-400 break-words">{{ $customer->address }}</p>
+                                    <p class="mb-3 text-sm text-gray-700 dark:text-gray-400">
+                                        <strong>Phone:</strong> {{ $customer->phone }}<br>
+                                        <strong>Email:</strong> {{ $customer->email }}
+                                    </p>
+                                    @if($customer->description)
+                                    <p class="mb-3 text-sm text-gray-700 dark:text-gray-400 break-words">{{ $customer->description }}</p>
+                                    @endif
+                                </div>
+                                
+                                @php
+                                    $logsheet = App\Models\Logsheet::where('customer', $customer->name)
+                                        ->where(function($query) {
+                                            $query->where('ar_status', 'Paid')
+                                                ->orWhere('ar_status', 'Listing')
+                                                ->orWhere('ap_status', 'Paid')
+                                                ->orWhere('ap_status', 'Listing');
+                                        })
+                                        ->latest()
+                                        ->first();
+                                @endphp
+
+                                @if($logsheet)
+                                <div class="flex gap-2 mt-3">
+                                    @if($logsheet->ar_status == 'Paid' || $logsheet->ar_status == 'Listing')
+                                    <span class="px-2.5 py-0.5 text-xs font-medium {{ $logsheet->ar_status == 'Paid' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }} rounded-full">
+                                        AR: {{ $logsheet->ar_status }}
+                                    </span>
+                                    @endif
+                                    @if($logsheet->ap_status == 'Paid' || $logsheet->ap_status == 'Listing')
+                                    <span class="px-2.5 py-0.5 text-xs font-medium {{ $logsheet->ap_status == 'Paid' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }} rounded-full">
+                                        AP: {{ $logsheet->ap_status }}
+                                    </span>
+                                    @endif
+                                </div>
                                 @endif
                             </div>
                         </a>
@@ -224,66 +255,131 @@
             <!-- Modal content -->
             <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
                 <!-- Modal header -->
-                <div class="flex items-center justify-between p-4 border-b rounded-t">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                <div class="flex items-center justify-between p-5 border-b rounded-t dark:border-gray-600">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 3a3 3 0 1 1-1.614 5.53M15 12a4 4 0 0 1 4 4v1h-3.348M10 4.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0ZM5 11h3a4 4 0 0 1 4 4v2H1v-2a4 4 0 0 1 4-4Z"/>
+                        </svg>
                         Add New Customer
                     </h3>
-                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="add-customer-modal">
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="add-customer-modal">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                         </svg>
                     </button>
                 </div>
                 <!-- Modal body -->
-                <form id="add-customer-form" enctype="multipart/form-data" class="p-4">
+                <form id="add-customer-form" enctype="multipart/form-data" class="p-6">
                     @csrf
                     <div class="flex gap-8">
                         <!-- Left side - Image upload -->
                         <div class="w-1/3">
-                            <div class="w-full aspect-square bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
-                                <img id="preview-image" class="hidden max-w-full h-auto rounded-lg" src="#" alt="Preview"/>
+                            <div class="relative w-full aspect-square bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center mb-4 hover:bg-gray-100 transition-all duration-200 cursor-pointer group">
+                                <img id="preview-image" class="hidden absolute inset-0 w-full h-full object-cover rounded-xl" src="#" alt="Preview"/>
                                 <div id="upload-placeholder" class="text-center p-4">
-                                    <svg class="mx-auto w-8 h-8 text-gray-400 mb-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                    <svg class="mx-auto w-12 h-12 text-gray-400 mb-4 group-hover:text-gray-500 transition-colors duration-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                                     </svg>
-                                    <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                    <p class="text-xs text-gray-500">PNG or JPG (MAX. 1000x1000px)</p>
+                                    <p class="mb-2 text-sm text-gray-500 group-hover:text-gray-600"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                    <p class="text-xs text-gray-500 group-hover:text-gray-600">PNG or JPG (MAX. 1000x1000px)</p>
                                 </div>
                             </div>
                             <input id="customer-image" name="image" type="file" class="hidden" accept="image/*" />
-                            <button type="button" onclick="document.getElementById('customer-image').click()" class="w-full text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">
+                            <button type="button" onclick="document.getElementById('customer-image').click()" class="w-full text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 transition-all duration-200">
+                                <svg class="w-5 h-5 inline-block mr-2 -mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 12.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 3h-2l-.447-.894A2 2 0 0 0 12.764 1H7.236a2 2 0 0 0-1.789 1.106L5 3H3a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V5a2 2 0 0 0-2-2Z"/>
+                                </svg>
                                 Upload Image
                             </button>
                         </div>
                         
                         <!-- Right side - Form fields -->
-                        <div class="w-2/3 space-y-4">
-                            <div>
-                                <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Instance Name</label>
-                                <input type="text" name="name" id="name" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <div class="w-2/3 space-y-5">
+                            <div class="grid grid-cols-2 gap-5">
+                                                            <div>
+                                <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Instance Name</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z"/>
+                                        </svg>
+                                    </div>
+                                    <select name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" required>
+                                        <option value="">Pilih customer</option>
+                                        @foreach($validCustomers as $customer)
+                                            <option value="{{ $customer }}">{{ $customer }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @if(empty($validCustomers))
+                                <p class="mt-2 text-sm text-red-600">Tidak ada data customer yang valid. Customer harus terdaftar di logsheet dengan status Paid atau Listing.</p>
+                                @endif
+                            </div>
+                                <div>
+                                    <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone Number</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 19 18">
+                                                <path d="M18 13.446a3.02 3.02 0 0 0-.946-1.985l-1.4-1.4a3.054 3.054 0 0 0-4.218 0l-.7.7a.983.983 0 0 1-1.39 0l-2.1-2.1a.983.983 0 0 1 0-1.389l.7-.7a2.98 2.98 0 0 0 0-4.217l-1.4-1.4a2.824 2.824 0 0 0-4.218 0c-3.619 3.619-3 8.229 1.752 12.979C6.785 16.639 9.45 18 11.912 18a7.175 7.175 0 0 0 5.139-2.325A2.9 2.9 0 0 0 18 13.446Z"/>
+                                            </svg>
+                                        </div>
+                                        <input type="tel" name="phone" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" placeholder="Enter phone number" required>
+                                    </div>
+                                </div>
                             </div>
                             <div>
-                                <label for="phone" class="block mb-2 text-sm font-medium text-gray-900">Phone Number</label>
-                                <input type="tel" name="phone" id="phone" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email Address</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 16">
+                                            <path d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z"/>
+                                            <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z"/>
+                                        </svg>
+                                    </div>
+                                    <input type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" placeholder="name@company.com" required>
+                                </div>
                             </div>
                             <div>
-                                <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
-                                <input type="email" name="email" id="email" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                <label for="address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Address</label>
+                                <div class="relative">
+                                    <div class="absolute top-3 start-4 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 20">
+                                            <path d="  M8 0a7.992 7.992 0 0 0-6.583 12.535 1 1 0 0 0 .12.183l.12.146c.112.145.227.285.326.4l5.245 6.374a1 1 0 0 0 1.545-.003l5.092-6.205c.206-.222.4-.455.578-.7l.127-.155a.934.934 0 0 0 .122-.192A8.001 8.001 0 0 0 8 0Zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/>
+                                        </svg>
+                                    </div>
+                                    <textarea name="address" id="address" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-11 p-2.5" placeholder="  Enter complete address" required></textarea>
+                                </div>
                             </div>
                             <div>
-                                <label for="address" class="block mb-2 text-sm font-medium text-gray-900">Address</label>
-                                <textarea name="address" id="address" rows="2" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required></textarea>
-                            </div>
-                            <div>
-                                <label for="description" class="block mb-2 text-sm font-medium text-gray-900">Description</label>
-                                <textarea name="description" id="description" rows="2" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
+                                <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
+                                <div class="relative">
+                                    <div class="absolute top-3 start-4 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.96 2.96 0 0 0 .13 5H5Z"/>
+                                            <path d="M6.737 11.061a2.961 2.961 0 0 1 .81-1.515l6.117-6.116A4.839 4.839 0 0 1 16 2.141V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H0v11a1.969 1.969 0 0 0 1.933 2h12.134A1.97 1.97 0 0 0 16 18v-3.093l-1.546 1.546c-.413.413-.94.695-1.513.81l-3.4.679a2.947 2.947 0 0 1-1.85-.227 2.96 2.96 0 0 1-1.635-3.257l.681-3.397Z"/>
+                                            <path d="M8.961 16a.93.93 0 0 0 .189-.019l3.4-.679a.961.961 0 0 0 .49-.263l6.118-6.117a2.884 2.884 0 0 0-4.079-4.078l-6.117 6.117a.96.96 0 0 0-.263.491l-.679 3.4A.961.961 0 0 0 8.961 16Zm7.477-9.8a.958.958 0 0 1 .68-.281.961.961 0 0 1 .682 1.644l-.315.315-1.36-1.36.313-.318Zm-5.911 5.911 4.236-4.236 1.359 1.359-4.236 4.237-1.7.339.341-1.699Z"/>
+                                        </svg>
+                                    </div>
+                                    <textarea name="description" id="description" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-11 p-2.5" placeholder="  Enter customer description (optional)"></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <!-- Modal footer -->
                     <div class="flex items-center justify-end mt-6 gap-2">
-                        <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-8 py-2.5">Add Customer</button>
-                        <button type="button" data-modal-hide="add-customer-modal" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-8 py-2.5 hover:text-gray-900 focus:z-10">Cancel</button>
+                        <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-8 py-2.5 inline-flex items-center transition-all duration-200">
+                            <svg class="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
+                            </svg>
+                            Add Customer
+                        </button>
+                        <button type="button" data-modal-hide="add-customer-modal" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-8 py-2.5 hover:text-gray-900 focus:z-10 inline-flex items-center transition-all duration-200">
+                            <svg class="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                            </svg>
+                            Cancel
+                        </button>
                     </div>
                 </form>
             </div>
@@ -294,6 +390,62 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/customer.js') }}"></script>
+
+    <!-- Customer Detail Modal -->
+    <div id="customer-detail-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-4xl max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-5 border-b rounded-t dark:border-gray-600">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 3a3 3 0 1 1-1.614 5.53M15 12a4 4 0 0 1 4 4v1h-3.348M10 4.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0ZM5 11h3a4 4 0 0 1 4 4v2H1v-2a4 4 0 0 1 4-4Z"/>
+                        </svg>
+                        Customer Details
+                    </h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="customer-detail-modal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <div class="p-6">
+                    <div class="flex gap-8">
+                        <!-- Left side - Image -->
+                        <div class="w-1/3">
+                            <img id="detail-customer-image" class="w-full h-auto rounded-lg shadow" src="" alt="Customer Image">
+                        </div>
+                        
+                        <!-- Right side - Details -->
+                        <div class="w-2/3 space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Customer Name</h4>
+                                <p id="detail-customer-name" class="text-gray-700 dark:text-gray-400"></p>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Phone Number</h4>
+                                <p id="detail-customer-phone" class="text-gray-700 dark:text-gray-400"></p>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Email Address</h4>
+                                <p id="detail-customer-email" class="text-gray-700 dark:text-gray-400"></p>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Address</h4>
+                                <p id="detail-customer-address" class="text-gray-700 dark:text-gray-400"></p>
+                            </div>
+                            <div id="detail-description-container">
+                                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Description</h4>
+                                <p id="detail-customer-description" class="text-gray-700 dark:text-gray-400"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

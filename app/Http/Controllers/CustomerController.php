@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Logsheet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,7 +12,19 @@ class CustomerController extends Controller
     public function index()
     {
         $customers = Customer::latest()->get();
-        return view('customer', compact('customers'));
+        
+        // Get unique customers from both AR and AP status
+        $validCustomers = Logsheet::where(function($query) {
+                $query->where('ar_status', 'Paid')
+                      ->orWhere('ar_status', 'Listing')
+                      ->orWhere('ap_status', 'Paid')
+                      ->orWhere('ap_status', 'Listing');
+            })
+            ->distinct()
+            ->pluck('customer')
+            ->toArray();
+
+        return view('customer', compact('customers', 'validCustomers'));
     }
 
     public function store(Request $request)

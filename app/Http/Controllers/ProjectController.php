@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ProjectController extends Controller
 {
@@ -20,43 +21,53 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
-    
-            // Debug data yang dikirim
-            // dd($request->all());
-            
-            $validated = $request->validate([
-                'customer_name' => 'required|in:'.implode(',', Project::getCustomerNames()),
-                'tutor_name' => 'required|in:'.implode(',', Project::getTutorNames()),
-                'tahun_ajaran' => 'required|string|max:7',
-                'activity' => 'required|in:'.implode(',', Project::getActivity()),
-                'prodi' => 'required|in:'.implode(',', Project::getProdi()),
-                'grade' => 'required|in:'.implode(',', Project::getGrade()),
-                'quantity' => 'required|integer|min:1',
-                'rate_tutor' => 'required|integer|min:0',
-                'gt_rev' => 'required|integer|min:0',
-                'jam_pertemuan' => 'required|integer|min:1',
-                'sum_ip' => 'required|integer|min:0',
-                'gt_cost' => 'required|integer|min:0',
-                'gt_margin' => 'required|integer',
-                'ar' => 'required|integer|min:0',
-                'ar_outstanding' => 'required|integer|min:0',
-                'sum_ar' => 'required|integer|min:0',
-                'sum_ar_paid' => 'required|integer|min:0',
-                'todo' => 'required|integer|min:0',
-                'arus_kas' => 'nullable|integer'
+        try {
+            $validatedData = $request->validate([
+                'coa' => 'required|string',
+                'customer' => 'required|in:' . implode(',', Project::getCustomerOptions()),
+                'activity' => 'required|in:' . implode(',', Project::getActivityOptions()),
+                'prodi' => 'required|in:' . implode(',', Project::getProdiOptions()),
+                'grade' => 'required|in:' . implode(',', Project::getGradeOptions()),
+                'quantity_1' => 'required|numeric|min:1',
+                'rate_1' => 'required|numeric|min:0',
+                'quantity_2' => 'required|numeric|min:1',
+                'rate_2' => 'required|numeric|min:0',
+                'todo' => 'required|numeric',
+                'ar_ap' => 'required|numeric'
             ]);
 
-            Project::create($validated);
-            
-            if ($request->ajax()) {
-                return response()->json(['message' => 'Project created successfully']);
-            }
-            return redirect()->route('projects.index')->with('success', 'Project created successfully.');
-        // } catch (\Exception $e) {
-        //     return back()
-        //         ->withErrors(['msg' => 'Terjadi kesalahan: ' . $e->getMessage()])
-        //         ->withInput();
-        // }
+            // Calculate derived values
+            $validatedData['gt_rev'] = $validatedData['quantity_1'] * $validatedData['rate_1'];
+            $validatedData['gt_cost'] = $validatedData['quantity_2'] * $validatedData['rate_2'];
+            $validatedData['gt_margin'] = $validatedData['gt_rev'] - $validatedData['gt_cost'];
+
+            // Initialize AR/AP values
+            $validatedData['sum_ar'] = 0;
+            $validatedData['ar_paid'] = 0;
+            $validatedData['ar_os'] = 0;
+            $validatedData['sum_ap'] = 0;
+            $validatedData['ap_paid'] = 0;
+            $validatedData['ap_os'] = 0;
+
+            $project = Project::create($validatedData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Proyek berhasil dibuat',
+                'data' => $project
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show(Project $project)
@@ -66,51 +77,60 @@ class ProjectController extends Controller
 
     public function edit(Project $project)
     {
-        if (request()->ajax()) {
-            return response()->json($project);
-        }
-        return view('projects.edit', compact('project'));
+        return response()->json($project);
     }
 
     public function update(Request $request, Project $project)
     {
-        $validated = $request->validate([
-            'customer_name' => 'required|in:'.implode(',', Project::getCustomerNames()),
-            'tutor_name' => 'required|in:'.implode(',', Project::getTutorNames()),
-            'tahun_ajaran' => 'required|string|max:7',
-            'activity' => 'required|in:'.implode(',', Project::getActivity()),
-            'prodi' => 'required|in:'.implode(',', Project::getProdi()),
-            'grade' => 'required|in:'.implode(',', Project::getGrade()),
-            'quantity' => 'required|integer|min:1',
-            'rate_tutor' => 'required|integer|min:0',
-            'gt_rev' => 'required|integer|min:0',
-            'jam_pertemuan' => 'required|integer|min:1',
-            'sum_ip' => 'required|integer|min:0',
-            'gt_cost' => 'required|integer|min:0',
-            'gt_margin' => 'required|integer',
-            'ar' => 'required|integer|min:0',
-            'ar_outstanding' => 'required|integer|min:0',
-            'sum_ar' => 'required|integer|min:0',
-            'sum_ar_paid' => 'required|integer|min:0',
-            'todo' => 'required|integer|min:0',
-            'arus_kas' => 'nullable|integer'
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'coa' => 'required|string',
+                'customer' => 'required|string',
+                'activity' => 'required|string',
+                'prodi' => 'required|string',
+                'grade' => 'required|string',
+                'quantity_1' => 'required|numeric',
+                'rate_1' => 'required|numeric',
+                'quantity_2' => 'required|numeric',
+                'rate_2' => 'required|numeric',
+                'todo' => 'required|numeric',
+                'ar_ap' => 'required|numeric'
+            ]);
 
-        $project->update($validated);
+            // Hitung nilai turunan
+            $validatedData['gt_rev'] = $validatedData['quantity_1'] * $validatedData['rate_1'];
+            $validatedData['gt_cost'] = $validatedData['quantity_2'] * $validatedData['rate_2'];
+            $validatedData['gt_margin'] = $validatedData['gt_rev'] - $validatedData['gt_cost'];
 
-        if ($request->ajax()) {
-            return response()->json(['message' => 'Project updated successfully']);
+            $project->update($validatedData);
+            $project->updateFinancials();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Proyek berhasil diperbarui',
+                'data' => $project
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
         }
-        return redirect()->route('projects.index')->with('success', 'Project updated successfully.');
     }
 
     public function destroy(Project $project)
     {
-        $project->delete();
-        
-        if (request()->ajax()) {
-            return response()->json(['message' => 'Project deleted successfully']);
+        try {
+            $project->delete();
+            return redirect()->route('projects.index')->with('success', 'Proyek berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->route('projects.index')->with('error', 'Gagal menghapus proyek');
         }
-        return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
     }
 }
