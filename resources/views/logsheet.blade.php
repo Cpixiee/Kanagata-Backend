@@ -107,7 +107,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="../../pages/insight/"
+                    <a href="{{ route('insight') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -118,7 +118,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="../../pages/project/"
+                    <a href="{{ route('projects.index') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -144,7 +144,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="../../pages/tutor/"
+                    <a href="{{ route('tutor.index') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -170,7 +170,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="../../pages/ledger/"
+                    <a href="{{ route('ledger.index') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -615,32 +615,6 @@
     </div>
 
     <script src="{{ asset('js/logshet.js') }}"></script>
-
-    <script>
-        // Handler untuk konfirmasi penghapusan
-        $(document).ready(function() {
-            $(document).on('click', '.delete-logsheet', function(e) {
-                e.preventDefault();
-                const form = $(this).closest('form');
-                
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data logsheet akan dihapus secara permanen!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
-        });
-    </script>
-
 </body>
 
 </html>

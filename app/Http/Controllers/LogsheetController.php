@@ -41,6 +41,10 @@ class LogsheetController extends Controller
                 'ap_status' => 'required|in:Listing,Paid,Pending',
             ]);
 
+            // Tambahkan perhitungan revenue dan cost
+            $validated['revenue'] = $validated['quantity_1'] * $validated['rate_1'];
+            $validated['cost'] = $validated['quantity_2'] * $validated['rate_2'];
+
             Log::info('Validated data:', $validated);
 
             $logsheet = Logsheet::create($validated);
@@ -108,6 +112,10 @@ class LogsheetController extends Controller
                 'rate_2' => 'required|numeric',
                 'ap_status' => 'required|in:Listing,Paid,Pending',
             ]);
+
+            // Tambahkan perhitungan revenue dan cost
+            $validated['revenue'] = $validated['quantity_1'] * $validated['rate_1'];
+            $validated['cost'] = $validated['quantity_2'] * $validated['rate_2'];
 
             $oldProjectId = $logsheet->project_id;
             $logsheet->update($validated);
@@ -189,5 +197,96 @@ class LogsheetController extends Controller
             return redirect()->route('logsheet.index')
                 ->with('error', 'Error deleting logsheet entry: ' . $e->getMessage());
         }
+    }
+
+    public function getChartData()
+    {
+        try {
+            $year = request('year', date('Y'));
+            $currentMonth = date('m');
+            
+            // Create array for all months
+            $monthsArray = [];
+            for ($month = 1; $month <= 12; $month++) {
+                $monthsArray[sprintf('%02d', $month)] = [
+                    'x' => sprintf('%04d-%02d-01', $year, $month),
+                    'y' => 0
+                ];
+            }
+
+            // Get monthly totals from logsheets
+            $monthlyTotals = Logsheet::whereYear('created_at', $year)
+                ->selectRaw('MONTH(created_at) as month')
+                ->selectRaw('SUM(revenue) as total_revenue')
+                ->selectRaw('SUM(cost) as total_cost')
+                ->groupBy('month')
+                ->get();
+
+            // Get this month's data
+            $thisMonthData = Logsheet::whereYear('created_at', $year)
+                ->whereMonth('created_at', $currentMonth)
+                ->selectRaw('SUM(revenue) as revenue')
+                ->selectRaw('SUM(cost) as cost_project')
+                ->first();
+
+            // Get yearly summary
+            $yearlyData = Logsheet::whereYear('created_at', $year)
+                ->selectRaw('SUM(revenue) as revenue')
+                ->selectRaw('SUM(cost) as cost_project')
+                ->first();
+
+            // Calculate monthly averages
+            $monthsWithData = $monthlyTotals->count() ?: 1; // Prevent division by zero
+            $averageData = [
+                'revenue' => $yearlyData->revenue / $monthsWithData,
+                'cost_project' => $yearlyData->cost_project / $monthsWithData,
+            ];
+
+            // Initialize result arrays
+            $revenue = $monthsArray;
+            $cost = $monthsArray;
+            $profit = $monthsArray;
+
+            // Fill in the actual values
+            foreach ($monthlyTotals as $data) {
+                $month = sprintf('%02d', $data->month);
+                $revenue[$month]['y'] = round((float)$data->total_revenue, 2);
+                $cost[$month]['y'] = round((float)$data->total_cost, 2);
+                $profit[$month]['y'] = round((float)($data->total_revenue - $data->total_cost), 2);
+            }
+
+            return response()->json([
+                'success' => true,
+                'revenue' => array_values($revenue),
+                'cost' => array_values($cost),
+                'profit' => array_values($profit),
+                'this_month' => [
+                    'revenue' => round((float)($thisMonthData->revenue ?? 0), 2),
+                    'cost_project' => round((float)($thisMonthData->cost_project ?? 0), 2),
+                    'gross_margin' => round((float)(($thisMonthData->revenue ?? 0) - ($thisMonthData->cost_project ?? 0)), 2)
+                ],
+                'summary' => [
+                    'revenue' => round((float)($yearlyData->revenue ?? 0), 2),
+                    'cost_project' => round((float)($yearlyData->cost_project ?? 0), 2),
+                    'gross_margin' => round((float)(($yearlyData->revenue ?? 0) - ($yearlyData->cost_project ?? 0)), 2)
+                ],
+                'average' => [
+                    'revenue' => round((float)$averageData['revenue'], 2),
+                    'cost_project' => round((float)$averageData['cost_project'], 2),
+                    'gross_margin' => round((float)($averageData['revenue'] - $averageData['cost_project']), 2)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in getChartData: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error getting chart data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function insight()
+    {
+        return view('insight');
     }
 } 

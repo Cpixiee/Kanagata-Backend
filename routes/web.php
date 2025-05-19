@@ -6,6 +6,13 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\LogsheetController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TutorController;
+use App\Http\Controllers\LedgerController;
+
+// Root redirect
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
 // Guest routes
 Route::middleware(['guest'])->group(function () {
@@ -17,6 +24,10 @@ Route::middleware(['guest'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
+    // Insight routes
+    Route::get('/insight', [LogsheetController::class, 'insight'])->name('insight');
+    Route::get('/logsheets/chart-data', [LogsheetController::class, 'getChartData'])->name('logsheet.chart-data');
     
     // Projects routes
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
@@ -34,4 +45,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/customer', [CustomerController::class, 'index'])->name('customer.index');
     Route::post('/customer', [CustomerController::class, 'store']);
+
+    // Tutor routes
+    Route::get('/tutor', [TutorController::class, 'index'])->name('tutor.index');
+    
+    // Ledger routes
+    Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');
 });

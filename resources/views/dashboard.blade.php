@@ -60,6 +60,7 @@
                                 </p>
                             </div>
                             <ul class="py-1" role="none">
+                               
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
@@ -96,7 +97,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('dashboard') }}"
+                    <a href="{{ route('insight') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -722,15 +723,6 @@
                                 <td class="px-6 py-4">
                                     $2999
                                 </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
                                 <td class="px-6 py-4 sticky right-0 bg-white dark:bg-gray-900 flex">
                                     <a href="#"
                                         class="mx-2 font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 hover:bg-blue-200 dark:hover:bg-blue-700 px-4 py-1 rounded-md">Edit</a>
@@ -989,7 +981,50 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <script src="{{ asset('src/chart.js') }}"></script>
+    <script>
+        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        var themeToggleText = document.getElementById('theme-toggle-text');
+        var themeToggleBtn = document.getElementById('theme-toggle');
 
+        // Change the icons inside the button based on previous settings
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+            themeToggleText.textContent = 'Toggle Light Mode';
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+            themeToggleText.textContent = 'Toggle Dark Mode';
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            // Toggle icons
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            // If is set in localStorage
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                    themeToggleText.textContent = 'Toggle Light Mode';
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                    themeToggleText.textContent = 'Toggle Dark Mode';
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                    themeToggleText.textContent = 'Toggle Dark Mode';
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                    themeToggleText.textContent = 'Toggle Light Mode';
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

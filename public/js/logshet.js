@@ -57,7 +57,32 @@ $(document).ready(function() {
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                form.submit();
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        _method: 'DELETE'
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Data logsheet berhasil dihapus',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Gagal menghapus data: ' + (xhr.responseJSON?.message || error),
+                            icon: 'error'
+                        });
+                    }
+                });
             }
         });
     });
@@ -131,15 +156,16 @@ $(document).ready(function() {
     });
 
     // Project selection change handler
-    $('#project_id').change(function() {
+    $('#project_id, #edit_project_id').change(function() {
         const selectedOption = $(this).find('option:selected');
-        $('#coa').val(selectedOption.data('coa'));
-        $('#customer').val(selectedOption.data('customer'));
-        $('#activity').val(selectedOption.data('activity'));
-        $('#prodi').val(selectedOption.data('prodi'));
-        $('#grade').val(selectedOption.data('grade'));
-        $('#rate_1').val(selectedOption.data('rate1'));
-        $('#rate_2').val(selectedOption.data('rate2'));
+        const prefix = $(this).attr('id').startsWith('edit_') ? 'edit_' : '';
+        $(`#${prefix}coa`).val(selectedOption.data('coa'));
+        $(`#${prefix}customer`).val(selectedOption.data('customer'));
+        $(`#${prefix}activity`).val(selectedOption.data('activity'));
+        $(`#${prefix}prodi`).val(selectedOption.data('prodi'));
+        $(`#${prefix}grade`).val(selectedOption.data('grade'));
+        $(`#${prefix}rate_1`).val(selectedOption.data('rate1'));
+        $(`#${prefix}rate_2`).val(selectedOption.data('rate2'));
     });
 
     // Calculate amounts when quantity or rate changes
@@ -217,18 +243,17 @@ $('#logsheetForm').on('submit', function(e) {
         method: 'POST',
         data: jsonData,
         success: function(response) {
-            console.log('Response sukses:', response);
             Swal.fire({
                 title: 'Berhasil!',
                 text: 'Data logsheet berhasil ditambahkan',
                 icon: 'success',
+                showConfirmButton: false,
                 timer: 1500
             }).then(() => {
                 window.location.reload();
             });
         },
         error: function(xhr, status, error) {
-            console.error('Response error:', xhr.responseText);
             Swal.fire({
                 title: 'Error!',
                 text: 'Gagal menambahkan data: ' + (xhr.responseJSON?.message || error),
@@ -274,6 +299,7 @@ $('#editLogsheetForm').on('submit', function(e) {
                 title: 'Berhasil!',
                 text: 'Data logsheet berhasil diperbarui',
                 icon: 'success',
+                showConfirmButton: false,
                 timer: 1500
             }).then(() => {
                 window.location.reload();
@@ -290,4 +316,4 @@ $('#editLogsheetForm').on('submit', function(e) {
             isSubmitting = false;
         }
     });
-}); 
+});
