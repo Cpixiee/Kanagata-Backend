@@ -244,7 +244,7 @@
                                     <th scope="col" class="px-6 py-3">AP Paid</th>
                                     <th scope="col" class="px-6 py-3">AP OS</th>
                                     <!-- Additional Fields -->
-                                    <th scope="col" class="px-6 py-3">Todo</th>
+                                    <th scope="col" class="px-6 py-3">Latest Sequence</th>
                                     <th scope="col" class="px-6 py-3">AR AP</th>
                                     <th scope="col" class="px-6 py-3" data-orderable="false">Action</th>
                                 </tr>
@@ -277,7 +277,7 @@
                                     <td class="px-6 py-4">{{ number_format($project->ap_paid, 0, ',', '.') }}</td>
                                     <td class="px-6 py-4">{{ number_format($project->ap_os, 0, ',', '.') }}</td>
                                     <!-- Additional Fields -->
-                                    <td class="px-6 py-4">{{ $project->todo }}</td>
+                                    <td class="px-6 py-4">{{ $project->latest_sequence }}</td>
                                     <td class="px-6 py-4">{{ $project->ar_ap }}</td>
                                     <td class="px-6 py-4 flex justify-center">
                                         <button type="button" 

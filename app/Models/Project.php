@@ -137,15 +137,21 @@ class Project extends Model
 
     public function getSumArAttribute()
     {
-        return $this->logsheets->sum(function($logsheet) {
-            return $logsheet->rate_1 * $logsheet->seq;
-        });
+        // Ambil logsheet dengan sequence terbesar (data terbaru)
+        $latestLogsheet = $this->logsheets->sortByDesc('seq')->first();
+        
+        // Jika ada logsheet, hitung SUM AR berdasarkan data terbaru saja
+        if ($latestLogsheet) {
+            return $latestLogsheet->rate_1 * $latestLogsheet->seq;
+        }
+        
+        return 0;
     }
 
     public function getSumApAttribute()
     {
         return $this->logsheets->sum(function($logsheet) {
-            return $logsheet->rate_2 * $logsheet->seq;
+            return $logsheet->rate_2 * $logsheet->quantity_2;
         });
     }
 
@@ -198,5 +204,10 @@ class Project extends Model
             'kelas 12',
             'guru'
         ];
+    }
+
+    public function getLatestSequenceAttribute()
+    {
+        return $this->logsheets()->max('seq') ?? 0;
     }
 }

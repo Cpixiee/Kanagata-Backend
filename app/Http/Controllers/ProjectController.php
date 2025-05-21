@@ -10,7 +10,7 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::all(); // Mengambil semua data tanpa pagination
+        $projects = Project::with('logsheets')->get();
         return view('projects', compact('projects'));
     }
 

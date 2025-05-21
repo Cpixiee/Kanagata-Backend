@@ -8,6 +8,7 @@ use App\Http\Controllers\LogsheetController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TutorController;
 use App\Http\Controllers\LedgerController;
+use App\Http\Controllers\TutorScheduleController;
 
 // Root redirect
 Route::get('/', function () {
@@ -48,6 +49,17 @@ Route::middleware(['auth'])->group(function () {
 
     // Tutor routes
     Route::get('/tutor', [TutorController::class, 'index'])->name('tutor.index');
+    Route::get('/tutor/{tutor}/edit', [TutorController::class, 'edit'])->name('tutor.edit');
+    Route::put('/tutor/{tutor}', [TutorController::class, 'update'])->name('tutor.update');
+    Route::get('/tutor/{tutor}/logsheets', [TutorController::class, 'getUnscheduledLogsheets'])->name('tutor.logsheets');
+    
+    // Tutor Schedule routes
+    Route::get('/tutor/{tutor}/schedules', [TutorScheduleController::class, 'index'])->name('tutor.schedules.index');
+    Route::post('/tutor/{tutor}/schedules', [TutorScheduleController::class, 'store'])->name('tutor.schedules.store');
+    Route::put('/tutor/{tutor}/schedules/{schedule}', [TutorScheduleController::class, 'update'])->name('tutor.schedules.update');
+    Route::delete('/tutor/{tutor}/schedules/{schedule}', [TutorScheduleController::class, 'destroy'])->name('tutor.schedules.destroy');
+    Route::get('/tutor/{tutor}/available-sessions', [TutorScheduleController::class, 'getAvailableSessions'])->name('tutor.schedules.available');
+    Route::get('/tutor/{tutor}/available-dates', [TutorScheduleController::class, 'getAvailableDates'])->name('tutor.schedules.dates');
     
     // Ledger routes
     Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');

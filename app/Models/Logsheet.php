@@ -71,11 +71,11 @@ class Logsheet extends Model
     {
         return [
             'wit urrohman',
-            'sudarsono',
-            'brilian mahatir',
             'andar prakasa',
-            'danu Muhammad',
-            'rico Muhammad'
+            'danu muhammad',
+            'michale sudarsono',
+            'brilian krisna mora',
+            'ageng prasetyo'
         ];
     }
 

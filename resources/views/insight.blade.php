@@ -219,7 +219,19 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">This Month</h3>
-                    <span class="text-sm text-gray-600 dark:text-gray-400" id="current-month"></span>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" id="prev-month" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <span class="text-sm text-gray-600 dark:text-gray-400" id="current-month"></span>
+                        <button type="button" id="next-month" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="space-y-4" id="this-month-data">
                     <div class="border-b border-gray-100 dark:border-gray-700 pb-4">

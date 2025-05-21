@@ -203,13 +203,13 @@ class LogsheetController extends Controller
     {
         try {
             $year = request('year', date('Y'));
-            $currentMonth = date('m');
+            $month = request('month', date('m'));
             
             // Create array for all months
             $monthsArray = [];
-            for ($month = 1; $month <= 12; $month++) {
-                $monthsArray[sprintf('%02d', $month)] = [
-                    'x' => sprintf('%04d-%02d-01', $year, $month),
+            for ($m = 1; $m <= 12; $m++) {
+                $monthsArray[sprintf('%02d', $m)] = [
+                    'x' => sprintf('%04d-%02d-01', $year, $m),
                     'y' => 0
                 ];
             }
@@ -222,9 +222,9 @@ class LogsheetController extends Controller
                 ->groupBy('month')
                 ->get();
 
-            // Get this month's data
-            $thisMonthData = Logsheet::whereYear('created_at', $year)
-                ->whereMonth('created_at', $currentMonth)
+            // Get selected month's data
+            $selectedMonthData = Logsheet::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
                 ->selectRaw('SUM(revenue) as revenue')
                 ->selectRaw('SUM(cost) as cost_project')
                 ->first();
@@ -249,10 +249,10 @@ class LogsheetController extends Controller
 
             // Fill in the actual values
             foreach ($monthlyTotals as $data) {
-                $month = sprintf('%02d', $data->month);
-                $revenue[$month]['y'] = round((float)$data->total_revenue, 2);
-                $cost[$month]['y'] = round((float)$data->total_cost, 2);
-                $profit[$month]['y'] = round((float)($data->total_revenue - $data->total_cost), 2);
+                $m = sprintf('%02d', $data->month);
+                $revenue[$m]['y'] = round((float)$data->total_revenue, 2);
+                $cost[$m]['y'] = round((float)$data->total_cost, 2);
+                $profit[$m]['y'] = round((float)($data->total_revenue - $data->total_cost), 2);
             }
 
             return response()->json([
@@ -261,9 +261,9 @@ class LogsheetController extends Controller
                 'cost' => array_values($cost),
                 'profit' => array_values($profit),
                 'this_month' => [
-                    'revenue' => round((float)($thisMonthData->revenue ?? 0), 2),
-                    'cost_project' => round((float)($thisMonthData->cost_project ?? 0), 2),
-                    'gross_margin' => round((float)(($thisMonthData->revenue ?? 0) - ($thisMonthData->cost_project ?? 0)), 2)
+                    'revenue' => round((float)($selectedMonthData->revenue ?? 0), 2),
+                    'cost_project' => round((float)($selectedMonthData->cost_project ?? 0), 2),
+                    'gross_margin' => round((float)(($selectedMonthData->revenue ?? 0) - ($selectedMonthData->cost_project ?? 0)), 2)
                 ],
                 'summary' => [
                     'revenue' => round((float)($yearlyData->revenue ?? 0), 2),
@@ -277,7 +277,7 @@ class LogsheetController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error in getChartData: ' . $e->getMessage());
+            Log::error('Error in getChartData: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error getting chart data: ' . $e->getMessage()

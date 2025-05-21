@@ -1,11 +1,13 @@
-// Variables to track current year for each chart
+// Variables to track current year and month for each chart
 let currentYearRevenue = new Date().getFullYear();
 let currentYearProfit = new Date().getFullYear();
+let currentMonth = new Date().getMonth() + 1; // 1-12
 
-// Function to update year display
+// Function to update year and month display
 function updateYearDisplay() {
     document.getElementById('current-year').textContent = currentYearRevenue;
     document.getElementById('current-year-profit').textContent = currentYearProfit;
+    document.getElementById('current-month').textContent = `${getMonthName(currentMonth)} ${currentYearRevenue}`;
 }
 
 // Function to format currency
@@ -30,8 +32,7 @@ function getMonthName(month) {
 // Function to update table data
 function updateTableData(data) {
     // Update month and year displays
-    const currentMonth = new Date().getMonth() + 1;
-    document.getElementById('current-month').textContent = getMonthName(currentMonth);
+    document.getElementById('current-month').textContent = `${getMonthName(currentMonth)} ${currentYearRevenue}`;
     document.getElementById('current-year-summary').textContent = currentYearRevenue;
 
     // Update This Month data with animation
@@ -82,8 +83,8 @@ function initializeCharts() {
     if (revenueChart) revenueChart.innerHTML = '<div class="flex items-center justify-center h-64"><div class="text-gray-500">Loading...</div></div>';
     if (profitChart) profitChart.innerHTML = '<div class="flex items-center justify-center h-64"><div class="text-gray-500">Loading...</div></div>';
 
-    // Kirim parameter tahun ke backend dengan CSRF token
-    fetch(`/logsheets/chart-data?year=${currentYearRevenue}`, {
+    // Kirim parameter tahun dan bulan ke backend dengan CSRF token
+    fetch(`/logsheets/chart-data?year=${currentYearRevenue}&month=${currentMonth}`, {
         method: 'GET',
         headers: {
             'Accept': 'application/json',
@@ -116,12 +117,12 @@ function initializeCharts() {
             series: [
                 {
                     name: 'Revenue',
-                    data: revenueData.map(item => item.y),
+                    data: revenueData.map(item => Math.abs(item.y)),
                     color: '#1A56DB'
                 },
                 {
                     name: 'Cost',
-                    data: costData.map(item => item.y),
+                    data: costData.map(item => Math.abs(item.y)),
                     color: '#F87171'
                 }
             ],
@@ -133,10 +134,7 @@ function initializeCharts() {
                 }
             },
             dataLabels: {
-                enabled: true,
-                formatter: function(val) {
-                    return formatCurrency(val);
-                }
+                enabled: false
             },
             stroke: {
                 curve: 'smooth',
@@ -155,14 +153,22 @@ function initializeCharts() {
             yaxis: {
                 labels: {
                     formatter: function(value) {
-                        return formatCurrency(value);
+                        // Check if original value was negative
+                        const originalValue = revenueData.find(item => Math.abs(item.y) === value)?.y || 
+                                           costData.find(item => Math.abs(item.y) === value)?.y || value;
+                        return formatCurrency(originalValue < 0 ? -value : value);
                     }
                 }
             },
             tooltip: {
                 y: {
-                    formatter: function(value) {
-                        return formatCurrency(value);
+                    formatter: function(value, { seriesIndex, dataPointIndex, w }) {
+                        // Get original value from data
+                        const series = w.config.series[seriesIndex].data;
+                        const originalValue = seriesIndex === 0 ? 
+                            revenueData[dataPointIndex]?.y : 
+                            costData[dataPointIndex]?.y;
+                        return formatCurrency(originalValue < 0 ? -value : value);
                     }
                 },
                 shared: true,
@@ -187,7 +193,7 @@ function initializeCharts() {
         const profitOptions = {
             series: [{
                 name: 'Profit',
-                data: profitData.map(item => item.y)
+                data: profitData.map(item => Math.abs(item.y))
             }],
             chart: {
                 type: 'area',
@@ -197,10 +203,7 @@ function initializeCharts() {
                 }
             },
             dataLabels: {
-                enabled: true,
-                formatter: function(val) {
-                    return formatCurrency(val);
-                }
+                enabled: false
             },
             stroke: {
                 curve: 'smooth',
@@ -219,14 +222,18 @@ function initializeCharts() {
             yaxis: {
                 labels: {
                     formatter: function(value) {
-                        return formatCurrency(value);
+                        // Check if original value was negative
+                        const originalValue = profitData.find(item => Math.abs(item.y) === value)?.y || value;
+                        return formatCurrency(originalValue < 0 ? -value : value);
                     }
                 }
             },
             tooltip: {
                 y: {
-                    formatter: function(value) {
-                        return formatCurrency(value);
+                    formatter: function(value, { dataPointIndex }) {
+                        // Get original value from data
+                        const originalValue = profitData[dataPointIndex]?.y;
+                        return formatCurrency(originalValue < 0 ? -value : value);
                     }
                 }
             },
@@ -262,7 +269,30 @@ function refreshCharts() {
     initializeCharts();
 }
 
-// Event listeners for year navigation
+// Function to handle month navigation
+function handleMonthNavigation(direction) {
+    if (direction === 'prev') {
+        if (currentMonth === 1) {
+            currentMonth = 12;
+            currentYearRevenue--;
+            currentYearProfit--;
+        } else {
+            currentMonth--;
+        }
+    } else if (direction === 'next') {
+        if (currentMonth === 12) {
+            currentMonth = 1;
+            currentYearRevenue++;
+            currentYearProfit++;
+        } else {
+            currentMonth++;
+        }
+    }
+    updateYearDisplay();
+    refreshCharts();
+}
+
+// Event listeners for year and month navigation
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('prev-year-revenue')?.addEventListener('click', function() {
         currentYearRevenue--;
@@ -286,6 +316,14 @@ document.addEventListener('DOMContentLoaded', function() {
         currentYearProfit++;
         updateYearDisplay();
         refreshCharts();
+    });
+
+    document.getElementById('prev-month')?.addEventListener('click', function() {
+        handleMonthNavigation('prev');
+    });
+
+    document.getElementById('next-month')?.addEventListener('click', function() {
+        handleMonthNavigation('next');
     });
 
     // Initialize charts when page loads
