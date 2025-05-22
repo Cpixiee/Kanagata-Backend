@@ -12,7 +12,12 @@ class TutorController extends Controller
 {
     public function index()
     {
-        $tutors = Tutor::where('is_active', true)->get();
+        $tutors = Tutor::where('is_active', true)
+            ->get()
+            ->map(function($tutor) {
+                $tutor->ap_listing_amount = $tutor->getApListingAmount();
+                return $tutor;
+            });
         return view('tutor', compact('tutors'));
     }
 
@@ -21,8 +26,8 @@ class TutorController extends Controller
         return response()->json([
             'id' => $tutor->id,
             'name' => $tutor->name,
-            'email' => $tutor->email,
-            'phone' => $tutor->phone,
+            'email' => substr($tutor->email, 0, 3) . '***@' . explode('@', $tutor->email)[1],
+            'phone' => substr($tutor->phone, 0, 4) . '****' . substr($tutor->phone, -4),
             'address' => $tutor->address,
             'birth_year' => $tutor->birth_year,
             'description' => $tutor->description,

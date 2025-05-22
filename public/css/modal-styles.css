@@ -1,40 +1,156 @@
 .modal-backdrop {
-    backdrop-filter: blur(5px);
-    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
 .modal-content {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     border: 1px solid rgba(255, 255, 255, 0.1);
     animation: modalFadeIn 0.3s ease-out;
+    background: rgba(255, 255, 255, 0.98);
+    max-width: 90%;
+    margin: auto;
+    border-radius: 16px;
+}
+
+.dark .modal-content {
+    background: rgba(31, 41, 55, 0.98);
 }
 
 @keyframes modalFadeIn {
     from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: scale(0.95) translateY(-10px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: scale(1) translateY(0);
     }
 }
 
 .modal-header {
     border-bottom: 1px solid rgba(229, 231, 235, 0.2);
+    background: linear-gradient(to right, rgba(59, 130, 246, 0.1), transparent);
+    border-radius: 16px 16px 0 0;
+    padding: 1.25rem 1.5rem;
+}
+
+.dark .modal-header {
+    background: linear-gradient(to right, rgba(59, 130, 246, 0.2), transparent);
 }
 
 .modal-footer {
     border-top: 1px solid rgba(229, 231, 235, 0.2);
+    background: rgba(249, 250, 251, 0.5);
+    border-radius: 0 0 16px 16px;
+    padding: 1.25rem 1.5rem;
+}
+
+.dark .modal-footer {
+    background: rgba(31, 41, 55, 0.5);
+}
+
+/* Style untuk konten tutor details */
+.tutor-details-header {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.dark .tutor-details-header {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), transparent);
+}
+
+.tutor-details-header img {
+    border: 4px solid white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.tutor-details-content {
+    padding: 0 1.5rem 1.5rem;
+}
+
+.tutor-info-item {
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    background: rgba(249, 250, 251, 0.8);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(229, 231, 235, 0.3);
+}
+
+.dark .tutor-info-item {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(75, 85, 99, 0.3);
+}
+
+.tutor-info-item:hover {
+    transform: translateX(4px);
+    background: rgba(249, 250, 251, 0.95);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.dark .tutor-info-item:hover {
+    background: rgba(31, 41, 55, 0.95);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.dark .form-label {
+    color: #e5e7eb;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    background-color: rgba(249, 250, 251, 0.8);
+    transition: all 0.2s ease;
+}
+
+.dark .form-input {
+    background-color: rgba(31, 41, 55, 0.8);
+    border-color: rgba(75, 85, 99, 0.8);
+    color: #e5e7eb;
 }
 
 .form-input:focus {
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-    transition: all 0.2s ease;
+    outline: none;
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.dark .form-input:focus {
+    background-color: rgba(31, 41, 55, 0.95);
+}
+
+.form-input::placeholder {
+    color: #9ca3af;
 }
 
 .modal-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
     transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .modal-button:hover {
@@ -43,4 +159,58 @@
 
 .modal-button:active {
     transform: translateY(1px);
+}
+
+/* Efek ripple untuk tombol */
+.modal-button::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform .5s, opacity 1s;
+}
+
+.modal-button:active::after {
+    transform: scale(0, 0);
+    opacity: .3;
+    transition: 0s;
+}
+
+/* Style untuk form fields */
+.form-field-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-field {
+    background: rgba(249, 250, 251, 0.8);
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid rgba(229, 231, 235, 0.3);
+    transition: all 0.3s ease;
+}
+
+.dark .form-field {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(75, 85, 99, 0.3);
+}
+
+.form-field:hover {
+    background: rgba(249, 250, 251, 0.95);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.dark .form-field:hover {
+    background: rgba(31, 41, 55, 0.95);
+    border-color: rgba(59, 130, 246, 0.3);
 } 

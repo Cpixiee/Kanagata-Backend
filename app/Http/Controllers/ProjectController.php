@@ -31,9 +31,7 @@ class ProjectController extends Controller
                 'quantity_1' => 'required|numeric|min:1',
                 'rate_1' => 'required|numeric|min:0',
                 'quantity_2' => 'required|numeric|min:1',
-                'rate_2' => 'required|numeric|min:0',
-                'todo' => 'required|numeric',
-                'ar_ap' => 'required|numeric'
+                'rate_2' => 'required|numeric|min:0'
             ]);
 
             // Calculate derived values
@@ -92,9 +90,7 @@ class ProjectController extends Controller
                 'quantity_1' => 'required|numeric',
                 'rate_1' => 'required|numeric',
                 'quantity_2' => 'required|numeric',
-                'rate_2' => 'required|numeric',
-                'todo' => 'required|numeric',
-                'ar_ap' => 'required|numeric'
+                'rate_2' => 'required|numeric'
             ]);
 
             // Hitung nilai turunan

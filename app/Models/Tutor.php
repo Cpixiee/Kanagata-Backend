@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Tutor extends Model
 {
@@ -24,7 +25,7 @@ class Tutor extends Model
         'is_active' => 'boolean'
     ];
 
-    protected $appends = ['photo_url'];
+    protected $appends = ['photo_url', 'masked_email', 'masked_phone'];
 
     public function getPhotoUrlAttribute()
     {
@@ -32,6 +33,16 @@ class Tutor extends Model
             return asset('img/tutor-img/default.png');
         }
         return asset('img/tutor-img/' . $this->photo);
+    }
+
+    public function getMaskedEmailAttribute()
+    {
+        return substr($this->email, 0, 3) . '***@' . explode('@', $this->email)[1];
+    }
+
+    public function getMaskedPhoneAttribute()
+    {
+        return substr($this->phone, 0, 4) . '****' . substr($this->phone, -4);
     }
 
     public function schedules(): HasMany
@@ -91,5 +102,12 @@ class Tutor extends Model
                 $logsheet->available_sessions = $availableSessions;
                 return $logsheet;
             });
+    }
+
+    public function getApListingAmount()
+    {
+        return $this->logsheets()
+            ->where('ap_status', 'Listing')
+            ->sum(DB::raw('quantity_2 * rate_2'));
     }
 } 

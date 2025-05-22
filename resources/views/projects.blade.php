@@ -244,7 +244,7 @@
                                     <th scope="col" class="px-6 py-3">AP Paid</th>
                                     <th scope="col" class="px-6 py-3">AP OS</th>
                                     <!-- Additional Fields -->
-                                    <th scope="col" class="px-6 py-3">Latest Sequence</th>
+                                    <th scope="col" class="px-6 py-3">ToDo</th>
                                     <th scope="col" class="px-6 py-3">AR AP</th>
                                     <th scope="col" class="px-6 py-3" data-orderable="false">Action</th>
                                 </tr>
@@ -277,8 +277,8 @@
                                     <td class="px-6 py-4">{{ number_format($project->ap_paid, 0, ',', '.') }}</td>
                                     <td class="px-6 py-4">{{ number_format($project->ap_os, 0, ',', '.') }}</td>
                                     <!-- Additional Fields -->
-                                    <td class="px-6 py-4">{{ $project->latest_sequence }}</td>
-                                    <td class="px-6 py-4">{{ $project->ar_ap }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->todo, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4">{{ number_format($project->ar_ap, 0, ',', '.') }}</td>
                                     <td class="px-6 py-4 flex justify-center">
                                         <button type="button" 
                                             data-modal-target="edit-project-modal" 
@@ -399,18 +399,7 @@
                             </div>
                         </div>
 
-                        <!-- Additional Fields -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label for="todo" class="block text-sm font-medium text-gray-900 dark:text-white">Todo</label>
-                                <input type="number" id="todo" name="todo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="ar_ap" class="block text-sm font-medium text-gray-900 dark:text-white">AR AP</label>
-                                <input type="number" id="ar_ap" name="ar_ap" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-                        </div>
+                        <!-- Additional Fields section removed as ToDo and AR-AP are now calculated automatically -->
                     </form>
                 </div>
 
@@ -535,18 +524,7 @@
                             </div>
                         </div>
 
-                        <!-- Additional Fields -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label for="edit-todo" class="block text-sm font-medium text-gray-900 dark:text-white">Todo</label>
-                                <input type="number" id="edit-todo" name="todo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label for="edit-ar_ap" class="block text-sm font-medium text-gray-900 dark:text-white">AR AP</label>
-                                <input type="number" id="edit-ar_ap" name="ar_ap" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                            </div>
-                        </div>
+                        <!-- Additional Fields section removed as ToDo and AR-AP are now calculated automatically -->
                     </form>
                 </div>
 

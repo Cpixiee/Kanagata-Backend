@@ -23,24 +23,20 @@ class Project extends Model
         'gt_rev',
         'gt_cost',
         'gt_margin',
-        'todo',
-        'ar_ap',
         'sum_ar',
         'ar_paid',
         'ar_os',
         'sum_ap',
         'ap_paid',
-        'ap_os'
+        'ap_os',
+        'todo',
+        'ar_ap'
     ];
 
     protected $appends = [
         'total_revenue',
         'total_cost',
-        'total_margin',
-        'ar_paid',
-        'ar_os',
-        'ap_paid',
-        'ap_os'
+        'total_margin'
     ];
 
     public $timestamps = false;
@@ -66,6 +62,10 @@ class Project extends Model
             $project->sum_ap = 0;
             $project->ap_paid = 0;
             $project->ap_os = 0;
+
+            // Calculate todo and ar_ap
+            $project->todo = $project->gt_rev - ($project->sum_ar ?? 0);
+            $project->ar_ap = ($project->sum_ar ?? 0) - ($project->sum_ap ?? 0);
         });
 
         static::updating(function ($project) {
@@ -77,6 +77,10 @@ class Project extends Model
             
             // Recalculate GT MARGIN
             $project->gt_margin = $project->gt_rev - $project->gt_cost;
+
+            // Recalculate todo and ar_ap
+            $project->todo = $project->gt_rev - ($project->sum_ar ?? 0);
+            $project->ar_ap = ($project->sum_ar ?? 0) - ($project->sum_ap ?? 0);
         });
     }
 
@@ -137,15 +141,10 @@ class Project extends Model
 
     public function getSumArAttribute()
     {
-        // Ambil logsheet dengan sequence terbesar (data terbaru)
-        $latestLogsheet = $this->logsheets->sortByDesc('seq')->first();
-        
-        // Jika ada logsheet, hitung SUM AR berdasarkan data terbaru saja
-        if ($latestLogsheet) {
-            return $latestLogsheet->rate_1 * $latestLogsheet->seq;
-        }
-        
-        return 0;
+        // Hitung total AR dari semua logsheet
+        return $this->logsheets->sum(function($logsheet) {
+            return $logsheet->rate_1 * $logsheet->quantity_1;
+        });
     }
 
     public function getSumApAttribute()
@@ -157,8 +156,8 @@ class Project extends Model
 
     public function updateFinancials()
     {
-        $this->load('logsheets'); // Memastikan relasi ter-load
-        $this->touch(); // Memaksa update timestamps
+        $this->load('logsheets');
+        $this->touch();
     }
 
     public static function getCustomerOptions()
@@ -209,5 +208,17 @@ class Project extends Model
     public function getLatestSequenceAttribute()
     {
         return $this->logsheets()->max('seq') ?? 0;
+    }
+
+    // Getter untuk ToDo (GT Revenue - Sum AR)
+    public function getTodoAttribute()
+    {
+        return $this->gt_rev - ($this->sum_ar ?? 0);
+    }
+
+    // Getter untuk AR-AP (Sum AR - Sum AP)
+    public function getArApAttribute()
+    {
+        return ($this->sum_ar ?? 0) - ($this->sum_ap ?? 0);
     }
 }

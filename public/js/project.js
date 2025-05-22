@@ -1,4 +1,11 @@
 $(document).ready(function() {
+    // Setup CSRF token untuk semua request AJAX
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
     // Hapus DataTable yang ada jika sudah ada
     if ($.fn.DataTable.isDataTable('table')) {
         $('table').DataTable().destroy();
@@ -82,8 +89,6 @@ $(document).ready(function() {
                 $('#edit-rate_1').val(data.rate_1);
                 $('#edit-quantity_2').val(data.quantity_2);
                 $('#edit-rate_2').val(data.rate_2);
-                $('#edit-todo').val(data.todo);
-                $('#edit-ar_ap').val(data.ar_ap);
                 
                 // Tampilkan modal
                 const editModal = document.getElementById('edit-project-modal');
@@ -140,8 +145,15 @@ $(document).ready(function() {
         const formData = new FormData(this);
         const jsonData = {};
         formData.forEach((value, key) => {
-            jsonData[key] = value;
+            // Hanya ambil field yang diperlukan
+            if (['_token', 'coa', 'customer', 'activity', 'prodi', 'grade', 
+                 'quantity_1', 'rate_1', 'quantity_2', 'rate_2', '_method'].includes(key)) {
+                jsonData[key] = value;
+            }
         });
+
+        // Tambahkan CSRF token
+        jsonData._token = $('meta[name="csrf-token"]').attr('content');
 
         // Hitung nilai turunan
         const prefix = isEdit ? 'edit-' : '';
@@ -150,9 +162,27 @@ $(document).ready(function() {
         const quantity2 = parseFloat($(`#${prefix}quantity_2`).val()) || 0;
         const rate2 = parseFloat($(`#${prefix}rate_2`).val()) || 0;
 
+        // Hitung nilai-nilai yang diperlukan
         jsonData.gt_rev = quantity1 * rate1;
         jsonData.gt_cost = quantity2 * rate2;
         jsonData.gt_margin = jsonData.gt_rev - jsonData.gt_cost;
+        
+        // Initialize AR/AP values untuk project baru
+        if (!isEdit) {
+            jsonData.sum_ar = 0;
+            jsonData.ar_paid = 0;
+            jsonData.ar_os = 0;
+            jsonData.sum_ap = 0;
+            jsonData.ap_paid = 0;
+            jsonData.ap_os = 0;
+        }
+
+        // Hitung todo dan ar_ap
+        jsonData.todo = jsonData.gt_rev - (jsonData.sum_ar || 0);
+        jsonData.ar_ap = (jsonData.sum_ar || 0) - (jsonData.sum_ap || 0);
+
+        // Debug: Log data yang akan dikirim
+        console.log('Data yang akan dikirim:', jsonData);
 
         $.ajax({
             url: isEdit ? $form.attr('action') : '/projects',
@@ -173,13 +203,26 @@ $(document).ready(function() {
                 let errorMessage = 'Terjadi kesalahan saat menyimpan proyek.';
                 if (xhr.responseJSON?.errors) {
                     errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                } else if (xhr.responseJSON?.message) {
+                    errorMessage = xhr.responseJSON.message;
                 }
+                
+                // Tambahkan informasi status error
+                if (xhr.status === 419) {
+                    errorMessage = 'Sesi telah kedaluwarsa. Silakan muat ulang halaman.';
+                }
+                
+                console.error('Error response:', xhr.responseJSON);
                 
                 Swal.fire({
                     title: 'Error!',
                     text: errorMessage,
                     icon: 'error',
                     confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (xhr.status === 419) {
+                        window.location.reload();
+                    }
                 });
             }
         });
@@ -196,9 +239,10 @@ $(document).ready(function() {
         const gtCost = quantity2 * rate2;
         const gtMargin = gtRev - gtCost;
 
-        $(`#${prefix}gt_rev`).val(gtRev.toFixed(2));
-        $(`#${prefix}gt_cost`).val(gtCost.toFixed(2));
-        $(`#${prefix}gt_margin`).val(gtMargin.toFixed(2));
+        // Hanya update nilai yang ada di form
+        if ($(`#${prefix}gt_rev`).length) $(`#${prefix}gt_rev`).val(gtRev.toFixed(2));
+        if ($(`#${prefix}gt_cost`).length) $(`#${prefix}gt_cost`).val(gtCost.toFixed(2));
+        if ($(`#${prefix}gt_margin`).length) $(`#${prefix}gt_margin`).val(gtMargin.toFixed(2));
     }
 
     // Ikat event perhitungan

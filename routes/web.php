@@ -60,7 +60,4 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/tutor/{tutor}/schedules/{schedule}', [TutorScheduleController::class, 'destroy'])->name('tutor.schedules.destroy');
     Route::get('/tutor/{tutor}/available-sessions', [TutorScheduleController::class, 'getAvailableSessions'])->name('tutor.schedules.available');
     Route::get('/tutor/{tutor}/available-dates', [TutorScheduleController::class, 'getAvailableDates'])->name('tutor.schedules.dates');
-    
-    // Ledger routes
-    Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');
 });
