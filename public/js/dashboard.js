@@ -13,10 +13,10 @@ function updateYearDisplay() {
 // Function to format currency
 function formatCurrency(value) {
     const formatter = new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+                                    style: 'currency',
+                                    currency: 'IDR',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0
     });
     return formatter.format(value).replace('IDR', 'Rp');
 }
@@ -295,7 +295,7 @@ function handleMonthNavigation(direction) {
             currentMonth = 1;
             currentYearRevenue++;
             currentYearProfit++;
-        } else {
+    } else {
             currentMonth++;
         }
     }

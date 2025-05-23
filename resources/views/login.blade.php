@@ -65,9 +65,7 @@
                 @endif
             </div>
         </div>
-        <div class="w-2/5 h-screen">
-            <img class="w-full max-h-screen object-cover" src="{{ asset('img/login-img.png') }}" alt="Login Image">
-        </div>
+        <div class="w-2/5 h-screen bg-gradient-to-r from-[#22236F] to-[#5E5FEF]"></div>
     </div>
 </body>
 </html>

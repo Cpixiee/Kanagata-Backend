@@ -206,19 +206,19 @@
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Gross Margin</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-gross-margin">Rp0</span>
                             </div>
-                        </div>
+                                </div>
                         <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-cost-operation">Rp0</span>
-                            </div>
-                        </div>
+                                </div>
+                                </div>
                         <div class="pb-2">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Profit/Loss</span>
                                 <span class="text-xl font-bold text-gray-800 dark:text-gray-200" id="this-month-profit-loss">Rp0</span>
-                            </div>
-                        </div>
+                                </div>
+                                </div>
                     </div>
                 </div>
 
@@ -246,19 +246,19 @@
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Gross Margin</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-gross-margin">Rp0</span>
                             </div>
-                        </div>
+                                </div>
                         <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-cost-operation">Rp0</span>
-                            </div>
-                        </div>
+                                </div>
+                                </div>
                         <div class="pb-2">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Profit/Loss</span>
                                 <span class="text-xl font-bold text-gray-800 dark:text-gray-200" id="summary-profit-loss">Rp0</span>
-                            </div>
-                        </div>
+                                </div>
+                                </div>
                     </div>
                 </div>
 
@@ -274,7 +274,7 @@
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Revenue</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-revenue">Rp0</span>
                             </div>
-                        </div>
+            </div>
                         <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Project</span>
@@ -291,7 +291,7 @@
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-cost-operation">Rp0</span>
-                            </div>
+                </div>
                         </div>
                         <div class="pb-2">
                             <div class="flex flex-col">
@@ -370,8 +370,8 @@
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <div class="overflow-x-scroll">
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 min-w-full table-fixed">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                <tr>
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
                                     <th scope="col" class="px-4 py-3 text-center w-16">NO</th>
                                     <!-- Basic Information -->
                                     <th scope="col" class="px-4 py-3 w-32">COA</th>
@@ -390,9 +390,9 @@
                                     <th scope="col" class="px-4 py-3 text-right w-32">GT MARGIN</th>
                                     <!-- Action -->
                                     <th scope="col" class="px-4 py-3 w-32">ACTION</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                            </tr>
+                        </thead>
+                        <tbody>
                                 @forelse($latestProjects as $index => $project)
                                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <td class="px-4 py-3 text-center">{{ $index + 1 }}</td>
@@ -421,64 +421,83 @@
                                                 <button type="submit" class="font-medium text-red-600 hover:underline">Delete</button>
                                             </form>
                                         </div>
-                                    </td>
-                                </tr>
+                                </td>
+                            </tr>
                                 @empty
                                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                     <td colspan="14" class="px-4 py-3 text-center">No projects found</td>
                                 </tr>
                                 @endforelse
-                            </tbody>
-                        </table>
+                        </tbody>
+                    </table>
                     </div>
                 </div>
             </div>
 
             <!-- Logsheet and Ledger Section -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Logsheet -->
-                <div class="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
+                <div>
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-bold">Logsheet</h2>
                         <a href="{{ route('logsheet.index') }}" class="text-blue-600 hover:underline">View all</a>
                     </div>
-                    @foreach($latestLogsheets as $logsheet)
-                    <div class="mb-4 p-4 border rounded-lg">
-                        <div class="text-gray-500">{{ $logsheet->created_at->format('F Y') }}</div>
-                        <div class="font-bold">{{ $logsheet->project->coa }} - {{ $logsheet->project->activity }}</div>
-                        <div class="flex gap-2 mt-2">
-                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">Status AR: {{ $logsheet->ar_status }}</span>
-                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Status AP: {{ $logsheet->ap_status }}</span>
+                    <div class="space-y-4">
+                        @forelse($latestLogsheets as $logsheet)
+                        <div class="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+                            <div class="text-gray-600 dark:text-gray-400">{{ $logsheet->created_at->format('F Y') }}</div>
+                            <div class="font-bold text-lg mt-1">{{ $logsheet->project->coa }} - {{ $logsheet->project->activity }}</div>
+                            <div class="flex gap-2 mt-3">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm {{ $logsheet->ar_status === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                    Status AR: {{ $logsheet->ar_status }}
+                                </span>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm {{ $logsheet->ap_status === 'Paid' ? 'bg-green-100 text-green-800' : ($logsheet->ap_status === 'Listing' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                    Status AP: {{ $logsheet->ap_status }}
+                                </span>
+                            </div>
+                            <div class="mt-3 text-gray-600 dark:text-gray-400">
+                                <span>Customer: {{ $logsheet->project->customer }}</span>
+                                <span class="mx-2">•</span>
+                                <span>Tutor: {{ $logsheet->tutor }}</span>
+                            </div>
                         </div>
-                        <div class="mt-2">
-                            <span class="text-gray-600">Customer: {{ $logsheet->project->customer }}</span>
-                            <span class="mx-2">•</span>
-                            <span class="text-gray-600">Tutor: {{ $logsheet->tutor }}</span>
+                        @empty
+                        <div class="bg-white p-4 rounded-lg shadow dark:bg-gray-800 text-center text-gray-500">
+                            No logsheets found
                         </div>
+                        @endforelse
                     </div>
-                    @endforeach
                 </div>
 
                 <!-- Ledger -->
-                <div class="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
+                <div>
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-bold">Ledger</h2>
                         <a href="{{ route('ledger.index') }}" class="text-blue-600 hover:underline">View all</a>
                     </div>
-                    @foreach($latestLedgers as $ledger)
-                    <div class="mb-4 p-4 border rounded-lg">
-                        <div class="font-bold">{{ $ledger->description }}</div>
-                        <div class="text-gray-500">Description: {{ $ledger->category }}</div>
-                        <div class="flex gap-2 mt-2">
-                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">Budget: {{ $ledger->budget }}</span>
-                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm">Sub Budget: {{ $ledger->sub_budget }}</span>
+                    <div class="space-y-4">
+                        @forelse($latestLedgers as $ledger)
+                        <div class="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-lg font-semibold">{{ $ledger->category }}</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">{{ $ledger->budget->coa }}</div>
+                                </div>
+                                <span class="text-lg font-bold">{{ number_format($ledger->credit, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="mt-3 flex justify-between items-center">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ $ledger->month }}</span>
+                                <span class="inline-flex items-center px-3 py-1 text-sm rounded-md {{ $ledger->status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                    {{ ucfirst($ledger->status) }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="mt-2">
-                            <span class="text-gray-600">Status: {{ $ledger->status }}</span>
-                            <span class="float-right font-bold">Rp{{ number_format($ledger->credit, 0, ',', '.') }}</span>
+                        @empty
+                        <div class="bg-white p-4 rounded-lg shadow dark:bg-gray-800 text-center text-gray-500">
+                            No ledgers found
                         </div>
+                        @endforelse
                     </div>
-                    @endforeach
                 </div>
             </div>
         </div>
