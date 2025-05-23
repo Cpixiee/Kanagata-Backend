@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Logsheet;
 use App\Models\Project;
+use App\Models\Ledger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -229,17 +230,27 @@ class LogsheetController extends Controller
                 ->selectRaw('SUM(cost) as cost_project')
                 ->first();
 
+            // Get Cost Operation from ledger (total credit)
+            $selectedMonthCostOperation = Ledger::whereYear('date', $year)
+                ->whereMonth('date', $month)
+                ->sum('credit');
+
             // Get yearly summary
             $yearlyData = Logsheet::whereYear('created_at', $year)
                 ->selectRaw('SUM(revenue) as revenue')
                 ->selectRaw('SUM(cost) as cost_project')
                 ->first();
 
+            // Get yearly Cost Operation
+            $yearlyCostOperation = Ledger::whereYear('date', $year)
+                ->sum('credit');
+
             // Calculate monthly averages
             $monthsWithData = $monthlyTotals->count() ?: 1; // Prevent division by zero
             $averageData = [
                 'revenue' => $yearlyData->revenue / $monthsWithData,
                 'cost_project' => $yearlyData->cost_project / $monthsWithData,
+                'cost_operation' => $yearlyCostOperation / $monthsWithData,
             ];
 
             // Initialize result arrays
@@ -255,6 +266,11 @@ class LogsheetController extends Controller
                 $profit[$m]['y'] = round((float)($data->total_revenue - $data->total_cost), 2);
             }
 
+            // Calculate gross margin for this month and summary
+            $thisMonthGrossMargin = ($selectedMonthData->revenue ?? 0) - ($selectedMonthData->cost_project ?? 0);
+            $yearlyGrossMargin = ($yearlyData->revenue ?? 0) - ($yearlyData->cost_project ?? 0);
+            $averageGrossMargin = $averageData['revenue'] - $averageData['cost_project'];
+
             return response()->json([
                 'success' => true,
                 'revenue' => array_values($revenue),
@@ -263,17 +279,23 @@ class LogsheetController extends Controller
                 'this_month' => [
                     'revenue' => round((float)($selectedMonthData->revenue ?? 0), 2),
                     'cost_project' => round((float)($selectedMonthData->cost_project ?? 0), 2),
-                    'gross_margin' => round((float)(($selectedMonthData->revenue ?? 0) - ($selectedMonthData->cost_project ?? 0)), 2)
+                    'cost_operation' => round((float)$selectedMonthCostOperation, 2),
+                    'gross_margin' => round((float)$thisMonthGrossMargin, 2),
+                    'profit_loss' => round((float)($thisMonthGrossMargin - $selectedMonthCostOperation), 2)
                 ],
                 'summary' => [
                     'revenue' => round((float)($yearlyData->revenue ?? 0), 2),
                     'cost_project' => round((float)($yearlyData->cost_project ?? 0), 2),
-                    'gross_margin' => round((float)(($yearlyData->revenue ?? 0) - ($yearlyData->cost_project ?? 0)), 2)
+                    'cost_operation' => round((float)$yearlyCostOperation, 2),
+                    'gross_margin' => round((float)$yearlyGrossMargin, 2),
+                    'profit_loss' => round((float)($yearlyGrossMargin - $yearlyCostOperation), 2)
                 ],
                 'average' => [
                     'revenue' => round((float)$averageData['revenue'], 2),
                     'cost_project' => round((float)$averageData['cost_project'], 2),
-                    'gross_margin' => round((float)($averageData['revenue'] - $averageData['cost_project']), 2)
+                    'cost_operation' => round((float)$averageData['cost_operation'], 2),
+                    'gross_margin' => round((float)$averageGrossMargin, 2),
+                    'profit_loss' => round((float)($averageGrossMargin - $averageData['cost_operation']), 2)
                 ]
             ]);
         } catch (\Exception $e) {

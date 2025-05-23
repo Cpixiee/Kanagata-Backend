@@ -8,6 +8,7 @@
     <title>Kanagata - Dashboard</title>
     <link rel="stylesheet" href="{{ asset('src/output.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="font-poppins">
@@ -134,7 +135,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#"
+                    <a href="{{ route('tutor.index') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -147,7 +148,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#"
+                    <a href="{{ route('logsheet.index') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -160,7 +161,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#"
+                    <a href="{{ route('ledger.index') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -179,852 +180,314 @@
 
     <div class="p-4 sm:ml-64">
         <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
-            <div class="grid lg:grid-cols-3 sm:grid-cols-1 gap-4 mb-4 ">
-                <div class="flex items-center h-auto rounded-sm bg-gray-50 dark:bg-gray-800">
-                    <div class="w-full p-8">
-                        <div class="flex flex-1 items-center justify-between">
-                            <p class="pe-4 font-semibold text-2xl dark:text-white">This Month</p>
-                            <p class="ps-4 font-light text-sm dark:text-white">January</p>
-                        </div>
-                        <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700 dark:text-white">
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Revenue</p>
-                                    <p class="font-semibold">19.000.000</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Cost Project</p>
-                                    <p class="font-semibold">4.335.000</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Taxes</p>
-                                    <p class="font-semibold">475.000</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Gross Margin</p>
-                                    <p class="font-semibold">14.190.000</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Cost Operation</p>
-                                    <p class="font-semibold">11.250.000</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between text-red-500">
-                                    <p class="font-semibold">Profit / Loss</p>
-                                    <p class="font-semibold">-4.707.500</p>
-                                </div>
-                            </li>
-                        </ul>
+            <!-- Financial Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <!-- This Month -->
+                <div class="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">This Month</h2>
+                        <span class="text-gray-500" id="current-month"></span>
                     </div>
-                </div>
-                <div class="flex items-center h-auto rounded-sm bg-gray-50 dark:bg-gray-800">
-                    <div class="w-full p-8">
-                        <div class="flex flex-1 items-center justify-between dark:text-white">
-                            <p class="pe-4 font-semibold text-2xl">Summary</p>
-                            <p class="ps-4 font-light text-sm">2025</p>
-                        </div>
-                        <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700 dark:text-white">
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Revenue</p>
-                                    <p class="font-semibold">133.035.000</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Cost Project</p>
-                                    <p class="font-semibold">44.315.000</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Taxes</p>
-                                    <p class="font-semibold">3.325.875</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Gross Margin</p>
-                                    <p class="font-semibold">85.394.125</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Cost Operation</p>
-                                    <p class="font-semibold">98.080.089</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between text-red-500">
-                                    <p class="font-semibold">Profit / Loss</p>
-                                    <p class="font-semibold">-12.685.964</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="flex items-center h-auto rounded-sm bg-gray-50 dark:bg-gray-800">
-                    <div class="w-full p-8">
-                        <div class="flex flex-1 items-center justify-between dark:text-white">
-                            <p class="pe-4 font-semibold text-2xl">Average</p>
-                            <p class="ps-4 font-light text-sm">2025</p>
-                        </div>
-                        <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700 dark:text-white">
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Revenue</p>
-                                    <p class="font-semibold">16.629.375</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Cost Project</p>
-                                    <p class="font-semibold">5.539.375</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Taxes</p>
-                                    <p class="font-semibold">415.734</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Gross Margin</p>
-                                    <p class="font-semibold">10.674.266</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between">
-                                    <p>Cost Operation</p>
-                                    <p class="font-semibold">12.260.011</p>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex justify-between text-red-500">
-                                    <p class="font-semibold">Profit / Loss</p>
-                                    <p class="font-semibold">-1.585.746</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="grid lg:grid-cols-2 sm:grid-cols-1 gap-4 mb-4">
-                <div class="flex items-center rounded-sm bg-gray-50 h-auto dark:bg-gray-800">
-                    <div class="w-full bg-gray-50 dark:bg-gray-800 rounded-lg p-4 md:p-6">
-                        <div class="flex justify-between">
-                            <div>
-                                <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">2025
-                                </h5>
-                                <p class="text-base font-normal text-gray-500 dark:text-gray-400">Revenue this year</p>
+                    <div class="space-y-4" id="this-month-data">
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Revenue</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-revenue">Rp0</span>
                             </div>
                         </div>
-                        <div id="revenue-chart"></div>
-                        <div
-                            class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
-                            <div class="flex justify-between items-center pt-5">
-                                <a href="{{ route('dashboard') }}"
-                                    class="uppercase text-sm font-semibold inline-flex items-center rounded-lg text-blue-600 hover:text-blue-700 dark:hover:text-blue-500  hover:bg-gray-100 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 px-3 py-2">
-                                    Insight
-                                    <svg class="w-2.5 h-2.5 ms-1.5 rtl:rotate-180" aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                            stroke-width="2" d="m1 9 4-4-4-4" />
-                                    </svg>
-                                </a>
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Project</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-cost-project">Rp0</span>
+                            </div>
+                        </div>
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Gross Margin</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-gross-margin">Rp0</span>
+                            </div>
+                        </div>
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-cost-operation">Rp0</span>
+                            </div>
+                        </div>
+                        <div class="pb-2">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Profit/Loss</span>
+                                <span class="text-xl font-bold text-gray-800 dark:text-gray-200" id="this-month-profit-loss">Rp0</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center rounded-sm bg-gray-50 h-auto dark:bg-gray-800">
-                    <div class="w-full bg-gray-50 dark:bg-gray-800 rounded-lg p-4 md:p-6">
-                        <div class="flex justify-between">
-                            <div>
-                                <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">2025
-                                </h5>
-                                <p class="text-base font-normal text-gray-500 dark:text-gray-400">Profit
-                                    this year</p>
+
+                <!-- Summary -->
+                <div class="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">Summary</h2>
+                        <span class="text-gray-500" id="current-year-summary"></span>
+                    </div>
+                    <div class="space-y-4" id="summary-data">
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Revenue</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-revenue">Rp0</span>
                             </div>
                         </div>
-                        <div id="profit-chart"></div>
-                        <div
-                            class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
-                            <div class="flex justify-between items-center pt-5">
-                                <a href="{{ route('dashboard') }}"
-                                    class="uppercase text-sm font-semibold inline-flex items-center rounded-lg text-blue-600 hover:text-blue-700 dark:hover:text-blue-500  hover:bg-gray-100 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 px-3 py-2">
-                                    Insight
-                                    <svg class="w-2.5 h-2.5 ms-1.5 rtl:rotate-180" aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                            stroke-width="2" d="m1 9 4-4-4-4" />
-                                    </svg>
-                                </a>
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Project</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-cost-project">Rp0</span>
+                            </div>
+                        </div>
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Gross Margin</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-gross-margin">Rp0</span>
+                            </div>
+                        </div>
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-cost-operation">Rp0</span>
+                            </div>
+                        </div>
+                        <div class="pb-2">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Profit/Loss</span>
+                                <span class="text-xl font-bold text-gray-800 dark:text-gray-200" id="summary-profit-loss">Rp0</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="grid lg:grid-cols-2 sm:grid-cols-1 gap-4 mb-4">
-                <div class="w-full p-4 bg-gray-50 rounded-sm sm:p-8 dark:bg-gray-800 dark:border-gray-700">
-                    <div class="flex items-center justify-between mb-4">
-                        <h5 class="text-3xl font-bold leading-none text-gray-900 dark:text-white">Customers</h5>
-                        <a href="{{ route('customer.index') }}"
-                            class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
-                            View all
-                        </a>
+
+                <!-- Average -->
+                <div class="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">Average</h2>
+                        <span class="text-gray-500">Monthly</span>
                     </div>
-                    <div class="flow-root">
-                        <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
-                            <li class="py-3 sm:py-4">
-                                <div class="flex items-center">
-                                    <div class="shrink-0">
-                                        <img class="w-8 h-8 rounded-full" src="../../img/cust-img/logo-smkn20.png"
-                                            alt="Neil image">
-                                    </div>
-                                    <div class="flex-1 min-w-0 ms-4">
-                                        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                            SMKN 20 Jakarta
-                                        </p>
-                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            email@windster.com
-                                        </p>
-                                    </div>
-                                    <div
-                                        class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                        <a href="#"
-                                            class="text-sm font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 px-2 py-1 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-700">
-                                            Details
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex items-center ">
-                                    <div class="shrink-0">
-                                        <img class="w-8 h-8 rounded-full" src="../../img/cust-img/logo-smkn43.png"
-                                            alt="Bonnie image">
-                                    </div>
-                                    <div class="flex-1 min-w-0 ms-4">
-                                        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                            SMKN 43 Jakarta
-                                        </p>
-                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            email@windster.com
-                                        </p>
-                                    </div>
-                                    <div
-                                        class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                        <a href="#"
-                                            class="text-sm font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 px-2 py-1 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-700">
-                                            Details
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex items-center">
-                                    <div class="shrink-0">
-                                        <img class="w-8 h-8 rounded-full" src="../../img/cust-img/logo-smkn59.png"
-                                            alt="Michael image">
-                                    </div>
-                                    <div class="flex-1 min-w-0 ms-4">
-                                        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                            SMKN 59 Jakarta
-                                        </p>
-                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            email@windster.com
-                                        </p>
-                                    </div>
-                                    <div
-                                        class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                        <a href="#"
-                                            class="text-sm font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 px-2 py-1 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-700">
-                                            Details
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="w-full p-4 bg-gray-50 rounded-sm sm:p-8 dark:bg-gray-800 dark:border-gray-700">
-                    <div class="flex items-center justify-between mb-4">
-                        <h5 class="text-3xl font-bold leading-none text-gray-900 dark:text-white">Tutors</h5>
-                        <a href="#"
-                            class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
-                            View all
-                        </a>
-                    </div>
-                    <div class="flow-root">
-                        <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
-                            <li class="py-3 sm:py-4">
-                                <div class="flex items-center">
-                                    <div class="shrink-0">
-                                        <img class="w-8 h-8 rounded-full" src="../../img/tutor-img/default.png"
-                                            alt="Neil image">
-                                    </div>
-                                    <div class="flex-1 min-w-0 ms-4">
-                                        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                            John Pork
-                                        </p>
-                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            email@windster.com
-                                        </p>
-                                    </div>
-                                    <div
-                                        class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                        <a href="#"
-                                            class="text-sm font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 px-2 py-1 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-700">
-                                            Schedule
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex items-center ">
-                                    <div class="shrink-0">
-                                        <img class="w-8 h-8 rounded-full" src="../../img/tutor-img/default.png"
-                                            alt="Bonnie image">
-                                    </div>
-                                    <div class="flex-1 min-w-0 ms-4">
-                                        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                            Hugh Janus
-                                        </p>
-                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            email@windster.com
-                                        </p>
-                                    </div>
-                                    <div
-                                        class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                        <a href="#"
-                                            class="text-sm font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 px-2 py-1 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-700">
-                                            Schedule
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex items-center">
-                                    <div class="shrink-0">
-                                        <img class="w-8 h-8 rounded-full" src="../../img/tutor-img/default.png"
-                                            alt="Michael image">
-                                    </div>
-                                    <div class="flex-1 min-w-0 ms-4">
-                                        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                            Claude Debussy
-                                        </p>
-                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            email@windster.com
-                                        </p>
-                                    </div>
-                                    <div
-                                        class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                        <a href="#"
-                                            class="text-sm font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 px-2 py-1 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-700">
-                                            Schedule
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex items-center">
-                                    <div class="shrink-0">
-                                        <img class="w-8 h-8 rounded-full" src="../../img/tutor-img/default.png"
-                                            alt="Michael image">
-                                    </div>
-                                    <div class="flex-1 min-w-0 ms-4">
-                                        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                            Mike Hawk
-                                        </p>
-                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            email@windster.com
-                                        </p>
-                                    </div>
-                                    <div
-                                        class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                        <a href="#"
-                                            class="text-sm font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 px-2 py-1 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-700">
-                                            Schedule
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="py-3 sm:py-4">
-                                <div class="flex items-center">
-                                    <div class="shrink-0">
-                                        <img class="w-8 h-8 rounded-full" src="../../img/tutor-img/default.png"
-                                            alt="Michael image">
-                                    </div>
-                                    <div class="flex-1 min-w-0 ms-4">
-                                        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                            Wilma Fingerdo
-                                        </p>
-                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            email@windster.com
-                                        </p>
-                                    </div>
-                                    <div
-                                        class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                        <a href="#"
-                                            class="text-sm font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 px-2 py-1 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-700">
-                                            Schedule
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
+                    <div class="space-y-4" id="average-data">
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Revenue</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-revenue">Rp0</span>
+                            </div>
+                        </div>
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Project</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-cost-project">Rp0</span>
+                            </div>
+                        </div>
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Gross Margin</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-gross-margin">Rp0</span>
+                            </div>
+                        </div>
+                        <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
+                                <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-cost-operation">Rp0</span>
+                            </div>
+                        </div>
+                        <div class="pb-2">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Profit/Loss</span>
+                                <span class="text-xl font-bold text-gray-800 dark:text-gray-200" id="average-profit-loss">Rp0</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-sm mb-4">
-                <div class="flex items-center justify-between p-8 border-b border-gray-200">
-                    <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">Projects
-                    </h5>
-                    <a href="{{ route('projects.index') }}"
-                        class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
-                        View all
-                    </a>
-                </div>
-                <div class="relative overflow-x-auto sm:rounded-lg bg-gray-50">
-                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead
-                            class="text-xs text-gray-700 text-center uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b border-gray-200">
-                            <tr>
-                                <th scope="col" class="px-6 py-3">No</th>
-                                <th scope="col" class="px-6 py-3">
-                                    COA
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Customer
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Kegiatan
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    PR
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Grade
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Quantity
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Rate
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    GT Revenue
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Quantity
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Rate
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    GT Cost
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    GT Margin
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Summary AR
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    AR Paid
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    AR OS
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    Summary AP
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    AP Paid
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    AP OS
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    To Do
-                                </th>
-                                <th scope="col" class="px-6 py-3">
-                                    AR AP
-                                </th>
-                                <th scope="col" class="px-6 py-3 sticky right-0 bg-gray-50 dark:bg-gray-700 ">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-center">
-                            <tr
-                                class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                                <th scope="row"
-                                    class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    1
-                                </th>
-                                <th scope="row"
-                                    class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    Apple MacBook Pro 17"
-                                </th>
-                                <td class="px-6 py-4">
-                                    Silver
-                                </td>
-                                <td class="px-6 py-4">
-                                    Laptop
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4">
-                                    $2999
-                                </td>
-                                <td class="px-6 py-4 sticky right-0 bg-white dark:bg-gray-900 flex">
-                                    <a href="#"
-                                        class="mx-2 font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 hover:bg-blue-200 dark:hover:bg-blue-700 px-4 py-1 rounded-md">Edit</a>
-                                    <a href="#"
-                                        class="mx-2 font-medium text-red-600 dark:text-red-200 bg-red-100 dark:bg-red-600 hover:bg-red-200 dark:hover:bg-red-700 px-4 py-1 rounded-md">Delete</a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="grid lg:grid-cols-2 sm:grid-cols-1 gap-4 mb-4">
-                <div class="flex rounded-sm bg-gray-50 h-auto dark:bg-gray-800">
-                    <div class="w-full bg-gray-50 dark:bg-gray-800 rounded-lg p-4 md:p-6">
-                        <div class="flex items-center justify-between">
-                            <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">Logsheet
+            <!-- Charts -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
+                    <div class="flex justify-between">
+                        <div>
+                            <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2" id="current-year">
+                                {{ date('Y') }}
                             </h5>
-                            <a href="#"
-                                class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
-                                View all
-                            </a>
+                            <p class="text-base font-normal text-gray-500 dark:text-gray-400">Revenue this year</p>
                         </div>
-                        <div class="py-4 mt-4">
-                            <ol class="relative border-s border-gray-200 dark:border-gray-700">
-                                <li class="mb-10 ms-4 border-b border-gray-200 pb-4">
-                                    <div
-                                        class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white dark:border-gray-900 dark:bg-gray-700">
-                                    </div>
-                                    <time
-                                        class="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">February
-                                        2025</time>
-                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">TA 24/25 - PR.21
-                                    </h3>
-                                    <div class="">
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">Customer
-                                            :
-                                            SMKN
-                                            20 Jakarta</span>
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">Status
-                                            AR : Listing</span>
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Tutor
-                                            : Royyan Hidayat</span>
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300">Status
-                                            AP : Paid</span>
-                                    </div>
-                                </li>
-                                <li class="mb-10 ms-4 border-b border-gray-200 pb-4">
-                                    <div
-                                        class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white dark:border-gray-900 dark:bg-gray-700">
-                                    </div>
-                                    <time
-                                        class="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">February
-                                        2025</time>
-                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">TA 24/25 - PR.22
-                                    </h3>
-                                    <div class="">
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">Customer
-                                            :
-                                            SMKN
-                                            22 Jakarta</span>
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">Status
-                                            AR : Listing</span>
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Tutor
-                                            : Royyan Hidayat</span>
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300">Status
-                                            AP : Paid</span>
-                                    </div>
-                                </li>
-                                <li class="mb-10 ms-4 border-b border-gray-200 pb-4">
-                                    <div
-                                        class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white dark:border-gray-900 dark:bg-gray-700">
-                                    </div>
-                                    <time
-                                        class="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">February
-                                        2025</time>
-                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">TA 24/25 - PR.23
-                                    </h3>
-                                    <div class="">
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">Customer
-                                            :
-                                            SMKN
-                                            20 Jakarta</span>
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">Status
-                                            AR : Listing</span>
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Tutor
-                                            : Imaddudin HB</span>
-                                        <span
-                                            class="whitespace-nowrap inline-block my-2 bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300">Status
-                                            AP : Paid</span>
-                                    </div>
-                                </li>
-                            </ol>
+                    </div>
+                    <div id="revenue-chart"></div>
+                    <div class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
+                        <div class="flex justify-between items-center pt-5">
+                            <div class="flex items-center space-x-4">
+                                <button type="button" id="prev-year-revenue" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                </button>
+                                <button type="button" id="next-year-revenue" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="flex rounded-sm bg-gray-50 h-auto dark:bg-gray-800">
-                    <div class="w-full p-4 rounded-lg md:p-6 sm:p-8 dark:bg-gray-800 dark:border-gray-700">
-                        <div class="flex items-center justify-between mb-4">
-                            <h5 class="text-3xl font-bold leading-none text-gray-900 dark:text-white">Ledger
+                <div class="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
+                    <div class="flex justify-between">
+                        <div>
+                            <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2" id="current-year-profit">
+                                {{ date('Y') }}
                             </h5>
-                            <a href="#"
-                                class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
-                                View all
-                            </a>
-                        </div>
-                        <div class="flow-root">
-                            <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
-                                <li class="py-3 sm:py-4">
-                                    <div class="flex items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-lg font-medium text-gray-900 truncate dark:text-white">
-                                                Rizal Ramadhanu
-                                            </p>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">Description
-                                                : Cost Operation</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Budget
-                                                : Maret 2025</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-indigo-900 dark:text-indigo-300">Sub
-                                                Budget : By Payroll</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">Status
-                                                : Listing</span>
-                                        </div>
-                                        <div
-                                            class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            Rp2.000.000
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="py-3 sm:py-4">
-                                    <div class="flex items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-lg font-medium text-gray-900 truncate dark:text-white">
-                                                Wirakusuma
-                                            </p>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">Description
-                                                : Cost Operation</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Budget
-                                                : Maret 2025</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-indigo-900 dark:text-indigo-300">Sub
-                                                Budget : By Payroll</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">Status
-                                                : Listing</span>
-                                        </div>
-                                        <div
-                                            class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            Rp1.000.000
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="py-3 sm:py-4">
-                                    <div class="flex items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-lg font-medium text-gray-900 truncate dark:text-white">
-                                                Dwi Caesario
-                                            </p>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">Description
-                                                : Cost Operation</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Budget
-                                                : Maret 2025</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-indigo-900 dark:text-indigo-300">Sub
-                                                Budget : By Payroll</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300">Status
-                                                : Paid</span>
-                                        </div>
-                                        <div
-                                            class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            Rp0
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="py-3 sm:py-4">
-                                    <div class="flex items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-lg font-medium text-gray-900 truncate dark:text-white">
-                                                Firly Salsabilla
-                                            </p>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">Description
-                                                : Cost Operation</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Budget
-                                                : Maret 2025</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-indigo-900 dark:text-indigo-300">Sub
-                                                Budget : By Payroll</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">Status
-                                                : Listing</span>
-                                        </div>
-                                        <div
-                                            class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            Rp750.000
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="py-3 sm:py-4">
-                                    <div class="flex items-center">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-lg font-medium text-gray-900 truncate dark:text-white">
-                                                Rizal Setiadi
-                                            </p>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">Description
-                                                : Cost Operation</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Budget
-                                                : Maret 2025</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-indigo-900 dark:text-indigo-300">Sub
-                                                Budget : By Payroll</span>
-                                            <span
-                                                class="whitespace-nowrap inline-block my-2 bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">Status
-                                                : Listing</span>
-                                        </div>
-                                        <div
-                                            class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                            Rp1.000.000
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
+                            <p class="text-base font-normal text-gray-500 dark:text-gray-400">Profit this year</p>
                         </div>
                     </div>
+                    <div id="profit-chart"></div>
+                    <div class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
+                        <div class="flex justify-between items-center pt-5">
+                            <div class="flex items-center space-x-4">
+                                <button type="button" id="prev-year-profit" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                </button>
+                                <button type="button" id="next-year-profit" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Section -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Projects</h2>
+                    <a href="{{ route('projects.index') }}" class="text-blue-600 hover:underline">View all</a>
+                </div>
+                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <div class="overflow-x-scroll">
+                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 min-w-full table-fixed">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 text-center w-16">NO</th>
+                                    <!-- Basic Information -->
+                                    <th scope="col" class="px-4 py-3 w-32">COA</th>
+                                    <th scope="col" class="px-4 py-3 w-48">CUSTOMER</th>
+                                    <th scope="col" class="px-4 py-3 w-48">ACTIVITY</th>
+                                    <th scope="col" class="px-4 py-3 w-32">PRODI</th>
+                                    <th scope="col" class="px-4 py-3 w-32">GRADE</th>
+                                    <!-- Revenue Details -->
+                                    <th scope="col" class="px-4 py-3 text-center w-32">QTY (REV)</th>
+                                    <th scope="col" class="px-4 py-3 text-right w-32">RATE (REV)</th>
+                                    <th scope="col" class="px-4 py-3 text-right w-32">GT REV</th>
+                                    <!-- Cost Details -->
+                                    <th scope="col" class="px-4 py-3 text-center w-32">QTY (COST)</th>
+                                    <th scope="col" class="px-4 py-3 text-right w-32">RATE (COST)</th>
+                                    <th scope="col" class="px-4 py-3 text-right w-32">GT COST</th>
+                                    <th scope="col" class="px-4 py-3 text-right w-32">GT MARGIN</th>
+                                    <!-- Action -->
+                                    <th scope="col" class="px-4 py-3 w-32">ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($latestProjects as $index => $project)
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-4 py-3 text-center">{{ $index + 1 }}</td>
+                                    <!-- Basic Information -->
+                                    <td class="px-4 py-3">{{ $project->coa }}</td>
+                                    <td class="px-4 py-3">{{ $project->customer }}</td>
+                                    <td class="px-4 py-3">{{ $project->activity }}</td>
+                                    <td class="px-4 py-3">{{ $project->prodi }}</td>
+                                    <td class="px-4 py-3">{{ $project->grade }}</td>
+                                    <!-- Revenue Details -->
+                                    <td class="px-4 py-3 text-center">{{ $project->quantity_1 }}</td>
+                                    <td class="px-4 py-3 text-right">{{ number_format($project->rate_1, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-right">{{ number_format($project->gt_rev, 0, ',', '.') }}</td>
+                                    <!-- Cost Details -->
+                                    <td class="px-4 py-3 text-center">{{ $project->quantity_2 }}</td>
+                                    <td class="px-4 py-3 text-right">{{ number_format($project->rate_2, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-right">{{ number_format($project->gt_cost, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-right">{{ number_format($project->gt_margin, 0, ',', '.') }}</td>
+                                    <!-- Action -->
+                                    <td class="px-4 py-3">
+                                        <div class="flex gap-3">
+                                            <a href="{{ route('projects.edit', $project->id) }}" class="font-medium text-blue-600 hover:underline">Edit</a>
+                                            <form action="{{ route('projects.destroy', $project->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="font-medium text-red-600 hover:underline">Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                    <td colspan="14" class="px-4 py-3 text-center">No projects found</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logsheet and Ledger Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Logsheet -->
+                <div class="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">Logsheet</h2>
+                        <a href="{{ route('logsheet.index') }}" class="text-blue-600 hover:underline">View all</a>
+                    </div>
+                    @foreach($latestLogsheets as $logsheet)
+                    <div class="mb-4 p-4 border rounded-lg">
+                        <div class="text-gray-500">{{ $logsheet->created_at->format('F Y') }}</div>
+                        <div class="font-bold">{{ $logsheet->project->coa }} - {{ $logsheet->project->activity }}</div>
+                        <div class="flex gap-2 mt-2">
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">Status AR: {{ $logsheet->ar_status }}</span>
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Status AP: {{ $logsheet->ap_status }}</span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-gray-600">Customer: {{ $logsheet->project->customer }}</span>
+                            <span class="mx-2">•</span>
+                            <span class="text-gray-600">Tutor: {{ $logsheet->tutor }}</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                <!-- Ledger -->
+                <div class="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">Ledger</h2>
+                        <a href="{{ route('ledger.index') }}" class="text-blue-600 hover:underline">View all</a>
+                    </div>
+                    @foreach($latestLedgers as $ledger)
+                    <div class="mb-4 p-4 border rounded-lg">
+                        <div class="font-bold">{{ $ledger->description }}</div>
+                        <div class="text-gray-500">Description: {{ $ledger->category }}</div>
+                        <div class="flex gap-2 mt-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">Budget: {{ $ledger->budget }}</span>
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm">Sub Budget: {{ $ledger->sub_budget }}</span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-gray-600">Status: {{ $ledger->status }}</span>
+                            <span class="float-right font-bold">Rp{{ number_format($ledger->credit, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
 
-
-    <script src="{{ asset('node_modules/flowbite/dist/flowbite.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-    <script src="{{ asset('src/chart.js') }}"></script>
-    <script>
-        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
-        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
-        var themeToggleText = document.getElementById('theme-toggle-text');
-        var themeToggleBtn = document.getElementById('theme-toggle');
-
-        // Change the icons inside the button based on previous settings
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            themeToggleLightIcon.classList.remove('hidden');
-            themeToggleText.textContent = 'Toggle Light Mode';
-        } else {
-            themeToggleDarkIcon.classList.remove('hidden');
-            themeToggleText.textContent = 'Toggle Dark Mode';
-        }
-
-        themeToggleBtn.addEventListener('click', function() {
-            // Toggle icons
-            themeToggleDarkIcon.classList.toggle('hidden');
-            themeToggleLightIcon.classList.toggle('hidden');
-
-            // If is set in localStorage
-            if (localStorage.getItem('color-theme')) {
-                if (localStorage.getItem('color-theme') === 'light') {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('color-theme', 'dark');
-                    themeToggleText.textContent = 'Toggle Light Mode';
-                } else {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.setItem('color-theme', 'light');
-                    themeToggleText.textContent = 'Toggle Dark Mode';
-                }
-            } else {
-                if (document.documentElement.classList.contains('dark')) {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.setItem('color-theme', 'light');
-                    themeToggleText.textContent = 'Toggle Dark Mode';
-                } else {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('color-theme', 'dark');
-                    themeToggleText.textContent = 'Toggle Light Mode';
-                }
-            }
-        });
-    </script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
+    <script src="{{ asset('js/dashboard.js') }}"></script>
 </body>
 
 </html>

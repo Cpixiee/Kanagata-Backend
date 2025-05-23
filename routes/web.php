@@ -60,4 +60,11 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/tutor/{tutor}/schedules/{schedule}', [TutorScheduleController::class, 'destroy'])->name('tutor.schedules.destroy');
     Route::get('/tutor/{tutor}/available-sessions', [TutorScheduleController::class, 'getAvailableSessions'])->name('tutor.schedules.available');
     Route::get('/tutor/{tutor}/available-dates', [TutorScheduleController::class, 'getAvailableDates'])->name('tutor.schedules.dates');
+
+    // Ledger routes
+    Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');
+    Route::post('/ledger', [LedgerController::class, 'store'])->name('ledger.store');
+    Route::get('/ledger/{ledger}/edit', [LedgerController::class, 'edit'])->name('ledger.edit');
+    Route::put('/ledger/{ledger}', [LedgerController::class, 'update'])->name('ledger.update');
+    Route::delete('/ledger/{ledger}', [LedgerController::class, 'destroy'])->name('ledger.destroy');
 });
