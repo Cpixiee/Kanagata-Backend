@@ -3,6 +3,16 @@ let currentYearRevenue = new Date().getFullYear();
 let currentYearProfit = new Date().getFullYear();
 let currentMonth = new Date().getMonth() + 1; // 1-12
 
+// Function to handle customer details click
+function handleCustomerDetails(customerId) {
+    window.location.href = `/customer?show_details=${customerId}`;
+}
+
+// Function to handle tutor schedule click
+function handleTutorSchedule(tutorId) {
+    window.location.href = `/tutor?show_schedule=${tutorId}`;
+}
+
 // Function to update year and month display
 function updateYearDisplay() {
     document.getElementById('current-year').textContent = currentYearRevenue;

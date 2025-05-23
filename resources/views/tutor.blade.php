@@ -220,10 +220,8 @@
 
                     <div class="flex justify-center mt-4">
                         <button type="button" 
-                            data-modal-target="schedule-modal" 
-                            data-modal-toggle="schedule-modal"
                             data-tutor-id="{{ $tutor->id }}"
-                            class="schedule-btn py-2 px-10 text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 hover:bg-blue-200 dark:hover:bg-blue-700 font-medium rounded-lg text-base">
+                            class="text-sm text-blue-600 bg-blue-100 px-4 py-1 rounded-lg hover:bg-blue-200 transition-colors duration-200">
                             Schedule
                         </button>
                     </div>

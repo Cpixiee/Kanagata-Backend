@@ -13,15 +13,17 @@ class LedgerController extends Controller
     {
         $ledgers = Ledger::with('budget')->get();
         $projects = Project::all();
-        return view('ledger', compact('ledgers', 'projects'));
+        $coaOptions = Ledger::getCoaOptions();
+        return view('ledger', compact('ledgers', 'projects', 'coaOptions'));
     }
 
     public function store(Request $request)
     {
         try {
-            $validatedData = $request->validate([
+            $category = $request->input('category');
+            
+            $validationRules = [
                 'category' => 'required|in:' . implode(',', Ledger::getCategoryOptions()),
-                'budget_id' => 'required|exists:projects,id',
                 'sub_budget' => 'required|in:' . implode(',', Ledger::getSubBudgetOptions()),
                 'recipient' => 'required|in:' . implode(',', Ledger::getRecipientOptions()),
                 'date' => 'required|date',
@@ -29,7 +31,16 @@ class LedgerController extends Controller
                 'status' => 'required|in:' . implode(',', Ledger::getStatusOptions()),
                 'debit' => 'required|numeric|min:0',
                 'credit' => 'required|numeric|min:0'
-            ]);
+            ];
+
+            // Different validation for budget_id based on category
+            if (in_array($category, [Ledger::CATEGORY_COST_PROJECT, Ledger::CATEGORY_REVENUE_PROJECT])) {
+                $validationRules['budget_id'] = 'required|exists:projects,id';
+            } else {
+                $validationRules['budget_id'] = 'required|string|regex:/^PL\.\d{2}-\d{4}$/';
+            }
+
+            $validatedData = $request->validate($validationRules);
 
             $ledger = Ledger::create($validatedData);
 
@@ -60,9 +71,10 @@ class LedgerController extends Controller
     public function update(Request $request, Ledger $ledger)
     {
         try {
-            $validatedData = $request->validate([
+            $category = $request->input('category');
+            
+            $validationRules = [
                 'category' => 'required|in:' . implode(',', Ledger::getCategoryOptions()),
-                'budget_id' => 'required|exists:projects,id',
                 'sub_budget' => 'required|in:' . implode(',', Ledger::getSubBudgetOptions()),
                 'recipient' => 'required|in:' . implode(',', Ledger::getRecipientOptions()),
                 'date' => 'required|date',
@@ -70,7 +82,16 @@ class LedgerController extends Controller
                 'status' => 'required|in:' . implode(',', Ledger::getStatusOptions()),
                 'debit' => 'required|numeric|min:0',
                 'credit' => 'required|numeric|min:0'
-            ]);
+            ];
+
+            // Different validation for budget_id based on category
+            if (in_array($category, [Ledger::CATEGORY_COST_PROJECT, Ledger::CATEGORY_REVENUE_PROJECT])) {
+                $validationRules['budget_id'] = 'required|exists:projects,id';
+            } else {
+                $validationRules['budget_id'] = 'required|string|regex:/^PL\.\d{2}-\d{4}$/';
+            }
+
+            $validatedData = $request->validate($validationRules);
 
             $ledger->update($validatedData);
 
@@ -101,5 +122,24 @@ class LedgerController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('ledger.index')->with('error', 'Gagal menghapus data ledger');
         }
+    }
+
+    // New method to get budget options based on category
+    public function getBudgetOptions(Request $request)
+    {
+        $category = $request->input('category');
+        
+        if (in_array($category, [Ledger::CATEGORY_COST_PROJECT, Ledger::CATEGORY_REVENUE_PROJECT])) {
+            $options = Project::all()->map(function($project) {
+                return [
+                    'id' => $project->id,
+                    'coa' => $project->coa
+                ];
+            });
+        } else {
+            $options = Ledger::getCoaOptions();
+        }
+
+        return response()->json($options);
     }
 } 

@@ -1,4 +1,12 @@
 $(document).ready(function() {
+    // Check URL parameters for auto-showing schedule
+    const urlParams = new URLSearchParams(window.location.search);
+    const showScheduleId = urlParams.get('show_schedule');
+    if (showScheduleId) {
+        // Find and click the schedule button for the specified tutor
+        $(`[data-tutor-id="${showScheduleId}"]`).trigger('click');
+    }
+
     // Setup CSRF token untuk semua AJAX requests
     $.ajaxSetup({
         headers: {

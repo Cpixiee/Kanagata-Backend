@@ -63,6 +63,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Ledger routes
     Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');
+    Route::get('/ledger/budget-options', [LedgerController::class, 'getBudgetOptions'])->name('ledger.budget-options');
     Route::post('/ledger', [LedgerController::class, 'store'])->name('ledger.store');
     Route::get('/ledger/{ledger}/edit', [LedgerController::class, 'edit'])->name('ledger.edit');
     Route::put('/ledger/{ledger}', [LedgerController::class, 'update'])->name('ledger.update');

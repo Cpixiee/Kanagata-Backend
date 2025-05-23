@@ -51,7 +51,22 @@ class Ledger extends Model
     // Relasi dengan Project (Budget)
     public function budget(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'budget_id');
+        return $this->belongsTo(Project::class, 'budget_id')
+            ->withDefault(function ($budget, $ledger) {
+                // If budget_id is a COA string, create a virtual budget object
+                if (preg_match('/^PL\.\d{2}-\d{4}$/', $ledger->budget_id)) {
+                    $budget->coa = $ledger->budget_id;
+                }
+            });
+    }
+
+    // Get formatted budget/COA
+    public function getBudgetCoaAttribute()
+    {
+        if ($this->budget && $this->budget->exists) {
+            return $this->budget->coa;
+        }
+        return $this->budget_id;
     }
 
     // Mendapatkan opsi kategori
@@ -99,5 +114,23 @@ class Ledger extends Model
             self::STATUS_LISTING,
             self::STATUS_PAID
         ];
+    }
+
+    // Generate COA options for Cost Operation and Kas Margin
+    public static function getCoaOptions(int $year = null): array
+    {
+        if (!$year) {
+            $year = date('Y');
+        }
+
+        $coas = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $monthPadded = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $coas[] = [
+                'id' => "PL.{$monthPadded}-{$year}",
+                'coa' => "{$year} - PL.{$monthPadded}-{$year}"
+            ];
+        }
+        return $coas;
     }
 } 

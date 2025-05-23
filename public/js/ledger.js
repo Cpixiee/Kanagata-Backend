@@ -185,6 +185,41 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Function to update budget options based on category
+    function updateBudgetOptions(categorySelect, budgetSelect) {
+        const category = $(categorySelect).val();
+        
+        if (!category) return;
+
+        $.ajax({
+            url: '/ledger/budget-options',
+            method: 'GET',
+            data: { category: category },
+            success: function(options) {
+                const $budgetSelect = $(budgetSelect);
+                $budgetSelect.empty();
+                $budgetSelect.append('<option value="" selected disabled>Pilih Budget</option>');
+                
+                options.forEach(function(option) {
+                    $budgetSelect.append(`<option value="${option.id}">${option.coa}</option>`);
+                });
+            },
+            error: function(xhr) {
+                showErrorMessage('Gagal memuat opsi budget');
+            }
+        });
+    }
+
+    // Handle category change in add form
+    $('#category').on('change', function() {
+        updateBudgetOptions(this, '#budget_id');
+    });
+
+    // Handle category change in edit form
+    $('#edit-category').on('change', function() {
+        updateBudgetOptions(this, '#edit-budget_id');
+    });
 });
 
 function showSuccessMessage(message) {

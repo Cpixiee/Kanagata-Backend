@@ -6,6 +6,14 @@ $(document).ready(function() {
         }
     });
 
+    // Check URL parameters for auto-showing customer details
+    const urlParams = new URLSearchParams(window.location.search);
+    const showDetailsId = urlParams.get('show_details');
+    if (showDetailsId) {
+        // Find the customer card with matching ID and trigger click
+        $(`.customer-card[data-customer*='"id":${showDetailsId}']`).trigger('click');
+    }
+
     // Image preview functionality
     $('#customer-image').change(function(e) {
         const file = e.target.files[0];

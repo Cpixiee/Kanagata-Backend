@@ -434,6 +434,79 @@
                 </div>
             </div>
 
+            <!-- Customer and Tutor Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Customer Section -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Customers</h2>
+                        <a href="{{ route('customer.index') }}" class="text-blue-600 hover:underline">View all</a>
+                    </div>
+                    <div class="space-y-4">
+                        @forelse($latestCustomers as $customer)
+                        <div class="flex items-center justify-between py-3">
+                            <div class="flex items-center space-x-4">
+                                <div class="relative">
+                                    <img class="w-12 h-12 rounded-lg object-cover border-2 border-gray-200 dark:border-gray-600" 
+                                        src="{{ $customer->image ? asset('storage/' . $customer->image) : asset('img/default-customer.png') }}" 
+                                        alt="{{ $customer->name }}"
+                                        style="object-fit: contain; padding: 2px;">
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">{{ $customer->name }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ $customer->email }}</div>
+                                </div>
+                            </div>
+                            <button onclick="handleCustomerDetails('{{ $customer->id }}')" 
+                               class="text-sm text-blue-600 bg-blue-100 px-4 py-1 rounded-lg hover:bg-blue-200 transition-colors duration-200">Details</button>
+                        </div>
+                        @if(!$loop->last)
+                            <hr class="border-gray-200 dark:border-gray-700">
+                        @endif
+                        @empty
+                        <div class="text-center text-gray-500 dark:text-gray-400">
+                            No customers found
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <!-- Tutor Section -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Tutors</h2>
+                        <a href="{{ route('tutor.index') }}" class="text-blue-600 hover:underline">View all</a>
+                    </div>
+                    <div class="space-y-4">
+                        @forelse($latestTutors as $tutor)
+                        <div class="flex items-center justify-between py-3">
+                            <div class="flex items-center space-x-4">
+                                <div class="relative">
+                                    <img class="w-12 h-12 rounded-lg object-cover border-2 border-gray-200 dark:border-gray-600" 
+                                        src="{{ asset('img/tutor-img/' . ($tutor->photo ?? 'default.png')) }}" 
+                                        alt="{{ $tutor->name }}"
+                                        style="object-fit: contain; padding: 2px;">
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">{{ $tutor->name }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ $tutor->email }}</div>
+                                </div>
+                            </div>
+                            <button onclick="handleTutorSchedule('{{ $tutor->id }}')" 
+                               class="text-sm text-blue-600 bg-blue-100 px-4 py-1 rounded-lg hover:bg-blue-200 transition-colors duration-200">Schedule</button>
+                        </div>
+                        @if(!$loop->last)
+                            <hr class="border-gray-200 dark:border-gray-700">
+                        @endif
+                        @empty
+                        <div class="text-center text-gray-500 dark:text-gray-400">
+                            No tutors found
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
             <!-- Logsheet and Ledger Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Logsheet -->
