@@ -220,6 +220,65 @@ $(document).ready(function() {
     $('#edit-category').on('change', function() {
         updateBudgetOptions(this, '#edit-budget_id');
     });
+
+    // Handle mark as paid button
+    $(document).on('click', '.mark-as-paid', function() {
+        const ledgerId = $(this).data('ledger-id');
+        const button = $(this);
+
+        // Konfirmasi sebelum mengubah status
+        Swal.fire({
+            title: 'Konfirmasi',
+            text: 'Apakah Anda yakin ingin mengubah status menjadi PAID?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, ubah!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Disable button sementara proses
+                button.prop('disabled', true);
+                
+                // Kirim request ke server
+                $.ajax({
+                    url: `/ledger/${ledgerId}/mark-as-paid`,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire(
+                                'Berhasil!',
+                                'Status berhasil diubah menjadi PAID.',
+                                'success'
+                            ).then(() => {
+                                // Reload halaman untuk memperbarui data
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Gagal!',
+                                response.message || 'Terjadi kesalahan saat mengubah status.',
+                                'error'
+                            );
+                            button.prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire(
+                            'Error!',
+                            'Terjadi kesalahan saat mengubah status.',
+                            'error'
+                        );
+                        button.prop('disabled', false);
+                    }
+                });
+            }
+        });
+    });
 });
 
 function showSuccessMessage(message) {

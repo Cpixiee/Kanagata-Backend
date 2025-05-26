@@ -68,4 +68,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ledger/{ledger}/edit', [LedgerController::class, 'edit'])->name('ledger.edit');
     Route::put('/ledger/{ledger}', [LedgerController::class, 'update'])->name('ledger.update');
     Route::delete('/ledger/{ledger}', [LedgerController::class, 'destroy'])->name('ledger.destroy');
+    Route::post('/ledger/{ledger}/mark-as-paid', [LedgerController::class, 'markAsPaid'])->name('ledger.mark-as-paid');
 });

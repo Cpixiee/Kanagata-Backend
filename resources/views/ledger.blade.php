@@ -239,31 +239,38 @@
                                 <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
                                     <td class="px-6 py-4">{{ $loop->iteration }}</td>
                                     <td class="px-6 py-4">{{ $ledger->category }}</td>
-                                    <td class="px-6 py-4">{{ $ledger->budget->coa }}</td>
+                                    <td class="px-6 py-4">{{ $ledger->budget }}</td>
                                     <td class="px-6 py-4">{{ $ledger->sub_budget }}</td>
                                     <td class="px-6 py-4">{{ $ledger->recipient }}</td>
                                     <td class="px-6 py-4">{{ $ledger->date->format('d/m/Y') }}</td>
                                     <td class="px-6 py-4">{{ $ledger->month }}</td>
                                     <td class="px-6 py-4">
-                                        <span class="px-2 py-1 rounded-full text-xs font-medium {{ $ledger->status === 'paid' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' }}">
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium 
+                                            {{ $ledger->status === 'PAID' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' }}">
                                             {{ $ledger->status }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4">{{ number_format($ledger->debit, 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4">{{ number_format($ledger->credit, 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4 flex justify-center">
-                                        <button type="button" data-modal-target="edit-ledger-modal"
-                                            data-modal-toggle="edit-ledger-modal" data-ledger-id="{{ $ledger->id }}"
+                                    <td class="px-6 py-4">{{ $ledger->debit > 0 ? number_format($ledger->debit, 0, ',', '.') : '-' }}</td>
+                                    <td class="px-6 py-4">{{ $ledger->credit > 0 ? number_format($ledger->credit, 0, ',', '.') : '-' }}</td>
+                                    <td class="px-6 py-4 flex justify-center gap-2">
+                                        @if($ledger->status === 'LISTING' && in_array($ledger->category, ['COST PROJECT', 'REVENUE PROJECT']))
+                                            <button type="button" 
+                                                data-ledger-id="{{ $ledger->id }}"
+                                                class="mark-as-paid mx-2 font-medium text-green-600 dark:text-green-200 bg-green-100 dark:bg-green-600 hover:bg-green-200 dark:hover:bg-green-700 px-4 py-1 rounded-md">
+                                                Paid
+                                            </button>
+                                        @endif
+                                        <button type="button" 
+                                            data-modal-target="edit-ledger-modal" 
+                                            data-modal-toggle="edit-ledger-modal"
+                                            data-ledger-id="{{ $ledger->id }}" 
                                             class="mx-2 font-medium text-blue-600 dark:text-blue-100 bg-blue-100 dark:bg-blue-600 hover:bg-blue-200 dark:hover:bg-blue-700 px-4 py-1 rounded-md edit-ledger">
                                             Edit
                                         </button>
-                                        <form action="{{ route('ledger.destroy', $ledger->id) }}" method="POST">
+                                        <form action="{{ route('ledger.destroy', $ledger->id) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit"
-                                                class="delete-ledger mx-2 font-medium text-red-600 dark:text-red-200 bg-red-100 dark:bg-red-600 hover:bg-red-200 dark:hover:bg-red-700 px-4 py-1 rounded-md">
-                                                Delete
-                                            </button>
+                                            <button type="submit" class="delete-ledger mx-2 font-medium text-red-600 dark:text-red-200 bg-red-100 dark:bg-red-600 hover:bg-red-200 dark:hover:bg-red-700 px-4 py-1 rounded-md">Delete</button>
                                         </form>
                                     </td>
                                 </tr>

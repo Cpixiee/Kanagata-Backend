@@ -11,106 +11,54 @@ class LedgerController extends Controller
 {
     public function index()
     {
-        $ledgers = Ledger::with('budget')->get();
-        $projects = Project::all();
-        $coaOptions = Ledger::getCoaOptions();
-        return view('ledger', compact('ledgers', 'projects', 'coaOptions'));
+        $ledgers = Ledger::orderBy('date', 'desc')->get();
+        $projects = Project::orderBy('coa')->get();
+        
+        return view('ledger', compact('ledgers', 'projects'));
     }
 
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'category' => 'required|string',
+            'budget' => 'required|string',
+            'date' => 'required|date',
+            'status' => 'required|string',
+            'debit' => 'required|numeric',
+            'credit' => 'required|numeric',
+            'description' => 'required|string'
+        ]);
+
         try {
-            $category = $request->input('category');
-            
-            $validationRules = [
-                'category' => 'required|in:' . implode(',', Ledger::getCategoryOptions()),
-                'sub_budget' => 'required|in:' . implode(',', Ledger::getSubBudgetOptions()),
-                'recipient' => 'required|in:' . implode(',', Ledger::getRecipientOptions()),
-                'date' => 'required|date',
-                'month' => 'required|string',
-                'status' => 'required|in:' . implode(',', Ledger::getStatusOptions()),
-                'debit' => 'required|numeric|min:0',
-                'credit' => 'required|numeric|min:0'
-            ];
-
-            // Different validation for budget_id based on category
-            if (in_array($category, [Ledger::CATEGORY_COST_PROJECT, Ledger::CATEGORY_REVENUE_PROJECT])) {
-                $validationRules['budget_id'] = 'required|exists:projects,id';
-            } else {
-                $validationRules['budget_id'] = 'required|string|regex:/^PL\.\d{2}-\d{4}$/';
-            }
-
-            $validatedData = $request->validate($validationRules);
-
-            $ledger = Ledger::create($validatedData);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data ledger berhasil ditambahkan',
-                'data' => $ledger
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
-            ], 422);
+            Ledger::create($validated);
+            return redirect()->route('ledger.index')->with('success', 'Data ledger berhasil ditambahkan');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-            ], 500);
+            return redirect()->route('ledger.index')->with('error', 'Gagal menambahkan data ledger: ' . $e->getMessage());
         }
     }
 
     public function edit(Ledger $ledger)
     {
-        return response()->json($ledger->load('budget'));
+        return response()->json($ledger);
     }
 
     public function update(Request $request, Ledger $ledger)
     {
+        $validated = $request->validate([
+            'category' => 'required|string',
+            'budget' => 'required|string',
+            'date' => 'required|date',
+            'status' => 'required|string',
+            'debit' => 'required|numeric',
+            'credit' => 'required|numeric',
+            'description' => 'required|string'
+        ]);
+
         try {
-            $category = $request->input('category');
-            
-            $validationRules = [
-                'category' => 'required|in:' . implode(',', Ledger::getCategoryOptions()),
-                'sub_budget' => 'required|in:' . implode(',', Ledger::getSubBudgetOptions()),
-                'recipient' => 'required|in:' . implode(',', Ledger::getRecipientOptions()),
-                'date' => 'required|date',
-                'month' => 'required|string',
-                'status' => 'required|in:' . implode(',', Ledger::getStatusOptions()),
-                'debit' => 'required|numeric|min:0',
-                'credit' => 'required|numeric|min:0'
-            ];
-
-            // Different validation for budget_id based on category
-            if (in_array($category, [Ledger::CATEGORY_COST_PROJECT, Ledger::CATEGORY_REVENUE_PROJECT])) {
-                $validationRules['budget_id'] = 'required|exists:projects,id';
-            } else {
-                $validationRules['budget_id'] = 'required|string|regex:/^PL\.\d{2}-\d{4}$/';
-            }
-
-            $validatedData = $request->validate($validationRules);
-
-            $ledger->update($validatedData);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data ledger berhasil diperbarui',
-                'data' => $ledger
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
-            ], 422);
+            $ledger->update($validated);
+            return redirect()->route('ledger.index')->with('success', 'Data ledger berhasil diperbarui');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-            ], 500);
+            return redirect()->route('ledger.index')->with('error', 'Gagal memperbarui data ledger: ' . $e->getMessage());
         }
     }
 
@@ -120,26 +68,32 @@ class LedgerController extends Controller
             $ledger->delete();
             return redirect()->route('ledger.index')->with('success', 'Data ledger berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->route('ledger.index')->with('error', 'Gagal menghapus data ledger');
+            return redirect()->route('ledger.index')->with('error', 'Gagal menghapus data ledger: ' . $e->getMessage());
         }
     }
 
-    // New method to get budget options based on category
-    public function getBudgetOptions(Request $request)
+    public function markAsPaid(Ledger $ledger)
     {
-        $category = $request->input('category');
-        
-        if (in_array($category, [Ledger::CATEGORY_COST_PROJECT, Ledger::CATEGORY_REVENUE_PROJECT])) {
-            $options = Project::all()->map(function($project) {
-                return [
-                    'id' => $project->id,
-                    'coa' => $project->coa
-                ];
-            });
-        } else {
-            $options = Ledger::getCoaOptions();
-        }
+        try {
+            if (!in_array($ledger->category, ['COST PROJECT', 'REVENUE PROJECT'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hanya ledger dengan kategori COST PROJECT dan REVENUE PROJECT yang dapat diubah statusnya'
+                ], 400);
+            }
 
-        return response()->json($options);
+            $ledger->status = 'PAID';
+            $ledger->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diubah menjadi PAID'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengubah status: ' . $e->getMessage()
+            ], 500);
+        }
     }
 } 

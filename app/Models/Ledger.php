@@ -12,14 +12,12 @@ class Ledger extends Model
 
     protected $fillable = [
         'category',
-        'budget_id',
-        'sub_budget',
-        'recipient',
+        'budget',
         'date',
-        'month',
         'status',
         'debit',
-        'credit'
+        'credit',
+        'description'
     ];
 
     protected $casts = [
@@ -34,19 +32,9 @@ class Ledger extends Model
     const CATEGORY_COST_PROJECT = 'COST PROJECT';
     const CATEGORY_KAS_MARGIN = 'KAS MARGIN';
 
-    // Konstanta untuk sub budget
-    const SUB_BUDGET_PAYROLL = 'BY PAYROLL';
-    const SUB_BUDGET_PROJECT = 'BY PROJECT';
-    const SUB_BUDGET_PAJAK = 'BY PAJAK';
-    const SUB_BUDGET_SHAREHOLDER = 'SHAREHOLDER';
-    const SUB_BUDGET_INVENTARIS = 'BY INVENTARIS';
-    const SUB_BUDGET_SEWA = 'BY SEWA';
-    const SUB_BUDGET_TUTOR = 'BY TUTOR';
-    const SUB_BUDGET_TAKIS = 'BY TAKIS';
-
     // Konstanta untuk status
-    const STATUS_LISTING = 'listing';
-    const STATUS_PAID = 'paid';
+    const STATUS_LISTING = 'LISTING';
+    const STATUS_PAID = 'PAID';
 
     // Relasi dengan Project (Budget)
     public function budget(): BelongsTo
@@ -69,7 +57,11 @@ class Ledger extends Model
         return $this->budget_id;
     }
 
-    // Mendapatkan opsi kategori
+    /**
+     * Get the available category options.
+     *
+     * @return array
+     */
     public static function getCategoryOptions(): array
     {
         return [
@@ -80,39 +72,52 @@ class Ledger extends Model
         ];
     }
 
-    // Mendapatkan opsi sub budget
-    public static function getSubBudgetOptions(): array
-    {
-        return [
-            self::SUB_BUDGET_PAYROLL,
-            self::SUB_BUDGET_PROJECT,
-            self::SUB_BUDGET_PAJAK,
-            self::SUB_BUDGET_SHAREHOLDER,
-            self::SUB_BUDGET_INVENTARIS,
-            self::SUB_BUDGET_SEWA,
-            self::SUB_BUDGET_TUTOR,
-            self::SUB_BUDGET_TAKIS
-        ];
-    }
-
-    // Mendapatkan opsi penerima
-    public static function getRecipientOptions(): array
-    {
-        return [
-            'rizal ramdhanu',
-            'andar rahman',
-            'fariz dandy',
-            'adam',
-            'wirakusuma'
-        ];
-    }
-
-    // Mendapatkan opsi status
+    /**
+     * Get the available status options.
+     *
+     * @return array
+     */
     public static function getStatusOptions(): array
     {
         return [
             self::STATUS_LISTING,
             self::STATUS_PAID
+        ];
+    }
+
+    /**
+     * Get the available sub budget options.
+     *
+     * @return array
+     */
+    public static function getSubBudgetOptions(): array
+    {
+        return [
+            'OPERASIONAL',
+            'GAJI',
+            'TRANSPORT',
+            'AKOMODASI',
+            'KONSUMSI',
+            'ATK',
+            'LAIN-LAIN'
+        ];
+    }
+
+    /**
+     * Get the available recipient options.
+     *
+     * @return array
+     */
+    public static function getRecipientOptions(): array
+    {
+        return [
+            'ANDAR PRASKASA',
+            'DANU STEVEN',
+            'MICHALE SUDARSONO',
+            'WIT URROHMAN',
+            'AGENG PRASETYO',
+            'KANAGATA',
+            'LAIN-LAIN'
         ];
     }
 
