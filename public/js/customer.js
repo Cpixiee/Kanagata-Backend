@@ -156,6 +156,9 @@ $(document).ready(function() {
             hideCustomerDetails();
         }
     });
+
+    // Theme toggle functionality
+    initializeThemeToggle();
 });
 
 function createCustomerCard(customer) {
@@ -208,6 +211,121 @@ function showCustomerDetails(customer) {
     // Animate modal content
     const modalContent = modal.find('.relative.bg-white');
     modalContent.addClass('animate-slideIn');
+
+    // Load project summary
+    loadProjectSummary(customer.name);
+}
+
+function loadProjectSummary(customerName) {
+    // Show loading state
+    $('#project-loading').show();
+    $('#project-summary-content').hide();
+    $('#no-projects').hide();
+
+    // Make AJAX request to get project summary
+    $.ajax({
+        url: `/customer/${encodeURIComponent(customerName)}/projects`,
+        method: 'GET',
+        success: function(response) {
+            $('#project-loading').hide();
+            
+            if (response.success && response.data) {
+                displayProjectSummary(response.data);
+                $('#project-summary-content').show();
+            } else {
+                $('#no-projects').show();
+            }
+        },
+        error: function(xhr) {
+            $('#project-loading').hide();
+            console.error('Error loading project summary:', xhr);
+            
+            if (xhr.status === 404 || (xhr.responseJSON && !xhr.responseJSON.success)) {
+                $('#no-projects').show();
+            } else {
+                // Show error message
+                $('#project-summary-section').html(`
+                    <div class="text-center py-8">
+                        <svg class="mx-auto h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Error loading projects</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Failed to load project data. Please try again.</p>
+                    </div>
+                `);
+            }
+        }
+    });
+}
+
+function displayProjectSummary(data) {
+    // Update summary cards
+    $('#total-projects').text(data.total_projects);
+    $('#total-revenue').text(formatCurrency(data.total_gt_rev));
+    $('#total-cost').text(formatCurrency(data.total_gt_cost));
+    $('#total-margin').text(formatCurrency(data.total_gt_margin));
+
+    // Update financial details
+    $('#total-sum-ar').text(formatCurrency(data.total_sum_ar));
+    $('#total-ar-paid').text(formatCurrency(data.total_ar_paid));
+    $('#total-ar-os').text(formatCurrency(data.total_ar_os));
+    $('#total-sum-ap').text(formatCurrency(data.total_sum_ap));
+    $('#total-ap-paid').text(formatCurrency(data.total_ap_paid));
+    $('#total-ap-os').text(formatCurrency(data.total_ap_os));
+    $('#total-todo').text(formatCurrency(data.total_todo));
+    $('#total-ar-ap').text(formatCurrency(data.total_ar_ap));
+
+    // Update projects list
+    const projectsList = $('#projects-list');
+    projectsList.empty();
+
+    if (data.projects_detail && data.projects_detail.length > 0) {
+        data.projects_detail.forEach(function(project) {
+            const projectCard = `
+                <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h6 class="font-semibold text-gray-900 dark:text-white">${project.coa}</h6>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">${project.activity} - ${project.prodi} (${project.grade})</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full">
+                            ID: ${project.id}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">Revenue:</span>
+                            <p class="font-medium text-green-600 dark:text-green-400">${formatCurrency(project.gt_rev)}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">Cost:</span>
+                            <p class="font-medium text-red-600 dark:text-red-400">${formatCurrency(project.gt_cost)}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">Margin:</span>
+                            <p class="font-medium text-purple-600 dark:text-purple-400">${formatCurrency(project.gt_margin)}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            projectsList.append(projectCard);
+        });
+    }
+}
+
+function formatCurrency(amount) {
+    if (amount === null || amount === undefined) {
+        return 'Rp 0';
+    }
+    
+    // Convert to number if it's a string
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    
+    // Format with Indonesian locale
+    return 'Rp ' + numAmount.toLocaleString('id-ID', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
 }
 
 function hideCustomerDetails() {
@@ -226,4 +344,49 @@ function hideCustomerDetails() {
              .removeClass('flex animate-fadeOut');
         modalContent.removeClass('animate-slideOut');
     }, 300);
+}
+
+function initializeThemeToggle() {
+    var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+    var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+    var themeToggleText = document.getElementById('theme-toggle-text');
+    var themeToggleBtn = document.getElementById('theme-toggle');
+
+    // Change the icons inside the button based on previous settings
+    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        themeToggleLightIcon.classList.remove('hidden');
+        themeToggleText.textContent = 'Toggle Light Mode';
+    } else {
+        themeToggleDarkIcon.classList.remove('hidden');
+        themeToggleText.textContent = 'Toggle Dark Mode';
+    }
+
+    themeToggleBtn.addEventListener('click', function() {
+        // Toggle icons
+        themeToggleDarkIcon.classList.toggle('hidden');
+        themeToggleLightIcon.classList.toggle('hidden');
+
+        // If is set in localStorage
+        if (localStorage.getItem('color-theme')) {
+            if (localStorage.getItem('color-theme') === 'light') {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+                themeToggleText.textContent = 'Toggle Light Mode';
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+                themeToggleText.textContent = 'Toggle Dark Mode';
+            }
+        } else {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+                themeToggleText.textContent = 'Toggle Dark Mode';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+                themeToggleText.textContent = 'Toggle Light Mode';
+            }
+        }
+    });
 }

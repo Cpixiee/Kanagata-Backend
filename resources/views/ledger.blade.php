@@ -195,6 +195,111 @@
                     </div>
                 </div>
 
+                <!-- Filter Section -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Filter Data</h3>
+                    <form id="filter-form" method="GET" action="{{ route('ledger.index') }}">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label for="filter_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipe Filter</label>
+                                <select id="filter_type" name="filter_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <option value="all" {{ request('filter_type') == 'all' ? 'selected' : '' }}>Semua Data</option>
+                                    <option value="day" {{ request('filter_type') == 'day' ? 'selected' : '' }}>Per Hari</option>
+                                    <option value="month" {{ request('filter_type') == 'month' ? 'selected' : '' }}>Per Bulan</option>
+                                    <option value="year" {{ request('filter_type') == 'year' ? 'selected' : '' }}>Per Tahun</option>
+                                </select>
+                            </div>
+                            
+                            <div id="filter_date_container" style="display: none;">
+                                <label for="filter_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tanggal</label>
+                                <input type="date" id="filter_date" name="filter_date" value="{{ request('filter_date') }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            
+                            <div id="filter_month_container" style="display: none;">
+                                <label for="filter_month" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bulan</label>
+                                <select id="filter_month" name="filter_month" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <option value="">Pilih Bulan</option>
+                                    @for($i = 1; $i <= 12; $i++)
+                                        <option value="{{ $i }}" {{ request('filter_month') == $i ? 'selected' : '' }}>
+                                            {{ DateTime::createFromFormat('!m', $i)->format('F') }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+                            
+                            <div id="filter_year_container" style="display: none;">
+                                <label for="filter_year" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tahun</label>
+                                <select id="filter_year" name="filter_year" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <option value="">Pilih Tahun</option>
+                                    @for($year = date('Y'); $year >= 2020; $year--)
+                                        <option value="{{ $year }}" {{ request('filter_year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2 mt-4">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                Terapkan Filter
+                            </button>
+                            <a href="{{ route('ledger.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                Reset Filter
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Summary Section -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-green-50 dark:bg-green-900 rounded-lg p-6 border border-green-200 dark:border-green-700">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-100 dark:bg-green-800 rounded-lg">
+                                <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-green-600 dark:text-green-300">SUM DEBIT</p>
+                                <p id="sum-debit" class="text-2xl font-bold text-green-900 dark:text-green-100">
+                                    {{ number_format($summary['sum_debit'] ?? 0, 0, ',', '.') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-red-50 dark:bg-red-900 rounded-lg p-6 border border-red-200 dark:border-red-700">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-red-100 dark:bg-red-800 rounded-lg">
+                                <svg class="w-6 h-6 text-red-600 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-red-600 dark:text-red-300">SUM KREDIT</p>
+                                <p id="sum-credit" class="text-2xl font-bold text-red-900 dark:text-red-100">
+                                    {{ number_format($summary['sum_credit'] ?? 0, 0, ',', '.') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 dark:bg-blue-900 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg">
+                                <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-blue-600 dark:text-blue-300">SALDO</p>
+                                <p id="saldo" class="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                                    {{ number_format($summary['saldo'] ?? 0, 0, ',', '.') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Sticky Search and Display Options -->
                 <div class="sticky top-[4.5rem] bg-white dark:bg-gray-800 z-10 py-4 border-b border-gray-200 dark:border-gray-700">
                     <div class="flex flex-wrap items-center justify-between gap-4">
@@ -246,14 +351,14 @@
                                     <td class="px-6 py-4">{{ $ledger->month }}</td>
                                     <td class="px-6 py-4">
                                         <span class="px-2 py-1 rounded-full text-xs font-medium 
-                                            {{ $ledger->status === 'PAID' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' }}">
-                                            {{ $ledger->status }}
+                                            {{ strtoupper($ledger->status) === 'PAID' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' }}">
+                                            {{ strtoupper($ledger->status) }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4">{{ $ledger->debit > 0 ? number_format($ledger->debit, 0, ',', '.') : '-' }}</td>
                                     <td class="px-6 py-4">{{ $ledger->credit > 0 ? number_format($ledger->credit, 0, ',', '.') : '-' }}</td>
                                     <td class="px-6 py-4 flex justify-center gap-2">
-                                        @if($ledger->status === 'LISTING' && in_array($ledger->category, ['COST PROJECT', 'REVENUE PROJECT']))
+                                        @if(strtoupper($ledger->status) === 'LISTING')
                                             <button type="button" 
                                                 data-ledger-id="{{ $ledger->id }}"
                                                 class="mark-as-paid mx-2 font-medium text-green-600 dark:text-green-200 bg-green-100 dark:bg-green-600 hover:bg-green-200 dark:hover:bg-green-700 px-4 py-1 rounded-md">
@@ -318,22 +423,20 @@
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     required>
                                     <option value="" selected disabled>Pilih Kategori</option>
-                                    @foreach(App\Models\Ledger::getCategoryOptions() as $category)
-                                    <option value="{{ $category }}">{{ $category }}</option>
-                                    @endforeach
+                                    <option value="COST OPERATION">COST OPERATION</option>
+                                    <option value="KAS MARGIN">KAS MARGIN</option>
+                                    <option value="COST PROJECT">COST PROJECT</option>
+                                    <option value="REVENUE PROJECT">REVENUE PROJECT</option>
                                 </select>
                             </div>
 
-                            <!-- Budget (COA Project) -->
+                            <!-- Budget -->
                             <div class="space-y-2">
-                                <label for="budget_id" class="block text-sm font-medium text-gray-900 dark:text-white">Budget (COA Project)</label>
-                                <select id="budget_id" name="budget_id"
+                                <label for="budget" class="block text-sm font-medium text-gray-900 dark:text-white">Budget</label>
+                                <select id="budget" name="budget"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     required>
                                     <option value="" selected disabled>Pilih Budget</option>
-                                    @foreach($projects as $project)
-                                    <option value="{{ $project->id }}">{{ $project->coa }}</option>
-                                    @endforeach
                                 </select>
                             </div>
 
@@ -392,21 +495,16 @@
                                 </select>
                             </div>
 
-                            <!-- Debit -->
+                            <!-- Amount -->
                             <div class="space-y-2">
-                                <label for="debit" class="block text-sm font-medium text-gray-900 dark:text-white">Debit</label>
-                                <input type="number" id="debit" name="debit"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    required min="0" step="0.01">
-                            </div>
-
-                            <!-- Kredit -->
-                            <div class="space-y-2">
-                                <label for="credit" class="block text-sm font-medium text-gray-900 dark:text-white">Kredit</label>
+                                <label for="credit" id="amount-label" class="block text-sm font-medium text-gray-900 dark:text-white">Amount (Credit)</label>
                                 <input type="number" id="credit" name="credit"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     required min="0" step="0.01">
+                                <input type="hidden" name="debit" value="0">
                             </div>
+                            
+
                         </div>
                     </form>
                 </div>
@@ -467,19 +565,22 @@
                                     <option value="{{ $category }}">{{ $category }}</option>
                                     @endforeach
                                 </select>
+                                <input type="text" id="edit-category-readonly" style="display: none;"
+                                    class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed dark:bg-gray-600 dark:border-gray-500 dark:text-gray-400"
+                                    readonly disabled>
                             </div>
 
-                            <!-- Budget (COA Project) -->
+                            <!-- Budget -->
                             <div class="space-y-2">
-                                <label for="edit-budget_id" class="block text-sm font-medium text-gray-900 dark:text-white">Budget (COA Project)</label>
-                                <select id="edit-budget_id" name="budget_id"
+                                <label for="edit-budget" class="block text-sm font-medium text-gray-900 dark:text-white">Budget</label>
+                                <select id="edit-budget" name="budget"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     required>
                                     <option value="" selected disabled>Pilih Budget</option>
-                                    @foreach($projects as $project)
-                                    <option value="{{ $project->id }}">{{ $project->coa }}</option>
-                                    @endforeach
                                 </select>
+                                <input type="text" id="edit-budget-readonly" style="display: none;"
+                                    class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed dark:bg-gray-600 dark:border-gray-500 dark:text-gray-400"
+                                    readonly disabled>
                             </div>
 
                             <!-- Sub Budget -->
@@ -493,6 +594,9 @@
                                     <option value="{{ $subBudget }}">{{ $subBudget }}</option>
                                     @endforeach
                                 </select>
+                                <input type="text" id="edit-sub_budget-readonly" style="display: none;"
+                                    class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed dark:bg-gray-600 dark:border-gray-500 dark:text-gray-400"
+                                    readonly disabled>
                             </div>
 
                             <!-- Penerima -->
@@ -506,6 +610,9 @@
                                     <option value="{{ $recipient }}">{{ $recipient }}</option>
                                     @endforeach
                                 </select>
+                                <input type="text" id="edit-recipient-readonly" style="display: none;"
+                                    class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed dark:bg-gray-600 dark:border-gray-500 dark:text-gray-400"
+                                    readonly disabled>
                             </div>
 
                             <!-- Tanggal -->
@@ -535,14 +642,17 @@
                                     <option value="{{ $status }}">{{ ucfirst($status) }}</option>
                                     @endforeach
                                 </select>
+                                <input type="text" id="edit-status-readonly" style="display: none;"
+                                    class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed dark:bg-gray-600 dark:border-gray-500 dark:text-gray-400"
+                                    readonly disabled>
                             </div>
 
                             <!-- Debit -->
                             <div class="space-y-2">
                                 <label for="edit-debit" class="block text-sm font-medium text-gray-900 dark:text-white">Debit</label>
                                 <input type="number" id="edit-debit" name="debit"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    required min="0" step="0.01">
+                                    class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed dark:bg-gray-600 dark:border-gray-500 dark:text-gray-400"
+                                    readonly min="0" step="0.01">
                             </div>
 
                             <!-- Kredit -->
@@ -552,6 +662,8 @@
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     required min="0" step="0.01">
                             </div>
+                            
+
                         </div>
                     </form>
                 </div>

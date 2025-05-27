@@ -15,7 +15,7 @@ class LedgerObserver
     public function updated(Ledger $ledger): void
     {
         try {
-            if ($ledger->isDirty('status') && $ledger->status === 'PAID') {
+            if ($ledger->isDirty('status') && $ledger->status === Ledger::STATUS_PAID) {
                 // Ambil logsheet ID dari description
                 preg_match('/logsheet (\d+)/', $ledger->description, $matches);
                 if (!empty($matches[1])) {
@@ -24,12 +24,15 @@ class LedgerObserver
                     
                     if ($logsheet) {
                         // Update status logsheet berdasarkan kategori ledger
-                        if ($ledger->category === 'REVENUE PROJECT') {
-                            $logsheet->ar_status = 'PAID';
-                        } elseif ($ledger->category === 'COST PROJECT') {
-                            $logsheet->ap_status = 'PAID';
+                        if ($ledger->category === Ledger::CATEGORY_REVENUE_PROJECT) {
+                            $logsheet->ar_status = 'Paid';
+                            $logsheet->save();
+                            Log::info("Updated logsheet {$logsheetId} AR status to Paid");
+                        } elseif ($ledger->category === Ledger::CATEGORY_COST_PROJECT) {
+                            $logsheet->ap_status = 'Paid';
+                            $logsheet->save();
+                            Log::info("Updated logsheet {$logsheetId} AP status to Paid");
                         }
-                        $logsheet->save();
 
                         // Update project statistics
                         $this->updateProjectStatistics($logsheet->coa);
@@ -37,7 +40,7 @@ class LedgerObserver
                 }
             }
         } catch (\Exception $e) {
-            Log::error('Error updating project statistics: ' . $e->getMessage());
+            Log::error('Error in LedgerObserver@updated: ' . $e->getMessage());
         }
     }
 
@@ -51,22 +54,22 @@ class LedgerObserver
         if ($project) {
             // Hitung total AR dan AP dari ledger
             $arPaid = Ledger::where('budget', $coa)
-                ->where('category', 'REVENUE PROJECT')
-                ->where('status', 'PAID')
+                ->where('category', Ledger::CATEGORY_REVENUE_PROJECT)
+                ->where('status', Ledger::STATUS_PAID)
                 ->sum('debit');
 
             $apPaid = Ledger::where('budget', $coa)
-                ->where('category', 'COST PROJECT')
-                ->where('status', 'PAID')
-                ->sum('debit');
+                ->where('category', Ledger::CATEGORY_COST_PROJECT)
+                ->where('status', Ledger::STATUS_PAID)
+                ->sum('credit');
 
             $sumAr = Ledger::where('budget', $coa)
-                ->where('category', 'REVENUE PROJECT')
+                ->where('category', Ledger::CATEGORY_REVENUE_PROJECT)
                 ->sum('debit');
 
             $sumAp = Ledger::where('budget', $coa)
-                ->where('category', 'COST PROJECT')
-                ->sum('debit');
+                ->where('category', Ledger::CATEGORY_COST_PROJECT)
+                ->sum('credit');
 
             // Update project
             $project->update([

@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/customer', [CustomerController::class, 'index'])->name('customer.index');
     Route::post('/customer', [CustomerController::class, 'store']);
+    Route::get('/customer/{customerName}/projects', [CustomerController::class, 'getProjectSummary'])->name('customer.projects');
 
     // Tutor routes
     Route::get('/tutor', [TutorController::class, 'index'])->name('tutor.index');
@@ -64,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
     // Ledger routes
     Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');
     Route::get('/ledger/budget-options', [LedgerController::class, 'getBudgetOptions'])->name('ledger.budget-options');
+    Route::get('/ledger/summary', [LedgerController::class, 'getSummary'])->name('ledger.summary');
     Route::post('/ledger', [LedgerController::class, 'store'])->name('ledger.store');
     Route::get('/ledger/{ledger}/edit', [LedgerController::class, 'edit'])->name('ledger.edit');
     Route::put('/ledger/{ledger}', [LedgerController::class, 'update'])->name('ledger.update');

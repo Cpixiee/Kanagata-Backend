@@ -227,7 +227,7 @@
                     <tbody class="text-center">
                         @foreach($logsheets as $logsheet)
                         <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                            <td class="px-6 py-4"></td>
+                            <td class="px-6 py-4">{{ $loop->iteration }}</td>
                             <td class="px-6 py-4">{{ $logsheet->coa }}</td>
                             <td class="px-6 py-4">{{ $logsheet->customer }}</td>
                             <td class="px-6 py-4">{{ $logsheet->activity }}</td>
@@ -435,12 +435,7 @@
                         </div>
                         <div>
                             <label for="ar_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">AR Status</label>
-                            <select name="ar_status" id="ar_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                <option value="">Select status</option>
-                                @foreach(['Listing', 'Paid', 'Pending'] as $status)
-                                    <option value="{{ $status }}">{{ $status }}</option>
-                                @endforeach
-                            </select>
+                            <input type="text" name="ar_status" id="ar_status" value="Listing" class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-400" readonly>
                         </div>
                         <div>
                             <label for="tutor" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tutor</label>
@@ -465,12 +460,7 @@
                         </div>
                         <div>
                             <label for="ap_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">AP Status</label>
-                            <select name="ap_status" id="ap_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                <option value="">Select status</option>
-                                @foreach(['Listing', 'Paid', 'Pending'] as $status)
-                                    <option value="{{ $status }}">{{ $status }}</option>
-                                @endforeach
-                            </select>
+                            <input type="text" name="ap_status" id="ap_status" value="Listing" class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-400" readonly>
                         </div>
                     </div>
                     <div class="flex items-center justify-end space-x-4">
@@ -564,7 +554,6 @@
                         <div>
                             <label for="edit_ar_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">AR Status</label>
                             <select name="ar_status" id="edit_ar_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                <option value="">Select status</option>
                                 @foreach(['Listing', 'Paid', 'Pending'] as $status)
                                     <option value="{{ $status }}">{{ $status }}</option>
                                 @endforeach
@@ -594,7 +583,6 @@
                         <div>
                             <label for="edit_ap_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">AP Status</label>
                             <select name="ap_status" id="edit_ap_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-                                <option value="">Select status</option>
                                 @foreach(['Listing', 'Paid', 'Pending'] as $status)
                                     <option value="{{ $status }}">{{ $status }}</option>
                                 @endforeach

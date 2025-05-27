@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Logsheet;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -51,6 +52,54 @@ class CustomerController extends Controller
             'success' => true,
             'message' => 'Customer created successfully',
             'data' => $customer
+        ]);
+    }
+
+    public function getProjectSummary($customerName)
+    {
+        // Ambil semua project yang terkait dengan customer ini
+        $projects = Project::where('customer', $customerName)->get();
+        
+        if ($projects->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No projects found for this customer',
+                'data' => null
+            ]);
+        }
+
+        // Hitung agregasi data langsung dari database
+        $summary = [
+            'customer_name' => $customerName,
+            'total_projects' => $projects->count(),
+            'total_gt_rev' => $projects->sum('gt_rev'),
+            'total_gt_cost' => $projects->sum('gt_cost'),
+            'total_gt_margin' => $projects->sum('gt_margin'),
+            'total_sum_ar' => $projects->sum('sum_ar'),
+            'total_ar_paid' => $projects->sum('ar_paid'),
+            'total_ar_os' => $projects->sum('ar_os'),
+            'total_sum_ap' => $projects->sum('sum_ap'),
+            'total_ap_paid' => $projects->sum('ap_paid'),
+            'total_ap_os' => $projects->sum('ap_os'),
+            'total_todo' => $projects->sum('todo'),
+            'total_ar_ap' => $projects->sum('ar_ap'),
+            'projects_detail' => $projects->map(function($project) {
+                return [
+                    'id' => $project->id,
+                    'coa' => $project->coa,
+                    'activity' => $project->activity,
+                    'prodi' => $project->prodi,
+                    'grade' => $project->grade,
+                    'gt_rev' => $project->gt_rev,
+                    'gt_cost' => $project->gt_cost,
+                    'gt_margin' => $project->gt_margin
+                ];
+            })
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $summary
         ]);
     }
 } 

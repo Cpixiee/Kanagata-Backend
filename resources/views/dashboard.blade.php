@@ -554,7 +554,7 @@
                             <div class="flex justify-between items-center">
                                 <div>
                                     <div class="text-lg font-semibold">{{ $ledger->category }}</div>
-                                    <div class="text-sm text-gray-600 dark:text-gray-400">{{ $ledger->budget->coa }}</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">{{ $ledger->budget_coa }}</div>
                                 </div>
                                 <span class="text-lg font-bold">{{ number_format($ledger->credit, 0, ',', '.') }}</span>
                             </div>

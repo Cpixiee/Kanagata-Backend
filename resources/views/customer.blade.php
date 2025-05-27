@@ -403,59 +403,7 @@
                 </form>
             </div>
         </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ asset('js/customer.js') }}"></script>
-
-    <script>
-        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
-        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
-        var themeToggleText = document.getElementById('theme-toggle-text');
-        var themeToggleBtn = document.getElementById('theme-toggle');
-
-        // Change the icons inside the button based on previous settings
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            themeToggleLightIcon.classList.remove('hidden');
-            themeToggleText.textContent = 'Toggle Light Mode';
-        } else {
-            themeToggleDarkIcon.classList.remove('hidden');
-            themeToggleText.textContent = 'Toggle Dark Mode';
-        }
-
-        themeToggleBtn.addEventListener('click', function() {
-            // Toggle icons
-            themeToggleDarkIcon.classList.toggle('hidden');
-            themeToggleLightIcon.classList.toggle('hidden');
-
-            // If is set in localStorage
-            if (localStorage.getItem('color-theme')) {
-                if (localStorage.getItem('color-theme') === 'light') {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('color-theme', 'dark');
-                    themeToggleText.textContent = 'Toggle Light Mode';
-                } else {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.setItem('color-theme', 'light');
-                    themeToggleText.textContent = 'Toggle Dark Mode';
-                }
-            } else {
-                if (document.documentElement.classList.contains('dark')) {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.setItem('color-theme', 'light');
-                    themeToggleText.textContent = 'Toggle Dark Mode';
-                } else {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('color-theme', 'dark');
-                    themeToggleText.textContent = 'Toggle Light Mode';
-                }
-            }
-        });
-    </script>
-
-    <!-- Customer Detail Modal -->
+    </div>    <!-- Customer Detail Modal -->
     <div id="customer-detail-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative p-4 w-full max-w-4xl max-h-full">
             <!-- Modal content -->
@@ -475,14 +423,14 @@
                     </button>
                 </div>
                 <!-- Modal body -->
-                <div class="p-6">
-                    <div class="flex gap-8">
+                <div class="p-6 max-h-[70vh] overflow-y-auto">
+                    <div class="flex gap-8 mb-6">
                         <!-- Left side - Image -->
                         <div class="w-1/3">
                             <img id="detail-customer-image" class="w-full h-auto rounded-lg shadow" src="" alt="Customer Image">
                         </div>
                         
-                        <!-- Right side - Details -->
+                        <!-- Right side - Basic Details -->
                         <div class="w-2/3 space-y-4">
                             <div>
                                 <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Customer Name</h4>
@@ -506,10 +454,131 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Project Summary Section -->
+                    <div id="project-summary-section" class="border-t border-gray-200 dark:border-gray-600 pt-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-blue-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-7Z" clip-rule="evenodd"/>
+                            </svg>
+                            Project Summary
+                        </h3>
+                        
+                        <!-- Loading State -->
+                        <div id="project-loading" class="text-center py-4">
+                            <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-gray-500 bg-white dark:bg-gray-700 dark:text-gray-300">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Loading project data...
+                            </div>
+                        </div>
+
+                        <!-- Project Summary Content -->
+                        <div id="project-summary-content" class="hidden">
+                            <!-- Summary Cards -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                                    <h5 class="text-sm font-medium text-blue-600 dark:text-blue-400">Total Projects</h5>
+                                    <p id="total-projects" class="text-2xl font-bold text-blue-900 dark:text-blue-100">0</p>
+                                </div>
+                                <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                                    <h5 class="text-sm font-medium text-green-600 dark:text-green-400">Total Revenue</h5>
+                                    <p id="total-revenue" class="text-2xl font-bold text-green-900 dark:text-green-100">Rp 0</p>
+                                </div>
+                                <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                                    <h5 class="text-sm font-medium text-red-600 dark:text-red-400">Total Cost</h5>
+                                    <p id="total-cost" class="text-2xl font-bold text-red-900 dark:text-red-100">Rp 0</p>
+                                </div>
+                                <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                                    <h5 class="text-sm font-medium text-purple-600 dark:text-purple-400">Total Margin</h5>
+                                    <p id="total-margin" class="text-2xl font-bold text-purple-900 dark:text-purple-100">Rp 0</p>
+                                </div>
+                            </div>
+
+                            <!-- Financial Details Table -->
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                                <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Financial Details</h5>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <!-- AR Section -->
+                                    <div>
+                                        <h6 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">Accounts Receivable (AR)</h6>
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600 dark:text-gray-400">Sum AR:</span>
+                                                <span id="total-sum-ar" class="font-medium text-gray-900 dark:text-white">Rp 0</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600 dark:text-gray-400">AR Paid:</span>
+                                                <span id="total-ar-paid" class="font-medium text-green-600 dark:text-green-400">Rp 0</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600 dark:text-gray-400">AR Outstanding:</span>
+                                                <span id="total-ar-os" class="font-medium text-red-600 dark:text-red-400">Rp 0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- AP Section -->
+                                    <div>
+                                        <h6 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">Accounts Payable (AP)</h6>
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600 dark:text-gray-400">Sum AP:</span>
+                                                <span id="total-sum-ap" class="font-medium text-gray-900 dark:text-white">Rp 0</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600 dark:text-gray-400">AP Paid:</span>
+                                                <span id="total-ap-paid" class="font-medium text-green-600 dark:text-green-400">Rp 0</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600 dark:text-gray-400">AP Outstanding:</span>
+                                                <span id="total-ap-os" class="font-medium text-red-600 dark:text-red-400">Rp 0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Additional Metrics -->
+                                <div class="grid grid-cols-2 gap-6 mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600 dark:text-gray-400">ToDo:</span>
+                                        <span id="total-todo" class="font-medium text-blue-600 dark:text-blue-400">Rp 0</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600 dark:text-gray-400">AR-AP:</span>
+                                        <span id="total-ar-ap" class="font-medium text-purple-600 dark:text-purple-400">Rp 0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Projects List -->
+                            <div>
+                                <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Project Details</h5>
+                                <div id="projects-list" class="space-y-3">
+                                    <!-- Projects will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No Projects State -->
+                        <div id="no-projects" class="hidden text-center py-8">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No projects found</h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This customer doesn't have any projects yet.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/customer.js') }}"></script>
 </body>
 
 </html>

@@ -20,23 +20,18 @@ $(document).ready(function() {
     let selectedDate = null;
     let remainingSessions = 0;
 
-    // Inisialisasi modal-modal menggunakan Flowbite
+    // Initialize all modals
+    const scheduleModal = document.getElementById('schedule-modal');
+    const addScheduleModal = document.getElementById('add-schedule-modal');
+    const editScheduleModal = document.getElementById('edit-schedule-modal');
+    const cropModal = document.getElementById('crop-modal');
+
+    // Initialize Flowbite modals
     const modals = {
-        scheduleModal: new Modal(document.getElementById('schedule-modal'), {
-            placement: 'center',
-            backdrop: 'dynamic',
-            closable: true,
-        }),
-        addScheduleModal: new Modal(document.getElementById('add-schedule-modal'), {
-            placement: 'center',
-            backdrop: 'dynamic',
-            closable: true,
-        }),
-        editScheduleModal: new Modal(document.getElementById('edit-schedule-modal'), {
-            placement: 'center',
-            backdrop: 'dynamic',
-            closable: true,
-        })
+        scheduleModal: new Modal(scheduleModal),
+        addScheduleModal: new Modal(addScheduleModal),
+        editScheduleModal: new Modal(editScheduleModal),
+        cropModal: new Modal(cropModal)
     };
 
     // Event handler untuk tombol close pada modal Schedule Calendar

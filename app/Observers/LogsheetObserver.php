@@ -15,10 +15,13 @@ class LogsheetObserver
     public function created(Logsheet $logsheet): void
     {
         try {
-            // Set default status untuk logsheet
-            $logsheet->ar_status = 'LISTING';
-            $logsheet->ap_status = 'LISTING';
-            $logsheet->save();
+            // Pastikan status AR dan AP default "Listing" jika kosong
+            if (empty($logsheet->ar_status)) {
+                $logsheet->ar_status = 'Listing';
+            }
+            if (empty($logsheet->ap_status)) {
+                $logsheet->ap_status = 'Listing';
+            }
 
             // Hitung revenue (quantity_1 * rate_1)
             $revenue = $logsheet->quantity_1 * $logsheet->rate_1;
@@ -28,25 +31,32 @@ class LogsheetObserver
 
             // Buat ledger untuk Revenue Project
             Ledger::create([
-                'category' => 'REVENUE PROJECT',
+                'category' => Ledger::CATEGORY_REVENUE_PROJECT,
                 'budget' => strval($logsheet->coa),
+                'sub_budget' => '-',
+                'recipient' => '-',
                 'date' => Carbon::now(),
-                'status' => 'LISTING',
+                'month' => Carbon::now()->format('M Y'),
+                'status' => Ledger::STATUS_LISTING,
                 'debit' => $revenue,
                 'credit' => 0,
                 'description' => "Revenue dari logsheet {$logsheet->id}"
             ]);
 
-            // Buat ledger untuk Cost Project
+            // Buat ledger untuk Cost Project dengan sub_budget "by tutor" dan recipient nama tutor
             Ledger::create([
-                'category' => 'COST PROJECT',
+                'category' => Ledger::CATEGORY_COST_PROJECT,
                 'budget' => strval($logsheet->coa),
+                'sub_budget' => 'by tutor', // Set sub_budget sebagai "by tutor"
+                'recipient' => $logsheet->tutor,  // Set recipient sebagai nama tutor
                 'date' => Carbon::now(),
-                'status' => 'LISTING',
-                'debit' => $cost,
-                'credit' => 0,
+                'month' => Carbon::now()->format('M Y'),
+                'status' => Ledger::STATUS_LISTING,
+                'debit' => 0,
+                'credit' => $cost,
                 'description' => "Cost dari logsheet {$logsheet->id}"
             ]);
+
         } catch (\Exception $e) {
             Log::error('Error creating ledger entries: ' . $e->getMessage());
             throw $e;
@@ -59,25 +69,26 @@ class LogsheetObserver
     public function updated(Logsheet $logsheet): void
     {
         try {
-            if ($logsheet->isDirty(['revenue', 'cost', 'coa', 'quantity_1', 'rate_1', 'quantity_2', 'rate_2'])) {
+            if ($logsheet->isDirty(['revenue', 'cost', 'coa', 'quantity_1', 'rate_1', 'quantity_2', 'rate_2', 'tutor'])) {
                 // Hitung revenue dan cost yang baru
                 $revenue = $logsheet->quantity_1 * $logsheet->rate_1;
                 $cost = $logsheet->quantity_2 * $logsheet->rate_2;
 
                 // Update Revenue Project ledger
-                Ledger::where('category', 'REVENUE PROJECT')
+                Ledger::where('category', Ledger::CATEGORY_REVENUE_PROJECT)
                     ->where('description', "Revenue dari logsheet {$logsheet->id}")
                     ->update([
                         'budget' => strval($logsheet->coa),
                         'debit' => $revenue
                     ]);
 
-                // Update Cost Project ledger
-                Ledger::where('category', 'COST PROJECT')
+                // Update Cost Project ledger dengan recipient yang baru (sub_budget tetap "by tutor")
+                Ledger::where('category', Ledger::CATEGORY_COST_PROJECT)
                     ->where('description', "Cost dari logsheet {$logsheet->id}")
                     ->update([
                         'budget' => strval($logsheet->coa),
-                        'debit' => $cost
+                        'recipient' => $logsheet->tutor,
+                        'credit' => $cost
                     ]);
             }
         } catch (\Exception $e) {

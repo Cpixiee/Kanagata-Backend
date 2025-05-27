@@ -6,6 +6,72 @@ $(document).ready(function() {
         }
     });
 
+    // Handle filter type change
+    $('#filter_type').on('change', function() {
+        const filterType = $(this).val();
+        
+        // Hide all filter containers
+        $('#filter_date_container, #filter_month_container, #filter_year_container').hide();
+        
+        // Show relevant filter containers based on selection
+        switch(filterType) {
+            case 'day':
+                $('#filter_date_container').show();
+                $('#filter_year_container').show(); // Year is needed for day filter
+                break;
+            case 'month':
+                $('#filter_month_container').show();
+                $('#filter_year_container').show();
+                break;
+            case 'year':
+                $('#filter_year_container').show();
+                break;
+            case 'all':
+            default:
+                // No additional filters needed
+                break;
+        }
+    });
+
+    // Initialize filter visibility on page load
+    $('#filter_type').trigger('change');
+
+    // Function to update summary based on current filters
+    function updateSummary() {
+        const formData = $('#filter-form').serialize();
+        
+        $.ajax({
+            url: '/ledger/summary',
+            method: 'GET',
+            data: formData,
+            success: function(data) {
+                // Update summary values with animation
+                $('#sum-debit').fadeOut(200, function() {
+                    $(this).text(formatNumber(data.sum_debit)).fadeIn(200);
+                });
+                $('#sum-credit').fadeOut(200, function() {
+                    $(this).text(formatNumber(data.sum_credit)).fadeIn(200);
+                });
+                $('#saldo').fadeOut(200, function() {
+                    $(this).text(formatNumber(data.saldo)).fadeIn(200);
+                });
+            },
+            error: function(xhr) {
+                console.error('Error updating summary:', xhr);
+            }
+        });
+    }
+
+    // Function to format numbers with thousand separators
+    function formatNumber(num) {
+        return new Intl.NumberFormat('id-ID').format(num);
+    }
+
+    // Update summary when filter changes
+    $('#filter_type, #filter_date, #filter_month, #filter_year').on('change', function() {
+        updateSummary();
+    });
+
     // Hapus DataTable yang ada jika sudah ada
     if ($.fn.DataTable.isDataTable('table')) {
         $('table').DataTable().destroy();
@@ -81,19 +147,84 @@ $(document).ready(function() {
                 // Isi form dengan data
                 $('#edit-ledger-form').attr('action', `/ledger/${ledgerId}`);
                 $('#edit-category').val(data.category);
-                $('#edit-budget_id').val(data.budget_id);
+                $('#edit-budget').val(data.budget);
                 $('#edit-sub_budget').val(data.sub_budget);
                 $('#edit-recipient').val(data.recipient);
-                $('#edit-date').val(data.date);
+                
+                // Format date properly for input[type="date"]
+                let formattedDate = data.date;
+                if (data.date && data.date.includes('T')) {
+                    formattedDate = data.date.split('T')[0];
+                }
+                $('#edit-date').val(formattedDate);
+                
                 $('#edit-month').val(data.month);
                 $('#edit-status').val(data.status);
                 $('#edit-debit').val(data.debit);
                 $('#edit-credit').val(data.credit);
+
+                // Handle different behavior for project vs operation categories
+                const isProjectCategory = ['COST PROJECT', 'REVENUE PROJECT'].includes(data.category);
+                
+                if (isProjectCategory) {
+                    // For project categories: show readonly inputs, hide dropdowns
+                    $('#edit-category').hide().prop('required', false);
+                    $('#edit-category-readonly').show().val(data.category);
+                    $('#edit-budget').hide().prop('required', false);
+                    $('#edit-budget-readonly').show().val(data.budget);
+                    $('#edit-sub_budget').hide().prop('required', false);
+                    $('#edit-sub_budget-readonly').show().val(data.sub_budget);
+                    $('#edit-recipient').hide().prop('required', false);
+                    $('#edit-recipient-readonly').show().val(data.recipient);
+                    $('#edit-status').hide().prop('required', false);
+                    $('#edit-status-readonly').show().val(data.status);
+                    $('#edit-credit').prop('readonly', true).addClass('bg-gray-100 cursor-not-allowed');
+                    
+                    // Add hidden inputs for readonly values
+                    $('#edit-ledger-form').find('input[name="category_hidden"]').remove();
+                    $('#edit-ledger-form').find('input[name="budget_hidden"]').remove();
+                    $('#edit-ledger-form').find('input[name="sub_budget_hidden"]').remove();
+                    $('#edit-ledger-form').find('input[name="recipient_hidden"]').remove();
+                    $('#edit-ledger-form').find('input[name="status_hidden"]').remove();
+                    
+                    $('#edit-ledger-form').append(`<input type="hidden" name="category" value="${data.category}">`);
+                    $('#edit-ledger-form').append(`<input type="hidden" name="budget" value="${data.budget}">`);
+                    $('#edit-ledger-form').append(`<input type="hidden" name="sub_budget" value="${data.sub_budget}">`);
+                    $('#edit-ledger-form').append(`<input type="hidden" name="recipient" value="${data.recipient}">`);
+                    $('#edit-ledger-form').append(`<input type="hidden" name="status" value="${data.status}">`);
+                } else {
+                    // For operation categories: show dropdowns, hide readonly inputs
+                    $('#edit-category').show().prop('required', true).val(data.category);
+                    $('#edit-category-readonly').hide();
+                    $('#edit-budget').show().prop('required', true);
+                    $('#edit-budget-readonly').hide();
+                    $('#edit-sub_budget').show().prop('required', true).val(data.sub_budget);
+                    $('#edit-sub_budget-readonly').hide();
+                    $('#edit-recipient').show().prop('required', true).val(data.recipient);
+                    $('#edit-recipient-readonly').hide();
+                    $('#edit-status').show().prop('required', true).val(data.status);
+                    $('#edit-status-readonly').hide();
+                    $('#edit-credit').prop('readonly', false).removeClass('bg-gray-100 cursor-not-allowed');
+                    
+                    // Remove hidden inputs for operation categories
+                    $('#edit-ledger-form').find('input[type="hidden"][name="category"]').remove();
+                    $('#edit-ledger-form').find('input[type="hidden"][name="budget"]').remove();
+                    $('#edit-ledger-form').find('input[type="hidden"][name="sub_budget"]').remove();
+                    $('#edit-ledger-form').find('input[type="hidden"][name="recipient"]').remove();
+                    $('#edit-ledger-form').find('input[type="hidden"][name="status"]').remove();
+                    
+                    // Update budget options for operation categories
+                    updateBudgetOptions($('#edit-category')[0], '#edit-budget');
+                    setTimeout(() => {
+                        $('#edit-budget').val(data.budget);
+                    }, 500);
+                }
                 
                 // Tampilkan modal
                 const editModal = document.getElementById('edit-ledger-modal');
-                const modal = new Modal(editModal);
-                modal.show();
+                editModal.classList.remove('hidden');
+                editModal.setAttribute('aria-hidden', 'false');
+                editModal.style.display = 'flex';
             },
             error: function(xhr) {
                 Swal.fire({
@@ -147,6 +278,13 @@ $(document).ready(function() {
             method: 'POST',
             data: $form.serialize(),
             success: function(response) {
+                // Close modal first
+                if (isEdit) {
+                    closeEditModal();
+                } else {
+                    closeAddModal();
+                }
+                
                 Swal.fire({
                     title: 'Berhasil!',
                     text: isEdit ? 'Data ledger berhasil diperbarui' : 'Data ledger berhasil dibuat',
@@ -186,6 +324,46 @@ $(document).ready(function() {
         });
     });
 
+    // Handle category change in add form
+    $('#category').on('change', function() {
+        updateBudgetOptions(this, '#budget');
+        
+        const category = $(this).val();
+        const $amountLabel = $('#amount-label');
+        const $creditInput = $('#credit');
+        const $debitInput = $('input[name="debit"]');
+        
+        // Update label and values based on category
+        if (category === 'REVENUE PROJECT') {
+            $amountLabel.text('Amount (Debit)');
+            $debitInput.val($creditInput.val() || 0);
+            $creditInput.val(0);
+        } else {
+            $amountLabel.text('Amount (Credit)');
+            $creditInput.val($debitInput.val() || 0);
+            $debitInput.val(0);
+        }
+    });
+
+    // Handle amount change
+    $('#credit').on('change', function() {
+        const category = $('#category').val();
+        const amount = $(this).val() || 0;
+        const $debitInput = $('input[name="debit"]');
+        
+        if (category === 'REVENUE PROJECT') {
+            $debitInput.val(amount);
+            $(this).val(0);
+        } else {
+            $debitInput.val(0);
+        }
+    });
+
+    // Handle category change in edit form
+    $('#edit-category').on('change', function() {
+        updateBudgetOptions(this, '#edit-budget');
+    });
+
     // Function to update budget options based on category
     function updateBudgetOptions(categorySelect, budgetSelect) {
         const category = $(categorySelect).val();
@@ -202,7 +380,13 @@ $(document).ready(function() {
                 $budgetSelect.append('<option value="" selected disabled>Pilih Budget</option>');
                 
                 options.forEach(function(option) {
-                    $budgetSelect.append(`<option value="${option.id}">${option.coa}</option>`);
+                    if (category === 'COST OPERATION' || category === 'KAS MARGIN') {
+                        // For COST OPERATION and KAS MARGIN, use COA as both value and text
+                        $budgetSelect.append(`<option value="${option.coa}">${option.coa}</option>`);
+                    } else {
+                        // For project categories, use project COA as value
+                        $budgetSelect.append(`<option value="${option.coa}">${option.coa}</option>`);
+                    }
                 });
             },
             error: function(xhr) {
@@ -211,14 +395,138 @@ $(document).ready(function() {
         });
     }
 
-    // Handle category change in add form
-    $('#category').on('change', function() {
-        updateBudgetOptions(this, '#budget_id');
+    // Handle modal close buttons
+    $(document).on('click', '[data-modal-hide="edit-ledger-modal"]', function(e) {
+        e.preventDefault();
+        closeEditModal();
     });
 
-    // Handle category change in edit form
-    $('#edit-category').on('change', function() {
-        updateBudgetOptions(this, '#edit-budget_id');
+    $(document).on('click', '[data-modal-hide="add-ledger-modal"]', function(e) {
+        e.preventDefault();
+        closeAddModal();
+    });
+
+    // Function to close edit modal properly
+    function closeEditModal() {
+        const editModal = document.getElementById('edit-ledger-modal');
+        if (editModal) {
+            // Hide modal
+            editModal.classList.add('hidden');
+            editModal.setAttribute('aria-hidden', 'true');
+            editModal.style.display = 'none';
+            
+            // Remove all possible backdrop elements
+            document.querySelectorAll('[modal-backdrop], .modal-backdrop, .fixed.inset-0.bg-gray-900').forEach(backdrop => {
+                backdrop.remove();
+            });
+            
+            // Remove overflow hidden from body and restore scrolling
+            document.body.classList.remove('overflow-hidden');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            
+            // Remove any modal-related classes from html/body
+            document.documentElement.classList.remove('overflow-hidden');
+            
+            // Force remove any remaining modal backdrop styles
+            const style = document.createElement('style');
+            style.textContent = `
+                body { overflow: auto !important; }
+                html { overflow: auto !important; }
+            `;
+            document.head.appendChild(style);
+            setTimeout(() => {
+                document.head.removeChild(style);
+            }, 100);
+            
+            // Reset form
+            $('#edit-ledger-form')[0].reset();
+            
+            // Remove any hidden inputs that were added
+            $('#edit-ledger-form').find('input[type="hidden"][name="category"]').remove();
+            $('#edit-ledger-form').find('input[type="hidden"][name="budget"]').remove();
+            $('#edit-ledger-form').find('input[type="hidden"][name="sub_budget"]').remove();
+            $('#edit-ledger-form').find('input[type="hidden"][name="recipient"]').remove();
+            $('#edit-ledger-form').find('input[type="hidden"][name="status"]').remove();
+            
+            // Reset field visibility and states
+            $('#edit-category').show().prop('required', true).removeClass('bg-gray-100 cursor-not-allowed');
+            $('#edit-category-readonly').hide();
+            $('#edit-budget').show().prop('required', true).removeClass('bg-gray-100 cursor-not-allowed');
+            $('#edit-budget-readonly').hide();
+            $('#edit-sub_budget').show().prop('required', true).removeClass('bg-gray-100 cursor-not-allowed');
+            $('#edit-sub_budget-readonly').hide();
+            $('#edit-recipient').show().prop('required', true).removeClass('bg-gray-100 cursor-not-allowed');
+            $('#edit-recipient-readonly').hide();
+            $('#edit-status').show().prop('required', true).removeClass('bg-gray-100 cursor-not-allowed');
+            $('#edit-status-readonly').hide();
+            $('#edit-credit').prop('readonly', false).removeClass('bg-gray-100 cursor-not-allowed');
+        }
+    }
+
+    // Function to close add modal properly
+    function closeAddModal() {
+        const addModal = document.getElementById('add-ledger-modal');
+        if (addModal) {
+            // Hide modal
+            addModal.classList.add('hidden');
+            addModal.setAttribute('aria-hidden', 'true');
+            addModal.style.display = 'none';
+            
+            // Remove all possible backdrop elements
+            document.querySelectorAll('[modal-backdrop], .modal-backdrop, .fixed.inset-0.bg-gray-900').forEach(backdrop => {
+                backdrop.remove();
+            });
+            
+            // Remove overflow hidden from body and restore scrolling
+            document.body.classList.remove('overflow-hidden');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            
+            // Remove any modal-related classes from html/body
+            document.documentElement.classList.remove('overflow-hidden');
+            
+            // Force remove any remaining modal backdrop styles
+            const style = document.createElement('style');
+            style.textContent = `
+                body { overflow: auto !important; }
+                html { overflow: auto !important; }
+            `;
+            document.head.appendChild(style);
+            setTimeout(() => {
+                document.head.removeChild(style);
+            }, 100);
+            
+            // Reset form
+            $('#add-ledger-form')[0].reset();
+        }
+    }
+
+    // Handle ESC key to close modals
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape') {
+            // Close edit modal
+            const editModal = document.getElementById('edit-ledger-modal');
+            if (editModal && !editModal.classList.contains('hidden')) {
+                closeEditModal();
+            }
+            // Close add modal
+            const addModal = document.getElementById('add-ledger-modal');
+            if (addModal && !addModal.classList.contains('hidden')) {
+                closeAddModal();
+            }
+        }
+    });
+
+    // Handle backdrop click to close modals
+    $(document).on('click', '#edit-ledger-modal, #add-ledger-modal', function(e) {
+        if (e.target === this) {
+            if (this.id === 'edit-ledger-modal') {
+                closeEditModal();
+            } else if (this.id === 'add-ledger-modal') {
+                closeAddModal();
+            }
+        }
     });
 
     // Handle mark as paid button

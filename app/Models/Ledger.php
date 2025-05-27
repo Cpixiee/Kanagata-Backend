@@ -13,7 +13,10 @@ class Ledger extends Model
     protected $fillable = [
         'category',
         'budget',
+        'sub_budget',
+        'recipient',
         'date',
+        'month',
         'status',
         'debit',
         'credit',
@@ -51,7 +54,7 @@ class Ledger extends Model
     // Get formatted budget/COA
     public function getBudgetCoaAttribute()
     {
-        if ($this->budget && $this->budget->exists) {
+        if (is_object($this->budget)) {
             return $this->budget->coa;
         }
         return $this->budget_id;
