@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TutorController;
 use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\TutorScheduleController;
+use App\Http\Controllers\ReviewController;
 
 // Root redirect
 Route::get('/', function () {
@@ -71,4 +72,15 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/ledger/{ledger}', [LedgerController::class, 'update'])->name('ledger.update');
     Route::delete('/ledger/{ledger}', [LedgerController::class, 'destroy'])->name('ledger.destroy');
     Route::post('/ledger/{ledger}/mark-as-paid', [LedgerController::class, 'markAsPaid'])->name('ledger.mark-as-paid');
+
+    // Review routes
+    Route::middleware('admin')->group(function () {
+        Route::get('/review', [ReviewController::class, 'index'])->name('review.index');
+        Route::get('/review/{request}', [ReviewController::class, 'show'])->name('review.show');
+        Route::post('/review/{request}/approve', [ReviewController::class, 'approve'])->name('review.approve');
+        Route::post('/review/{request}/reject', [ReviewController::class, 'reject'])->name('review.reject');
+    });
+    
+    // Route for storing review requests (accessible by all authenticated users)
+    Route::post('/review', [ReviewController::class, 'store'])->name('review.store');
 });

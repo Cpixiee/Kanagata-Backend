@@ -41,47 +41,149 @@ $(document).ready(function() {
         }
     });
 
-    // Handler untuk konfirmasi penghapusan
-    $(document).on('click', '.delete-logsheet', function(e) {
+    // Project selection handler
+    $('#project_id, #edit_project_id').on('change', function() {
+        const prefix = $(this).attr('id').startsWith('edit_') ? 'edit_' : '';
+        const selectedOption = $(this).find('option:selected');
+        
+        $(`#${prefix}coa`).val(selectedOption.data('coa'));
+        $(`#${prefix}customer`).val(selectedOption.data('customer'));
+        $(`#${prefix}activity`).val(selectedOption.data('activity'));
+        $(`#${prefix}prodi`).val(selectedOption.data('prodi'));
+        $(`#${prefix}grade`).val(selectedOption.data('grade'));
+        $(`#${prefix}rate_1`).val(selectedOption.data('rate1'));
+        $(`#${prefix}rate_2`).val(selectedOption.data('rate2'));
+    });
+
+    // Delete logsheet
+    $('.delete-logsheet').on('click', function(e) {
         e.preventDefault();
         const form = $(this).closest('form');
         
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data logsheet akan dihapus secara permanen!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: form.serialize(),
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                Swal.fire({
+                    html: `
+                        <div class="text-center">
+                            <div class="mb-4">
+                                <i class="text-info" style="font-size: 48px;">i</i>
+                            </div>
+                            <h2 class="text-xl font-semibold mb-4">Request Submitted</h2>
+                            <p class="text-gray-600">Your deletion request has been submitted for<br>review and is pending approval.</p>
+                        </div>
+                    `,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#6366f1',
+                    customClass: {
+                        confirmButton: 'px-4 py-2 text-white rounded'
+                    }
+                }).then(() => {
+                    window.location.reload();
+                });
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: xhr.responseJSON?.message || 'Terjadi kesalahan. Silakan coba lagi.'
+                });
+            }
+        });
+    });
+
+    // Calculate amounts when quantity or rate changes
+    function calculateAmounts(prefix = '') {
+        const quantity1 = parseFloat($(`#${prefix}quantity_1`).val()) || 0;
+        const rate1 = parseFloat($(`#${prefix}rate_1`).val()) || 0;
+        const quantity2 = parseFloat($(`#${prefix}quantity_2`).val()) || 0;
+        const rate2 = parseFloat($(`#${prefix}rate_2`).val()) || 0;
+
+        const revenue = quantity1 * rate1;
+        const cost = quantity2 * rate2;
+
+        $(`#${prefix}revenue`).val(revenue.toFixed(2));
+        $(`#${prefix}cost`).val(cost.toFixed(2));
+    }
+
+    // Bind calculation events
+    ['quantity_1', 'rate_1', 'quantity_2', 'rate_2'].forEach(field => {
+        $(`#${field}, #edit_${field}`).on('input', function() {
+            calculateAmounts($(this).attr('id').startsWith('edit_') ? 'edit_' : '');
+        });
+    });
+
+    // Form submission handlers
+    $('#logsheetForm, #editLogsheetForm').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const isEdit = form.attr('id') === 'editLogsheetForm';
+        const formData = new FormData(this);
+        const jsonData = {};
+        formData.forEach((value, key) => {
+            jsonData[key] = value;
+        });
+
+        if (isEdit) {
+            jsonData._method = 'PUT';
+            const logsheetId = $('#edit_id').val();
+            if (!logsheetId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'ID Logsheet tidak valid'
+                });
+                return;
+            }
+            form.attr('action', `/logsheets/${logsheetId}`);
+        }
+                
                 $.ajax({
                     url: form.attr('action'),
-                    method: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        _method: 'DELETE'
+            type: 'POST',
+            data: jsonData,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            text: 'Data logsheet berhasil dihapus',
-                            icon: 'success',
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Gagal menghapus data: ' + (xhr.responseJSON?.message || error),
-                            icon: 'error'
-                        });
+                const modalId = isEdit ? 'edit-logsheet-modal' : 'add-logsheet-modal';
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    const modalInstance = flowbite.Modal.getInstance(modal);
+                    modalInstance.hide();
+                }
+                
+                            Swal.fire({
+                    html: `
+                        <div class="text-center">
+                            <div class="mb-4">
+                                <i class="text-info" style="font-size: 48px;">i</i>
+                            </div>
+                            <h2 class="text-xl font-semibold mb-4">Request Submitted</h2>
+                            <p class="text-gray-600">Your ${isEdit ? 'update' : 'creation'} request has been submitted for<br>review and is pending approval.</p>
+                        </div>
+                    `,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#6366f1',
+                    customClass: {
+                        confirmButton: 'px-4 py-2 text-white rounded'
                     }
+                            }).then(() => {
+                                window.location.reload();
+                            });
+            },
+            error: function(xhr) {
+                        Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: xhr.responseJSON?.message || 'Terjadi kesalahan. Silakan coba lagi.'
                 });
             }
         });
@@ -153,167 +255,5 @@ $(document).ready(function() {
                 });
             }
         });
-    });
-
-    // Project selection change handler
-    $('#project_id, #edit_project_id').change(function() {
-        const selectedOption = $(this).find('option:selected');
-        const prefix = $(this).attr('id').startsWith('edit_') ? 'edit_' : '';
-        $(`#${prefix}coa`).val(selectedOption.data('coa'));
-        $(`#${prefix}customer`).val(selectedOption.data('customer'));
-        $(`#${prefix}activity`).val(selectedOption.data('activity'));
-        $(`#${prefix}prodi`).val(selectedOption.data('prodi'));
-        $(`#${prefix}grade`).val(selectedOption.data('grade'));
-        $(`#${prefix}rate_1`).val(selectedOption.data('rate1'));
-        $(`#${prefix}rate_2`).val(selectedOption.data('rate2'));
-    });
-
-    // Calculate amounts when quantity or rate changes
-    function calculateAmounts(prefix = '') {
-        const quantity1 = parseFloat($(`#${prefix}quantity_1`).val()) || 0;
-        const rate1 = parseFloat($(`#${prefix}rate_1`).val()) || 0;
-        const quantity2 = parseFloat($(`#${prefix}quantity_2`).val()) || 0;
-        const rate2 = parseFloat($(`#${prefix}rate_2`).val()) || 0;
-
-        const revenue = quantity1 * rate1;
-        const cost = quantity2 * rate2;
-
-        $(`#${prefix}revenue`).val(revenue.toFixed(2));
-        $(`#${prefix}cost`).val(cost.toFixed(2));
-    }
-
-    // Bind calculation events
-    ['quantity_1', 'rate_1', 'quantity_2', 'rate_2'].forEach(field => {
-        $(`#${field}, #edit_${field}`).on('input', function() {
-            calculateAmounts($(this).attr('id').startsWith('edit_') ? 'edit_' : '');
-        });
-    });
-
-    // Success message handler
-    if ($('body').data('success')) {
-        Swal.fire({
-            title: 'Berhasil!',
-            text: $('body').data('success'),
-            icon: 'success',
-            timer: 1500,
-            showConfirmButton: false
-        });
-    }
-
-    // Error message handler
-    if ($('body').data('error')) {
-        Swal.fire({
-            title: 'Error!',
-            text: $('body').data('error'),
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    }
-});
-
-// Flag untuk mencegah submit ganda
-let isSubmitting = false;
-
-// Handler submit form tambah logsheet
-$('#logsheetForm').on('submit', function(e) {
-    e.preventDefault();
-    
-    if (isSubmitting) return false;
-    isSubmitting = true;
-
-    const form = $(this);
-    const formData = new FormData(this);
-    const jsonData = {};
-    formData.forEach((value, key) => {
-        jsonData[key] = value;
-    });
-
-    // Tampilkan loading state
-    Swal.fire({
-        title: 'Menyimpan...',
-        text: 'Mohon tunggu sebentar',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
-
-    $.ajax({
-        url: form.attr('action'),
-        method: 'POST',
-        data: jsonData,
-        success: function(response) {
-            Swal.fire({
-                title: 'Berhasil!',
-                text: 'Data logsheet berhasil ditambahkan',
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                window.location.reload();
-            });
-        },
-        error: function(xhr, status, error) {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Gagal menambahkan data: ' + (xhr.responseJSON?.message || error),
-                icon: 'error'
-            });
-        },
-        complete: function() {
-            isSubmitting = false;
-        }
-    });
-});
-
-// Handler submit form edit logsheet
-$('#editLogsheetForm').on('submit', function(e) {
-    e.preventDefault();
-    
-    if (isSubmitting) return false;
-    isSubmitting = true;
-
-    const form = $(this);
-    const formData = new FormData(this);
-    const jsonData = {};
-    formData.forEach((value, key) => {
-        jsonData[key] = value;
-    });
-    jsonData._method = 'PUT';
-
-    Swal.fire({
-        title: 'Menyimpan...',
-        text: 'Mohon tunggu sebentar',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
-
-    $.ajax({
-        url: `/logsheets/${formData.get('id')}`,
-        method: 'POST',
-        data: jsonData,
-        success: function(response) {
-            Swal.fire({
-                title: 'Berhasil!',
-                text: 'Data logsheet berhasil diperbarui',
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                window.location.reload();
-            });
-        },
-        error: function(xhr, status, error) {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Gagal memperbarui data: ' + (xhr.responseJSON?.message || error),
-                icon: 'error'
-            });
-        },
-        complete: function() {
-            isSubmitting = false;
-        }
     });
 });

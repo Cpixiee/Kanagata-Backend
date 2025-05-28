@@ -128,100 +128,169 @@ $(document).ready(function() {
     });
 
     // Tangani pengiriman form
-    $('#add-project-form, #edit-project-form').on('submit', function(e) {
+    $('#add-project-form').on('submit', function(e) {
         e.preventDefault();
-        const $form = $(this);
-        const isEdit = $form.attr('id') === 'edit-project-form';
-        
+        const formData = $(this).serialize();
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.request) {
+                    // This is a review request
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Request Submitted',
+                        text: 'Your request has been submitted for review and is pending approval.',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        $('#add-project-modal').hide();
+                        location.reload();
+                    });
+                } else {
+                    // Direct success (admin)
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        $('#add-project-modal').hide();
+                        location.reload();
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while processing your request.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+
+    $('#edit-project-form').on('submit', function(e) {
+        e.preventDefault();
+        const formData = $(this).serialize() + '&_method=PUT';
+        const projectId = $(this).attr('action').split('/').pop();
+
+        // Show loading state
         Swal.fire({
             title: 'Menyimpan...',
-            text: 'Mohon tunggu',
+            text: 'Mohon tunggu sebentar',
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
             }
         });
 
-        const formData = new FormData(this);
-        const jsonData = {};
-        formData.forEach((value, key) => {
-            // Hanya ambil field yang diperlukan
-            if (['_token', 'coa', 'customer', 'activity', 'prodi', 'grade', 
-                 'quantity_1', 'rate_1', 'quantity_2', 'rate_2', '_method'].includes(key)) {
-                jsonData[key] = value;
+        $.ajax({
+            url: `/projects/${projectId}`,
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.request) {
+                    // This is a review request
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Request Submitted',
+                        text: 'Your update request has been submitted for review and is pending approval.',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        $('#edit-project-modal').hide();
+                        location.reload();
+                    });
+                } else {
+                    // Direct success (admin)
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.message || 'Project updated successfully',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        $('#edit-project-modal').hide();
+                        location.reload();
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                let errorMessage = 'An error occurred while processing your request.';
+                
+                if (xhr.status === 422) {
+                    const errors = xhr.responseJSON.errors;
+                    const errorMessages = [];
+                    Object.keys(errors).forEach(field => {
+                        errorMessages.push(errors[field][0]);
+                        const input = $(`#edit-${field}`);
+                        input.addClass('is-invalid');
+                        input.after(`<div class="invalid-feedback">${errors[field][0]}</div>`);
+                    });
+                    errorMessage = errorMessages.join('\n');
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage,
+                    confirmButtonText: 'OK'
+                });
             }
         });
+    });
 
-        // Tambahkan CSRF token
-        jsonData._token = $('meta[name="csrf-token"]').attr('content');
+    $('.delete-project').click(function(e) {
+        e.preventDefault();
+        const form = $(this).closest('form');
 
-        // Hitung nilai turunan
-        const prefix = isEdit ? 'edit-' : '';
-        const quantity1 = parseFloat($(`#${prefix}quantity_1`).val()) || 0;
-        const rate1 = parseFloat($(`#${prefix}rate_1`).val()) || 0;
-        const quantity2 = parseFloat($(`#${prefix}quantity_2`).val()) || 0;
-        const rate2 = parseFloat($(`#${prefix}rate_2`).val()) || 0;
-
-        // Hitung nilai-nilai yang diperlukan
-        jsonData.gt_rev = quantity1 * rate1;
-        jsonData.gt_cost = quantity2 * rate2;
-        jsonData.gt_margin = jsonData.gt_rev - jsonData.gt_cost;
-        
-        // Initialize AR/AP values untuk project baru
-        if (!isEdit) {
-            jsonData.sum_ar = 0;
-            jsonData.ar_paid = 0;
-            jsonData.ar_os = 0;
-            jsonData.sum_ap = 0;
-            jsonData.ap_paid = 0;
-            jsonData.ap_os = 0;
-        }
-
-        // Hitung todo dan ar_ap
-        jsonData.todo = jsonData.gt_rev - (jsonData.sum_ar || 0);
-        jsonData.ar_ap = (jsonData.sum_ar || 0) - (jsonData.sum_ap || 0);
-
-        // Debug: Log data yang akan dikirim
-        console.log('Data yang akan dikirim:', jsonData);
-
-        $.ajax({
-            url: isEdit ? $form.attr('action') : '/projects',
-            method: 'POST',
-            data: jsonData,
-            success: function(response) {
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: isEdit ? 'Proyek berhasil diperbarui' : 'Proyek berhasil dibuat',
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.reload();
-                });
-            },
-            error: function(xhr) {
-                let errorMessage = 'Terjadi kesalahan saat menyimpan proyek.';
-                if (xhr.responseJSON?.errors) {
-                    errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
-                } else if (xhr.responseJSON?.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
-                
-                // Tambahkan informasi status error
-                if (xhr.status === 419) {
-                    errorMessage = 'Sesi telah kedaluwarsa. Silakan muat ulang halaman.';
-                }
-                
-                console.error('Error response:', xhr.responseJSON);
-                
-                Swal.fire({
-                    title: 'Error!',
-                    text: errorMessage,
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                }).then((result) => {
-                    if (xhr.status === 419) {
-                        window.location.reload();
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.request) {
+                            // This is a review request
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Request Submitted',
+                                text: 'Your deletion request has been submitted for review and is pending approval.',
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                location.reload();
+                            });
+                        } else {
+                            // Direct success (admin)
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: response.message,
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while processing your request.',
+                            confirmButtonText: 'OK'
+                        });
                     }
                 });
             }
@@ -271,3 +340,101 @@ function showErrorMessage(message) {
         confirmButtonText: 'OK'
     });
 }
+
+// Form submission handlers
+$('#projectForm, #editProjectForm').on('submit', function(e) {
+    e.preventDefault();
+    const form = $(this);
+    const isEdit = form.attr('id') === 'editProjectForm';
+    const formData = new FormData(this);
+    const jsonData = {};
+    formData.forEach((value, key) => {
+        jsonData[key] = value;
+    });
+
+    if (isEdit) {
+        jsonData._method = 'PUT';
+    }
+
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: 'Permintaan akan dikirim untuk ditinjau. Lanjutkan?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Kirim',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: jsonData,
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Permintaan Terkirim',
+                        text: 'Permintaan telah dikirim untuk ditinjau',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Close modal if it exists
+                        const modalId = isEdit ? 'edit-project-modal' : 'add-project-modal';
+                        const modal = document.getElementById(modalId);
+                        if (modal) {
+                            const modalInstance = flowbite.Modal.getInstance(modal);
+                            modalInstance.hide();
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Gagal mengirim permintaan. Silakan coba lagi.'
+                    });
+                }
+            });
+        }
+    });
+});
+
+// Delete project handler
+$('.delete-project').on('click', function(e) {
+    e.preventDefault();
+    const form = $(this).closest('form');
+    
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: 'Permintaan penghapusan akan dikirim untuk ditinjau. Lanjutkan?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Kirim',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Permintaan Terkirim',
+                        text: 'Permintaan penghapusan telah dikirim untuk ditinjau',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Gagal mengirim permintaan. Silakan coba lagi.'
+                    });
+                }
+            });
+        }
+    });
+});

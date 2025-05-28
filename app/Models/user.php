@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
-use App\Models\Post; // Tambahkan ini untuk relasi
 
 class User extends Authenticatable
 {
@@ -20,10 +18,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'username', 
+        'username',
         'password',
-        'last_login_at',
-        'is_active',
+        'role',
     ];
 
     /**
@@ -43,8 +40,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'last_login_at' => 'datetime',
-        'is_active' => 'boolean',
+        'password' => 'hashed',
     ];
 
     /**
@@ -60,14 +56,16 @@ class User extends Authenticatable
      */
     public static function generateRememberToken()
     {
-        return Str::random(60);
+        return \Illuminate\Support\Str::random(60);
     }
 
     /**
-     * Relationship dengan model Post
+     * Check if the user is an admin.
+     *
+     * @return bool
      */
-    public function posts()
+    public function isAdmin()
     {
-        return $this->hasMany(Post::class);
+        return $this->role === 'admin';
     }
 }

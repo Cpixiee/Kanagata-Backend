@@ -178,7 +178,17 @@ $(document).ready(function() {
                     $('#edit-recipient-readonly').show().val(data.recipient);
                     $('#edit-status').hide().prop('required', false);
                     $('#edit-status-readonly').show().val(data.status);
-                    $('#edit-credit').prop('readonly', true).addClass('bg-gray-100 cursor-not-allowed');
+                    
+                    // Handle amount fields based on category
+                    if (data.category === 'COST PROJECT') {
+                        // COST PROJECT: credit editable, debit readonly
+                        $('#edit-credit').prop('readonly', false).removeClass('bg-gray-100 cursor-not-allowed');
+                        $('#edit-debit').prop('readonly', true).addClass('bg-gray-100 cursor-not-allowed');
+                    } else if (data.category === 'REVENUE PROJECT') {
+                        // REVENUE PROJECT: debit editable, credit readonly
+                        $('#edit-debit').prop('readonly', false).removeClass('bg-gray-100 cursor-not-allowed');
+                        $('#edit-credit').prop('readonly', true).addClass('bg-gray-100 cursor-not-allowed');
+                    }
                     
                     // Add hidden inputs for readonly values
                     $('#edit-ledger-form').find('input[name="category_hidden"]').remove();
@@ -204,7 +214,10 @@ $(document).ready(function() {
                     $('#edit-recipient-readonly').hide();
                     $('#edit-status').show().prop('required', true).val(data.status);
                     $('#edit-status-readonly').hide();
+                    
+                    // For operation categories: credit editable, debit readonly
                     $('#edit-credit').prop('readonly', false).removeClass('bg-gray-100 cursor-not-allowed');
+                    $('#edit-debit').prop('readonly', true).addClass('bg-gray-100 cursor-not-allowed');
                     
                     // Remove hidden inputs for operation categories
                     $('#edit-ledger-form').find('input[type="hidden"][name="category"]').remove();
@@ -242,83 +255,293 @@ $(document).ready(function() {
         e.preventDefault();
         const form = $(this).closest('form');
         
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data ledger akan dihapus secara permanen!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit();
-            }
-        });
+        // Cek role user dari data yang disimpan di body
+        const isAdmin = $('body').data('role') === 'admin';
+
+        if (isAdmin) {
+            // Konfirmasi hapus untuk admin
+            Swal.fire({
+                title: 'Konfirmasi Hapus',
+                text: 'Apakah Anda yakin ingin menghapus data ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize(),
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: 'Data ledger berhasil dihapus',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#3B82F6'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Gagal menghapus data. Silakan coba lagi.'
+                            });
+                        }
+                    });
+                }
+            });
+        } else {
+            // Konfirmasi hapus untuk user biasa
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Permintaan penghapusan akan dikirim untuk ditinjau. Lanjutkan?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Kirim',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize(),
+                        success: function(response) {
+                            Swal.fire({
+                                html: `
+                                    <div class="text-center">
+                                        <div class="mb-4">
+                                            <i class="fas fa-info-circle text-info" style="font-size: 48px; color: #60A5FA;"></i>
+                                        </div>
+                                        <h2 class="text-xl font-semibold mb-4" style="color: #374151;">Permintaan Terkirim</h2>
+                                        <p style="color: #6B7280;">Permintaan penghapusan telah dikirim untuk ditinjau</p>
+                                    </div>
+                                `,
+                                showConfirmButton: true,
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#3B82F6',
+                                background: '#FFFFFF'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Gagal mengirim permintaan. Silakan coba lagi.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
     });
 
-    // Tangani pengiriman form
+    // Form submission handlers
     $('#add-ledger-form, #edit-ledger-form').on('submit', function(e) {
         e.preventDefault();
-        const $form = $(this);
-        const isEdit = $form.attr('id') === 'edit-ledger-form';
+        const form = $(this);
+        const isEdit = form.attr('id') === 'edit-ledger-form';
         
-        Swal.fire({
-            title: 'Menyimpan...',
-            text: 'Mohon tunggu',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
+        // Validasi form sebelum submit
+        let isValid = true;
+        const requiredFields = ['category', 'budget', 'sub_budget', 'recipient', 'date', 'month', 'status'];
+        
+        requiredFields.forEach(field => {
+            const fieldElement = isEdit ? $(`#edit-${field}`) : $(`#${field}`);
+            const readonlyElement = isEdit ? $(`#edit-${field}-readonly`) : null;
+            
+            // Untuk edit, cek apakah field readonly atau tidak
+            if (isEdit && readonlyElement && readonlyElement.is(':visible')) {
+                // Field readonly, cek nilai dari readonly element
+                if (!readonlyElement.val() || readonlyElement.val() === '') {
+                    isValid = false;
+                    readonlyElement.addClass('border-red-500');
+                } else {
+                    readonlyElement.removeClass('border-red-500');
+                }
+            } else if (isEdit) {
+                // Field normal untuk edit, cek apakah ada hidden input atau field biasa
+                const hiddenInput = form.find(`input[type="hidden"][name="${field}"]`);
+                
+                if (hiddenInput.length > 0) {
+                    // Ada hidden input, cek nilainya
+                    if (!hiddenInput.val() || hiddenInput.val() === '') {
+                        isValid = false;
+                        // Highlight field yang terlihat jika ada
+                        if (fieldElement.length && fieldElement.is(':visible')) {
+                            fieldElement.addClass('border-red-500');
+                        }
+                    } else {
+                        if (fieldElement.length && fieldElement.is(':visible')) {
+                            fieldElement.removeClass('border-red-500');
+                        }
+                    }
+                } else {
+                    // Tidak ada hidden input, cek field biasa
+                    if (!fieldElement.val() || fieldElement.val() === '') {
+                        isValid = false;
+                        fieldElement.addClass('border-red-500');
+                    } else {
+                        fieldElement.removeClass('border-red-500');
+                    }
+                }
+            } else {
+                // Form add, cek field normal
+                if (!fieldElement.val() || fieldElement.val() === '') {
+                    isValid = false;
+                    fieldElement.addClass('border-red-500');
+                } else {
+                    fieldElement.removeClass('border-red-500');
+                }
             }
         });
 
-        $.ajax({
-            url: $form.attr('action'),
-            method: 'POST',
-            data: $form.serialize(),
-            success: function(response) {
-                // Close modal first
-                if (isEdit) {
-                    closeEditModal();
+        // Validasi amount berdasarkan kategori
+        const creditField = isEdit ? $('#edit-credit') : $('#credit');
+        const debitField = isEdit ? $('#edit-debit') : $('input[name="debit"]');
+        
+        if (isEdit) {
+            // Untuk edit, cek kategori dari hidden input atau field yang terlihat
+            const categoryValue = form.find('input[type="hidden"][name="category"]').val() || 
+                                 form.find('#edit-category').val();
+            
+            if (categoryValue === 'REVENUE PROJECT') {
+                // REVENUE PROJECT: debit harus ada nilai, credit boleh 0
+                if (!debitField.val() || debitField.val() <= 0) {
+                    isValid = false;
+                    debitField.addClass('border-red-500');
                 } else {
-                    closeAddModal();
+                    debitField.removeClass('border-red-500');
                 }
-                
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: isEdit ? 'Data ledger berhasil diperbarui' : 'Data ledger berhasil dibuat',
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.reload();
-                });
+            } else {
+                // COST PROJECT, COST OPERATION, KAS MARGIN: credit harus ada nilai, debit boleh 0
+                if (!creditField.val() || creditField.val() <= 0) {
+                    isValid = false;
+                    creditField.addClass('border-red-500');
+                } else {
+                    creditField.removeClass('border-red-500');
+                }
+            }
+        } else {
+            // Form add: validasi berdasarkan kategori
+            const categoryValue = $('#category').val();
+            
+            if (categoryValue === 'REVENUE PROJECT') {
+                // REVENUE PROJECT: amount akan masuk ke debit
+                if (!creditField.val() || creditField.val() <= 0) {
+                    isValid = false;
+                    creditField.addClass('border-red-500');
+                } else {
+                    creditField.removeClass('border-red-500');
+                }
+            } else {
+                // COST PROJECT, COST OPERATION, KAS MARGIN: amount akan masuk ke credit
+                if (!creditField.val() || creditField.val() <= 0) {
+                    isValid = false;
+                    creditField.addClass('border-red-500');
+                } else {
+                    creditField.removeClass('border-red-500');
+                }
+            }
+        }
+
+        if (!isValid) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Mohon lengkapi semua field yang diperlukan'
+            });
+            return;
+        }
+
+        const formData = new FormData(this);
+
+        if (isEdit) {
+            formData.append('_method', 'PUT');
+        }
+
+        // Cek role user dari data yang disimpan di body
+        const isAdmin = $('body').data('role') === 'admin';
+
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.message || response.success) {
+                    if (isAdmin) {
+                        // Notifikasi untuk admin
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: isEdit ? 'Data ledger berhasil diperbarui' : 'Data ledger berhasil ditambahkan',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#3B82F6'
+                        }).then(() => {
+                            const modalId = isEdit ? 'edit-ledger-modal' : 'add-ledger-modal';
+                            const modal = document.getElementById(modalId);
+                            if (modal) {
+                                modal.classList.add('hidden');
+                                modal.setAttribute('aria-hidden', 'true');
+                                modal.style.display = 'none';
+                            }
+                            window.location.reload();
+                        });
+                    } else {
+                        // Notifikasi untuk user biasa
+                        Swal.fire({
+                            html: `
+                                <div class="text-center">
+                                    <div class="mb-4">
+                                        <i class="fas fa-info-circle" style="font-size: 48px; color: #60A5FA;"></i>
+                                    </div>
+                                    <h2 class="text-xl font-semibold mb-4" style="color: #374151;">Permintaan Terkirim</h2>
+                                    <p style="color: #6B7280;">Permintaan ${isEdit ? 'perubahan' : 'penambahan'} data telah dikirim untuk ditinjau.</p>
+                                </div>
+                            `,
+                            showConfirmButton: true,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#3B82F6',
+                            background: '#FFFFFF'
+                        }).then(() => {
+                            const modalId = isEdit ? 'edit-ledger-modal' : 'add-ledger-modal';
+                            const modal = document.getElementById(modalId);
+                            if (modal) {
+                                modal.classList.add('hidden');
+                                modal.setAttribute('aria-hidden', 'true');
+                                modal.style.display = 'none';
+                            }
+                            window.location.reload();
+                        });
+                    }
+                }
             },
             error: function(xhr) {
-                let errorMessage = 'Terjadi kesalahan saat menyimpan data ledger.';
-                if (xhr.responseJSON?.errors) {
-                    errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
-                } else if (xhr.responseJSON?.message) {
+                let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = Object.values(xhr.responseJSON.errors).flat();
+                    errorMessage = errors.join('\n');
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
                 }
                 
-                // Tambahkan informasi status error
-                if (xhr.status === 419) {
-                    errorMessage = 'Sesi telah kedaluwarsa. Silakan muat ulang halaman.';
-                }
-                
-                console.error('Error response:', xhr.responseJSON);
-                
                 Swal.fire({
-                    title: 'Error!',
-                    text: errorMessage,
                     icon: 'error',
-                    confirmButtonText: 'OK'
-                }).then((result) => {
-                    if (xhr.status === 419) {
-                        window.location.reload();
-                    }
+                    title: 'Error',
+                    text: errorMessage
                 });
             }
         });
@@ -558,29 +781,32 @@ $(document).ready(function() {
                     },
                     success: function(response) {
                         if (response.success) {
-                            Swal.fire(
-                                'Berhasil!',
-                                'Status berhasil diubah menjadi PAID.',
-                                'success'
-                            ).then(() => {
-                                // Reload halaman untuk memperbarui data
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Status berhasil diubah menjadi PAID',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#3B82F6'
+                            }).then(() => {
                                 window.location.reload();
                             });
                         } else {
-                            Swal.fire(
-                                'Gagal!',
-                                response.message || 'Terjadi kesalahan saat mengubah status.',
-                                'error'
-                            );
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: response.message || 'Terjadi kesalahan saat mengubah status.',
+                                confirmButtonText: 'OK'
+                            });
                             button.prop('disabled', false);
                         }
                     },
                     error: function(xhr) {
-                        Swal.fire(
-                            'Error!',
-                            'Terjadi kesalahan saat mengubah status.',
-                            'error'
-                        );
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Terjadi kesalahan saat mengubah status.',
+                            confirmButtonText: 'OK'
+                        });
                         button.prop('disabled', false);
                     }
                 });
@@ -591,19 +817,19 @@ $(document).ready(function() {
 
 function showSuccessMessage(message) {
     Swal.fire({
+        icon: 'success',
         title: 'Berhasil!',
         text: message,
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3B82F6'
     });
 }
 
 function showErrorMessage(message) {
     Swal.fire({
+        icon: 'error',
         title: 'Error!',
         text: message,
-        icon: 'error',
         confirmButtonText: 'OK'
     });
-} 
+}

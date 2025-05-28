@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Ledger;
 use App\Models\Project;
+use App\Models\ReviewRequest;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class LedgerController extends Controller
 {
@@ -55,7 +58,7 @@ class LedgerController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'category' => 'required|string|in:COST OPERATION,REVENUE PROJECT,COST PROJECT,KAS MARGIN',
             'budget' => 'required|string',
             'sub_budget' => 'required|string',
@@ -67,29 +70,53 @@ class LedgerController extends Controller
             'debit' => 'required|numeric|min:0'
         ]);
 
-        // Auto-generate description for manual entries
-        if (in_array($validated['category'], ['COST OPERATION', 'KAS MARGIN'])) {
-            $validated['description'] = $validated['category'] . ' - ' . $validated['sub_budget'] . ' - ' . $validated['recipient'];
-            // COST OPERATION and KAS MARGIN go to credit
-            $validated['credit'] = $validated['credit'];
-            $validated['debit'] = 0;
-        } elseif ($validated['category'] === 'COST PROJECT') {
-            $validated['description'] = $validated['category'] . ' - Manual Entry';
-            // COST PROJECT goes to credit
-            $validated['credit'] = $validated['credit'];
-            $validated['debit'] = 0;
-        } elseif ($validated['category'] === 'REVENUE PROJECT') {
-            $validated['description'] = $validated['category'] . ' - Manual Entry';
-            // REVENUE PROJECT goes to debit
-            $validated['debit'] = $validated['credit'];
-            $validated['credit'] = 0;
-        }
-
         try {
-            Ledger::create($validated);
-            return redirect()->route('ledger.index')->with('success', 'Data ledger berhasil ditambahkan');
+            DB::beginTransaction();
+
+            // Auto-generate description for manual entries
+            if (in_array($data['category'], ['COST OPERATION', 'KAS MARGIN'])) {
+                $data['description'] = $data['category'] . ' - ' . $data['sub_budget'] . ' - ' . $data['recipient'];
+                // COST OPERATION and KAS MARGIN go to credit
+                $data['credit'] = $data['credit'];
+                $data['debit'] = 0;
+            } elseif ($data['category'] === 'COST PROJECT') {
+                $data['description'] = $data['category'] . ' - Manual Entry';
+                // COST PROJECT goes to credit
+                $data['credit'] = $data['credit'];
+                $data['debit'] = 0;
+            } elseif ($data['category'] === 'REVENUE PROJECT') {
+                $data['description'] = $data['category'] . ' - Manual Entry';
+                // REVENUE PROJECT goes to debit
+                $data['debit'] = $data['credit'];
+                $data['credit'] = 0;
+            }
+
+            if (Auth::user()->role === 'admin') {
+                $ledger = Ledger::create($data);
+                DB::commit();
+                return response()->json([
+                    'message' => 'Ledger entry created successfully',
+                    'ledger' => $ledger
+                ]);
+            } else {
+                $reviewRequest = ReviewRequest::create([
+                    'user_id' => Auth::id(),
+                    'action_type' => 'create',
+                    'model_type' => 'Ledger',
+                    'data' => $data,
+                    'status' => 'pending'
+                ]);
+                DB::commit();
+                return response()->json([
+                    'message' => 'Your request has been submitted for review',
+                    'request' => $reviewRequest
+                ]);
+            }
         } catch (\Exception $e) {
-            return redirect()->route('ledger.index')->with('error', 'Gagal menambahkan data ledger: ' . $e->getMessage());
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error creating ledger entry: ' . $e->getMessage()
+            ], 422);
         }
     }
 
@@ -100,57 +127,87 @@ class LedgerController extends Controller
 
     public function update(Request $request, Ledger $ledger)
     {
-        $isProjectCategory = in_array($ledger->category, ['COST PROJECT', 'REVENUE PROJECT']);
-        
-        if ($isProjectCategory) {
-            // For project categories, only allow editing date and month
-            $validated = $request->validate([
-                'date' => 'required|date',
-                'month' => 'required|string'
-            ]);
-            
-            // Keep existing values for other fields
-            $validated['category'] = $ledger->category;
-            $validated['budget'] = $ledger->budget;
-            $validated['sub_budget'] = $ledger->sub_budget;
-            $validated['recipient'] = $ledger->recipient;
-            $validated['status'] = $ledger->status;
-            $validated['debit'] = $ledger->debit;
-            $validated['credit'] = $ledger->credit;
-            $validated['description'] = $ledger->description;
-        } else {
-            // For operation categories, allow editing all fields
-        $validated = $request->validate([
-            'category' => 'required|string',
+        $data = $request->validate([
+            'category' => 'required|string|in:COST OPERATION,REVENUE PROJECT,COST PROJECT,KAS MARGIN',
             'budget' => 'required|string',
-                'sub_budget' => 'required|string',
-                'recipient' => 'required|string',
+            'sub_budget' => 'required|string',
+            'recipient' => 'required|string',
             'date' => 'required|date',
-                'month' => 'required|string',
-            'status' => 'required|string',
-            'debit' => 'required|numeric',
-                'credit' => 'required|numeric'
+            'month' => 'required|string',
+            'status' => 'required|string|in:LISTING,PAID',
+            'credit' => 'required|numeric|min:0',
+            'debit' => 'required|numeric|min:0'
         ]);
-            
-            // Auto-generate description for operation entries
-            $validated['description'] = $validated['category'] . ' - ' . $validated['sub_budget'] . ' - ' . $validated['recipient'];
-        }
 
         try {
-            $ledger->update($validated);
-            return redirect()->route('ledger.index')->with('success', 'Data ledger berhasil diperbarui');
+            DB::beginTransaction();
+
+            // Auto-generate description for all entries
+            if (in_array($data['category'], ['COST OPERATION', 'KAS MARGIN'])) {
+                $data['description'] = $data['category'] . ' - ' . $data['sub_budget'] . ' - ' . $data['recipient'];
+                // COST OPERATION and KAS MARGIN: ensure debit is 0
+                $data['debit'] = 0;
+            } elseif ($data['category'] === 'COST PROJECT') {
+                $data['description'] = $data['category'] . ' - Manual Entry';
+                // COST PROJECT: ensure debit is 0
+                $data['debit'] = 0;
+            } elseif ($data['category'] === 'REVENUE PROJECT') {
+                $data['description'] = $data['category'] . ' - Manual Entry';
+                // REVENUE PROJECT: ensure credit is 0
+                $data['credit'] = 0;
+            }
+
+            if (Auth::user()->role === 'admin') {
+                $ledger->update($data);
+                DB::commit();
+                return response()->json([
+                    'message' => 'Ledger entry updated successfully',
+                    'ledger' => $ledger
+                ]);
+            } else {
+                $reviewRequest = ReviewRequest::create([
+                    'user_id' => Auth::id(),
+                    'action_type' => 'update',
+                    'model_type' => 'Ledger',
+                    'model_id' => $ledger->id,
+                    'data' => $data,
+                    'status' => 'pending'
+                ]);
+                DB::commit();
+                return response()->json([
+                    'message' => 'Your update request has been submitted for review',
+                    'request' => $reviewRequest
+                ]);
+            }
         } catch (\Exception $e) {
-            return redirect()->route('ledger.index')->with('error', 'Gagal memperbarui data ledger: ' . $e->getMessage());
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error updating ledger entry: ' . $e->getMessage()
+            ], 422);
         }
     }
 
     public function destroy(Ledger $ledger)
     {
-        try {
+        if (Auth::user()->role === 'admin') {
             $ledger->delete();
-            return redirect()->route('ledger.index')->with('success', 'Data ledger berhasil dihapus');
-        } catch (\Exception $e) {
-            return redirect()->route('ledger.index')->with('error', 'Gagal menghapus data ledger: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Ledger entry deleted successfully'
+            ]);
+        } else {
+            $reviewRequest = ReviewRequest::create([
+                'user_id' => Auth::id(),
+                'action_type' => 'delete',
+                'model_type' => 'Ledger',
+                'model_id' => $ledger->id,
+                'data' => $ledger->toArray(),
+                'status' => 'pending'
+            ]);
+
+            return response()->json([
+                'message' => 'Your deletion request has been submitted for review',
+                'request' => $reviewRequest
+            ]);
         }
     }
 

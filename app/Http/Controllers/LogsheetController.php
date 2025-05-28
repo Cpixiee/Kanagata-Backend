@@ -5,83 +5,76 @@ namespace App\Http\Controllers;
 use App\Models\Logsheet;
 use App\Models\Project;
 use App\Models\Ledger;
+use App\Models\ReviewRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class LogsheetController extends Controller
 {
     public function index()
     {
-        $logsheets = Logsheet::with('project')->get();
+        $logsheets = Logsheet::with('project')->latest()->get();
         $projects = Project::all();
         return view('logsheet', compact('logsheets', 'projects'));
     }
 
     public function store(Request $request)
     {
-        Log::info('Received logsheet creation request:', $request->all());
+        $data = $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'coa' => 'required|string',
+            'customer' => 'required|string',
+            'activity' => 'required|string',
+            'prodi' => 'required|string',
+            'grade' => 'required|string',
+            'seq' => 'required|integer',
+            'quantity_1' => 'required|integer',
+            'rate_1' => 'required|numeric',
+            'ar_status' => 'required|in:Listing,Paid,Pending',
+            'tutor' => 'required|string',
+            'quantity_2' => 'required|integer',
+            'rate_2' => 'required|numeric',
+            'ap_status' => 'required|in:Listing,Paid,Pending',
+        ]);
 
         try {
             DB::beginTransaction();
 
-            $validated = $request->validate([
-                'project_id' => 'required|exists:projects,id',
-                'coa' => 'required|string',
-                'customer' => 'required|string',
-                'activity' => 'required|string',
-                'prodi' => 'required|string',
-                'grade' => 'required|string',
-                'seq' => 'required|integer',
-                'quantity_1' => 'required|integer',
-                'rate_1' => 'required|numeric',
-                'ar_status' => 'required|in:Listing,Paid,Pending',
-                'tutor' => 'required|string',
-                'quantity_2' => 'required|integer',
-                'rate_2' => 'required|numeric',
-                'ap_status' => 'required|in:Listing,Paid,Pending',
-            ]);
-
             // Tambahkan perhitungan revenue dan cost
-            $validated['revenue'] = $validated['quantity_1'] * $validated['rate_1'];
-            $validated['cost'] = $validated['quantity_2'] * $validated['rate_2'];
+            $data['revenue'] = $data['quantity_1'] * $data['rate_1'];
+            $data['cost'] = $data['quantity_2'] * $data['rate_2'];
 
-            Log::info('Validated data:', $validated);
+            if (Auth::user()->role === 'admin') {
+                $logsheet = Logsheet::create($data);
+                $logsheet->project->updateFinancials();
+                DB::commit();
 
-            $logsheet = Logsheet::create($validated);
-
-            // Update project financials
-            $logsheet->project->updateFinancials();
-
-            DB::commit();
-            
-            Log::info('Logsheet created successfully:', $logsheet->toArray());
-
-            if ($request->ajax()) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Logsheet entry created successfully'
+                    'message' => 'Logsheet entry created successfully',
+                    'logsheet' => $logsheet
+                ]);
+            } else {
+                $reviewRequest = ReviewRequest::create([
+                    'user_id' => Auth::id(),
+                    'action_type' => 'create',
+                    'model_type' => 'Logsheet',
+                    'data' => $data,
+                    'status' => 'pending'
+                ]);
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Your request has been submitted for review',
+                    'request' => $reviewRequest
                 ]);
             }
-            
-            return redirect()->route('logsheet.index')
-                ->with('success', 'Logsheet entry created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error creating logsheet:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error creating logsheet entry: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->route('logsheet.index')
-                ->with('error', 'Error creating logsheet entry: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error creating logsheet entry: ' . $e->getMessage()
+            ], 422);
         }
     }
 
@@ -92,111 +85,86 @@ class LogsheetController extends Controller
 
     public function update(Request $request, Logsheet $logsheet)
     {
-        Log::info('Received logsheet update request:', $request->all());
+        $data = $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'coa' => 'required|string',
+            'customer' => 'required|string',
+            'activity' => 'required|string',
+            'prodi' => 'required|string',
+            'grade' => 'required|string',
+            'seq' => 'required|integer|min:1|max:100',
+            'quantity_1' => 'required|numeric|min:1',
+            'rate_1' => 'required|numeric|min:0',
+            'ar_status' => 'required|string|in:Listing,Paid,Pending',
+            'tutor' => 'required|string',
+            'quantity_2' => 'required|numeric|min:1',
+            'rate_2' => 'required|numeric|min:0',
+            'ap_status' => 'required|string|in:Listing,Paid,Pending'
+        ]);
 
         try {
             DB::beginTransaction();
 
-            $validated = $request->validate([
-                'project_id' => 'required|exists:projects,id',
-                'coa' => 'required|string',
-                'customer' => 'required|string',
-                'activity' => 'required|string',
-                'prodi' => 'required|string',
-                'grade' => 'required|string',
-                'seq' => 'required|integer',
-                'quantity_1' => 'required|integer',
-                'rate_1' => 'required|numeric',
-                'ar_status' => 'required|in:Listing,Paid,Pending',
-                'tutor' => 'required|string',
-                'quantity_2' => 'required|integer',
-                'rate_2' => 'required|numeric',
-                'ap_status' => 'required|in:Listing,Paid,Pending',
-            ]);
-
-            // Tambahkan perhitungan revenue dan cost
-            $validated['revenue'] = $validated['quantity_1'] * $validated['rate_1'];
-            $validated['cost'] = $validated['quantity_2'] * $validated['rate_2'];
-
-            $oldProjectId = $logsheet->project_id;
-            $logsheet->update($validated);
-            
-            // Update financials for both old and new projects if project changed
-            if ($oldProjectId != $request->project_id) {
-                Project::find($oldProjectId)->updateFinancials();
-            }
-            $logsheet->project->updateFinancials();
-
-            DB::commit();
-
-            Log::info('Logsheet updated successfully:', $logsheet->toArray());
-
-            if ($request->ajax()) {
+            if (Auth::user()->role === 'admin') {
+                // Calculate revenue and cost
+                $data['revenue'] = $data['quantity_1'] * $data['rate_1'];
+                $data['cost'] = $data['quantity_2'] * $data['rate_2'];
+                
+                $logsheet->update($data);
+                
+                DB::commit();
                 return response()->json([
                     'success' => true,
-                    'message' => 'Logsheet entry updated successfully'
+                    'message' => 'Logsheet entry updated successfully',
+                    'logsheet' => $logsheet
+                ]);
+            } else {
+                $reviewRequest = ReviewRequest::create([
+                    'user_id' => Auth::id(),
+                    'action_type' => 'update',
+                    'model_type' => 'Logsheet',
+                    'model_id' => $logsheet->id,
+                    'data' => $data,
+                    'status' => 'pending'
+                ]);
+
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Your update request has been submitted for review',
+                    'request' => $reviewRequest
                 ]);
             }
-
-            return redirect()->route('logsheet.index')
-                ->with('success', 'Logsheet entry updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error updating logsheet:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error updating logsheet entry: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->route('logsheet.index')
-                ->with('error', 'Error updating logsheet entry: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating logsheet: ' . $e->getMessage()
+            ], 422);
         }
     }
 
     public function destroy(Logsheet $logsheet)
     {
-        try {
-            DB::beginTransaction();
-
-            $projectId = $logsheet->project_id;
+        if (Auth::user()->role === 'admin') {
             $logsheet->delete();
-            
-            // Update project financials after deletion
-            Project::find($projectId)->updateFinancials();
-
-            DB::commit();
-            
-            if (request()->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Logsheet entry deleted successfully'
-                ]);
-            }
-
-            return redirect()->route('logsheet.index')
-                ->with('success', 'Logsheet entry deleted successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error deleting logsheet:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            return response()->json([
+                'message' => 'Logsheet entry deleted successfully'
+            ]);
+        } else {
+            $reviewRequest = ReviewRequest::create([
+                'user_id' => Auth::id(),
+                'action_type' => 'delete',
+                'model_type' => 'Logsheet',
+                'model_id' => $logsheet->id,
+                'data' => $logsheet->toArray(),
+                'status' => 'pending'
             ]);
 
-            if (request()->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error deleting logsheet entry: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->route('logsheet.index')
-                ->with('error', 'Error deleting logsheet entry: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Your deletion request has been submitted for review',
+                'request' => $reviewRequest
+            ]);
         }
     }
 
