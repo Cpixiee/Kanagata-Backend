@@ -198,9 +198,10 @@ class LogsheetController extends Controller
                 ->selectRaw('SUM(cost) as cost_project')
                 ->first();
 
-            // Get Cost Operation from ledger (total credit)
+            // Get Cost Operation from ledger (only COST OPERATION category)
             $selectedMonthCostOperation = Ledger::whereYear('date', $year)
                 ->whereMonth('date', $month)
+                ->where('category', 'COST OPERATION')
                 ->sum('credit');
 
             // Get yearly summary
@@ -209,8 +210,9 @@ class LogsheetController extends Controller
                 ->selectRaw('SUM(cost) as cost_project')
                 ->first();
 
-            // Get yearly Cost Operation
+            // Get yearly Cost Operation (only COST OPERATION category)
             $yearlyCostOperation = Ledger::whereYear('date', $year)
+                ->where('category', 'COST OPERATION')
                 ->sum('credit');
 
             // Calculate monthly averages

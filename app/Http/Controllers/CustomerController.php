@@ -92,7 +92,15 @@ class CustomerController extends Controller
                     'grade' => $project->grade,
                     'gt_rev' => $project->gt_rev,
                     'gt_cost' => $project->gt_cost,
-                    'gt_margin' => $project->gt_margin
+                    'gt_margin' => $project->gt_margin,
+                    'sum_ar' => $project->sum_ar,
+                    'ar_paid' => $project->ar_paid,
+                    'ar_os' => $project->ar_os,
+                    'sum_ap' => $project->sum_ap,
+                    'ap_paid' => $project->ap_paid,
+                    'ap_os' => $project->ap_os,
+                    'todo' => $project->todo,
+                    'ar_ap' => $project->ar_ap
                 ];
             })
         ];

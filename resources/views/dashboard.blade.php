@@ -176,6 +176,19 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('invoice.index') }}"
+                        class="flex items-center p-2 {{ request()->routeIs('invoice.*') ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-gray-900 hover:bg-gray-100' }} rounded-lg dark:text-white dark:hover:bg-gray-700 group">
+                        <svg class="shrink-0 w-5 h-5 {{ request()->routeIs('invoice.*') ? 'text-white' : 'text-gray-500' }} transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path fill-rule="evenodd"
+                                d="M8 3a2 2 0 0 0-2 2v3h12V5a2 2 0 0 0-2-2H8Zm-3 7a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1V10H5Zm4 0v10h10a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H9Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Invoice</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('ledger.index') }}"
                         class="flex items-center p-2 {{ request()->routeIs('ledger.*') ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-gray-900 hover:bg-gray-100' }} rounded-lg dark:text-white dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 {{ request()->routeIs('ledger.*') ? 'text-white' : 'text-gray-500' }} transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -473,6 +486,8 @@
                                 </div>
                             </div>
                             <button onclick="handleCustomerDetails('{{ $customer->id }}')" 
+                               data-modal-target="customer-detail-modal" 
+                               data-modal-toggle="customer-detail-modal"
                                class="text-sm text-blue-600 bg-blue-100 px-4 py-1 rounded-lg hover:bg-blue-200 transition-colors duration-200">Details</button>
                         </div>
                         @if(!$loop->last)

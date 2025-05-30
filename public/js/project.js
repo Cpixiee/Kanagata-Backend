@@ -106,6 +106,105 @@ $(document).ready(function() {
         });
     });
 
+    // Event handler untuk tombol Details
+    $(document).on('click', '.view-project-details', function(e) {
+        e.preventDefault();
+        const projectId = $(this).data('project-id');
+        
+        Swal.fire({
+            title: 'Memuat...',
+            text: 'Mengambil detail proyek',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: `/projects/${projectId}/details`,
+            method: 'GET',
+            success: function(response) {
+                Swal.close();
+                
+                if (response.success && response.data) {
+                    populateProjectDetails(response.data);
+                    
+                    // Tampilkan modal
+                    const detailsModal = document.getElementById('project-details-modal');
+                    const modal = new Modal(detailsModal);
+                    modal.show();
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Gagal mengambil detail proyek',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Gagal mengambil detail proyek',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+
+    // Fungsi untuk mengisi data ke modal details
+    function populateProjectDetails(data) {
+        // Basic Information
+        $('#detail-coa').text(data.coa || '-');
+        $('#detail-customer').text(data.customer || '-');
+        $('#detail-activity').text(data.activity || '-');
+        $('#detail-prodi').text(data.prodi || '-');
+        $('#detail-grade').text(data.grade || '-');
+
+        // Revenue Details
+        $('#detail-quantity-1').text(data.quantity_1 || '-');
+        $('#detail-rate-1').text(formatCurrency(data.rate_1 || 0));
+        $('#detail-gt-rev').text(formatCurrency(data.gt_rev || 0));
+
+        // Cost Details
+        $('#detail-quantity-2').text(data.quantity_2 || '-');
+        $('#detail-rate-2').text(formatCurrency(data.rate_2 || 0));
+        $('#detail-gt-cost').text(formatCurrency(data.gt_cost || 0));
+
+        // Financial Summary
+        $('#detail-gt-margin').text(formatCurrency(data.gt_margin || 0));
+        $('#detail-sum-ar').text(formatCurrency(data.sum_ar || 0));
+        $('#detail-sum-ap').text(formatCurrency(data.sum_ap || 0));
+        $('#detail-ar-ap').text(formatCurrency(data.ar_ap || 0));
+
+        // AR/AP Breakdown
+        $('#detail-ar-paid').text(formatCurrency(data.ar_paid || 0));
+        $('#detail-ar-os').text(formatCurrency(data.ar_os || 0));
+        $('#detail-todo').text(formatCurrency(data.todo || 0));
+        $('#detail-ap-paid').text(formatCurrency(data.ap_paid || 0));
+        $('#detail-ap-os').text(formatCurrency(data.ap_os || 0));
+
+        // Logsheet Summary
+        $('#detail-total-revenue').text(formatCurrency(data.logsheet_total_revenue || 0));
+        $('#detail-total-cost').text(formatCurrency(data.logsheet_total_cost || 0));
+        $('#detail-total-margin').text(formatCurrency(data.logsheet_total_margin || 0));
+    }
+
+    // Fungsi untuk format currency
+    function formatCurrency(amount) {
+        if (amount === null || amount === undefined) {
+            return 'Rp 0';
+        }
+        
+        const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+        
+        return 'Rp ' + numAmount.toLocaleString('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
+    }
+
     // Handler untuk konfirmasi penghapusan
     $('button.delete-project').on('click', function(e) {
         e.preventDefault();

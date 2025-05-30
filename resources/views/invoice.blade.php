@@ -5,14 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Kanagata - Insight</title>
+    <title>Kanagata - Invoice</title>
     <link rel="stylesheet" href="{{ asset('src/output.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="{{ asset('src/scroll-hover.css') }}">
+    <link rel="stylesheet" href="{{ asset('src/table-styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/invoice.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
 </head>
 
-<body class="font-poppins">
+<body class="font-poppins bg-gray-50 dark:bg-gray-900" 
+    data-success="{{ Session::get('success') }}"
+    data-error="{{ Session::get('error') }}"
+    data-role="{{ Auth::user()->role }}">
     <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="flex items-center justify-between">
@@ -28,13 +40,14 @@
                             </path>
                         </svg>
                     </button>
-                    <a href="{{ route('dashboard') }}" class="flex ms-2 md:me-24">
+                    <a href="" class="flex ms-2 md:me-24">
                         <img src="https://flowbite.com/docs/images/logo.svg" class="h-8 me-3" alt="FlowBite Logo" />
-                        <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Kanagata</span>
+                        <span
+                            class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Kanagata</span>
                     </a>
                 </div>
                 <div>
-                    <h1 class="self-center text-xl sm:text-2xl font-semibold dark:text-white">Insight</h1>
+                    <h1 class="self-center text-xl sm:text-2xl font-semibold dark:text-white">Invoice</h1>
                 </div>
                 <div class="flex items-center">
                     <div class="flex items-center ms-3">
@@ -55,22 +68,22 @@
                             id="dropdown-user">
                             <div class="px-4 py-3" role="none">
                                 <p class="text-sm text-gray-900 dark:text-white" role="none">
-                                    {{ auth()->user()->name }}
+                                    {{ Auth::user()->name }}
                                 </p>
                                 <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                                    {{ auth()->user()->email }}
+                                    {{ Auth::user()->email }}
                                 </p>
                                 <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                                    Role: {{ auth()->user()->role }}
+                                    Role: {{ Auth::user()->role }}
                                 </p>
                             </div>
                             <ul class="py-1" role="none">
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
-                                        <button type="submit"
-                                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                                            role="menuitem">Sign out</button>
+                                        <button type="submit" class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white text-left">
+                                            Sign out
+                                        </button>
                                     </form>
                                 </li>
                             </ul>
@@ -102,8 +115,8 @@
                 </li>
                 <li>
                     <a href="{{ route('insight') }}"
-                        class="flex items-center p-2 {{ request()->routeIs('insight') ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-gray-900 hover:bg-gray-100' }} rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                        <svg class="shrink-0 w-5 h-5 {{ request()->routeIs('insight') ? 'text-white' : 'text-gray-500' }} transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
                                 d="M3 15v4m6-6v6m6-4v4m6-6v6M3 11l6-5 6 5 5.5-5.5" />
@@ -177,8 +190,8 @@
                 </li>
                 <li>
                     <a href="{{ route('invoice.index') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                        class="flex items-center p-2 {{ request()->routeIs('invoice.*') ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-gray-900 hover:bg-gray-100' }} rounded-lg dark:text-white dark:hover:bg-gray-700 group">
+                        <svg class="shrink-0 w-5 h-5 {{ request()->routeIs('invoice.*') ? 'text-white' : 'text-gray-500' }} transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
                             viewBox="0 0 24 24">
                             <path fill-rule="evenodd"
@@ -202,211 +215,222 @@
                         <span class="flex-1 ms-3 whitespace-nowrap">Ledger</span>
                     </a>
                 </li>
-
             </ul>
         </div>
     </aside>
 
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
-            <div class="grid lg:grid-cols-2 sm:grid-cols-1 gap-4">
-                <div class="flex items-center rounded-sm bg-gray-50 h-auto dark:bg-gray-800">
-                    <div class="w-full bg-gray-50 dark:bg-gray-800 rounded-lg p-4 md:p-6">
-                        <div class="flex justify-between">
-                            <div>
-                                <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2" id="current-year">
-                                    {{ date('Y') }}
-                                </h5>
-                                <p class="text-base font-normal text-gray-500 dark:text-gray-400">Revenue this year</p>
-                            </div>
-                        </div>
-                        <div id="revenue-chart"></div>
-                        <div class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
-                            <div class="flex justify-between items-center pt-5">
-                                <div class="flex items-center space-x-4">
-                                    <button type="button" id="prev-year-revenue" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                        </svg>
-                                    </button>
-                                    <button type="button" id="next-year-revenue" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+    <div class="p-4 sm:ml-64 bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <div id="invoice-details" class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm mt-14">
+            <!-- Header dengan Filter -->
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 space-y-4 lg:space-y-0">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Manajemen Invoice</h1>
+                
+                <!-- Filter Controls -->
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="year-filter">Tahun:</label>
+                        <select id="year-filter">
+                            @for($year = date('Y'); $year >= 2020; $year--)
+                                <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        </select>
                     </div>
-                </div>
-                <div class="flex items-center rounded-sm bg-gray-50 h-auto dark:bg-gray-800">
-                    <div class="w-full bg-gray-50 dark:bg-gray-800 rounded-lg p-4 md:p-6">
-                        <div class="flex justify-between">
-                            <div>
-                                <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2" id="current-year-profit">
-                                    {{ date('Y') }}
-                                </h5>
-                                <p class="text-base font-normal text-gray-500 dark:text-gray-400">Profit this year</p>
-                            </div>
-                        </div>
-                        <div id="profit-chart"></div>
-                        <div class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
-                            <div class="flex justify-between items-center pt-5">
-                                <div class="flex items-center space-x-4">
-                                    <button type="button" id="prev-year-profit" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                        </svg>
-                                    </button>
-                                    <button type="button" id="next-year-profit" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                    
+                    <div class="filter-group">
+                        <label for="month-filter">Bulan:</label>
+                        <select id="month-filter">
+                            <option value="">Semua Bulan</option>
+                            <option value="1">Januari</option>
+                            <option value="2">Februari</option>
+                            <option value="3">Maret</option>
+                            <option value="4">April</option>
+                            <option value="5">Mei</option>
+                            <option value="6">Juni</option>
+                            <option value="7">Juli</option>
+                            <option value="8">Agustus</option>
+                            <option value="9">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
                     </div>
+                    
+                    <button type="button" id="refresh-data" class="flex items-center text-blue-600 dark:text-blue-100 bg-blue-50 dark:bg-blue-900 hover:bg-blue-100 dark:hover:bg-blue-800 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-700 transition-colors">
+                        <svg class="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Refresh
+                    </button>
                 </div>
             </div>
-        </div>
-        <div class="mt-8 grid lg:grid-cols-3 sm:grid-cols-1 gap-6">
-            <!-- This Month -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">This Month</h3>
-                    <div class="flex items-center space-x-2">
-                        <button type="button" id="prev-month" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                            </svg>
-                        </button>
-                        <span class="text-sm text-gray-600 dark:text-gray-400" id="current-month"></span>
-                        <button type="button" id="next-month" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </button>
+
+            <!-- Period Info -->
+            <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p class="text-sm text-blue-800 dark:text-blue-200">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    <span id="period-info">Menampilkan data untuk: Semua periode</span>
+                </p>
+            </div>
+
+            <!-- Financial Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- AR Revenue Card -->
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-sm p-5 text-white hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm font-medium">AR Revenue</p>
+                            <p class="text-xl font-bold" id="ar-revenue">Rp 0</p>
+                        </div>
+                        <div class="bg-blue-400/30 rounded-full p-2">
+                            <i class="fas fa-chart-line text-lg"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="space-y-4" id="this-month-data">
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Revenue</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-revenue">Rp0</span>
+
+                <!-- AR Paid Card -->
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-sm p-5 text-white hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm font-medium">AR Paid</p>
+                            <p class="text-xl font-bold" id="ar-paid">Rp 0</p>
+                        </div>
+                        <div class="bg-green-400/30 rounded-full p-2">
+                            <i class="fas fa-check-circle text-lg"></i>
                         </div>
                     </div>
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Project</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-cost-project">Rp0</span>
+                </div>
+
+                <!-- OS-AR Card -->
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg shadow-sm p-5 text-white hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100 text-sm font-medium">OS-AR</p>
+                            <p class="text-xl font-bold" id="os-ar">Rp 0</p>
+                        </div>
+                        <div class="bg-orange-400/30 rounded-full p-2">
+                            <i class="fas fa-clock text-lg"></i>
                         </div>
                     </div>
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Gross Margin</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-gross-margin">Rp0</span>
+                </div>
+
+                <!-- Margin Card -->
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-sm p-5 text-white hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm font-medium">Margin</p>
+                            <p class="text-xl font-bold" id="margin">Rp 0</p>
                         </div>
-                    </div>
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-cost-operation">Rp0</span>
-                        </div>
-                    </div>
-                    <div class="pb-2">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Profit/Loss</span>
-                            <span class="text-xl font-bold text-gray-800 dark:text-gray-200" id="this-month-profit-loss">Rp0</span>
+                        <div class="bg-purple-400/30 rounded-full p-2">
+                            <i class="fas fa-percentage text-lg"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Summary -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Summary</h3>
-                    <span class="text-sm text-gray-600 dark:text-gray-400" id="current-year-summary"></span>
+            <!-- Second Row Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <!-- AP Cost Card -->
+                <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-sm p-5 text-white hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-red-100 text-sm font-medium">AP Cost</p>
+                            <p class="text-xl font-bold" id="ap-cost">Rp 0</p>
+                        </div>
+                        <div class="bg-red-400/30 rounded-full p-2">
+                            <i class="fas fa-money-bill-wave text-lg"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="space-y-4" id="summary-data">
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Revenue</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-revenue">Rp0</span>
+
+                <!-- AP Paid Card -->
+                <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg shadow-sm p-5 text-white hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-teal-100 text-sm font-medium">AP Paid</p>
+                            <p class="text-xl font-bold" id="ap-paid">Rp 0</p>
+                        </div>
+                        <div class="bg-teal-400/30 rounded-full p-2">
+                            <i class="fas fa-check-double text-lg"></i>
                         </div>
                     </div>
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Project</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-cost-project">Rp0</span>
+                </div>
+
+                <!-- OS-AP Card -->
+                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg shadow-sm p-5 text-white hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-100 text-sm font-medium">OS-AP</p>
+                            <p class="text-xl font-bold" id="os-ap">Rp 0</p>
                         </div>
-                    </div>
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Gross Margin</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-gross-margin">Rp0</span>
-                        </div>
-                    </div>
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-cost-operation">Rp0</span>
-                        </div>
-                    </div>
-                    <div class="pb-2">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Profit/Loss</span>
-                            <span class="text-xl font-bold text-gray-800 dark:text-gray-200" id="summary-profit-loss">Rp0</span>
+                        <div class="bg-yellow-400/30 rounded-full p-2">
+                            <i class="fas fa-exclamation-triangle text-lg"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Average -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Average</h3>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Monthly</span>
+            <!-- AR-AP Balance Card -->
+            <div class="grid grid-cols-1 mb-6">
+                <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg shadow-sm p-6 text-white hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-indigo-100 text-sm font-medium">AR-AP Balance</p>
+                            <p class="text-2xl font-bold" id="ar-ap-balance">Rp 0</p>
+                            <p class="text-indigo-200 text-sm mt-1">Outstanding Receivables minus Outstanding Payables</p>
+                        </div>
+                        <div class="bg-indigo-400/30 rounded-full p-3">
+                            <i class="fas fa-balance-scale text-2xl"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="space-y-4" id="average-data">
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Revenue</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-revenue">Rp0</span>
-                        </div>
+            </div>
+
+            <!-- Detailed Tables -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- AR Details Table -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Detail Accounts Receivable</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-600 dark:text-gray-300">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 rounded-tl-lg">Project</th>
+                                    <th scope="col" class="px-4 py-3">Revenue</th>
+                                    <th scope="col" class="px-4 py-3">Paid</th>
+                                    <th scope="col" class="px-4 py-3 rounded-tr-lg">Outstanding</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ar-details-table" class="bg-white dark:bg-gray-800">
+                                <!-- Data akan diisi oleh JavaScript -->
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Project</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-cost-project">Rp0</span>
-                        </div>
-                    </div>
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Gross Margin</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-gross-margin">Rp0</span>
-                        </div>
-                    </div>
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
-                            <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-cost-operation">Rp0</span>
-                        </div>
-                    </div>
-                    <div class="pb-2">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Profit/Loss</span>
-                            <span class="text-xl font-bold text-gray-800 dark:text-gray-200" id="average-profit-loss">Rp0</span>
-                        </div>
+                </div>
+
+                <!-- AP Details Table -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Detail Accounts Payable</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-600 dark:text-gray-300">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 rounded-tl-lg">Project</th>
+                                    <th scope="col" class="px-4 py-3">Cost</th>
+                                    <th scope="col" class="px-4 py-3">Paid</th>
+                                    <th scope="col" class="px-4 py-3 rounded-tr-lg">Outstanding</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ap-details-table" class="bg-white dark:bg-gray-800">
+                                <!-- Data akan diisi oleh JavaScript -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-    <script src="{{ asset('js/insight.js') }}"></script>
+    <script src="{{ asset('js/invoice.js') }}"></script>
 </body>
 
-</html>
+</html> 

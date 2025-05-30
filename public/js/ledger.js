@@ -756,8 +756,10 @@ $(document).ready(function() {
     $(document).on('click', '.mark-as-paid', function() {
         const ledgerId = $(this).data('ledger-id');
         const button = $(this);
+        const isAdmin = $('body').data('role') === 'admin';
 
-        // Konfirmasi sebelum mengubah status
+        if (isAdmin) {
+            // Admin bisa langsung mark as paid
         Swal.fire({
             title: 'Konfirmasi',
             text: 'Apakah Anda yakin ingin mengubah status menjadi PAID?',
@@ -812,7 +814,178 @@ $(document).ready(function() {
                 });
             }
         });
+        } else {
+            // User biasa harus upload bukti transaksi dulu
+            // Simpan ledger ID untuk digunakan nanti
+            window.currentLedgerId = ledgerId;
+            
+            // Reset form upload
+            $('#upload-attachment-form')[0].reset();
+            
+            // Tampilkan modal dengan animasi
+            const uploadModal = document.getElementById('upload-attachment-modal');
+            const modalContent = document.getElementById('upload-modal-content');
+            
+            // Set initial state
+            uploadModal.classList.remove('hidden');
+            uploadModal.classList.add('flex');
+            uploadModal.setAttribute('aria-hidden', 'false');
+            
+            // Trigger animation
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
     });
+
+    // Handle submit attachment
+    $(document).on('click', '#submit-attachment', function() {
+        const form = $('#upload-attachment-form')[0];
+        const formData = new FormData(form);
+        const ledgerId = window.currentLedgerId;
+
+        // Validasi file
+        const fileInput = $('#attachment')[0];
+        if (!fileInput.files.length) {
+            // Add shake animation to file input
+            $('#attachment').addClass('animate-pulse border-red-500');
+            setTimeout(() => {
+                $('#attachment').removeClass('animate-pulse border-red-500');
+            }, 1000);
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Silakan pilih file bukti transaksi terlebih dahulu.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Validasi ukuran file (5MB)
+        const file = fileInput.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+            // Add shake animation to file input
+            $('#attachment').addClass('animate-pulse border-red-500');
+            setTimeout(() => {
+                $('#attachment').removeClass('animate-pulse border-red-500');
+            }, 1000);
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Ukuran file tidak boleh lebih dari 5MB.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Disable button sementara proses
+        $('#submit-attachment').prop('disabled', true).html(
+            '<span class="flex items-center">' +
+                '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">' +
+                    '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
+                    '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>' +
+                '</svg>' +
+                'Mengirim...' +
+            '</span>'
+        );
+
+        // Kirim request
+        $.ajax({
+            url: `/ledger/${ledgerId}/request-mark-as-paid`,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Tutup modal dengan animasi
+                    closeUploadModal();
+
+                    Swal.fire({
+                        html: `
+                            <div class="text-center">
+                                <div class="mb-4">
+                                    <i class="fas fa-info-circle" style="font-size: 48px; color: #60A5FA;"></i>
+                                </div>
+                                <h2 class="text-xl font-semibold mb-4" style="color: #374151;">Permintaan Terkirim</h2>
+                                <p style="color: #6B7280;">Permintaan perubahan status ke PAID beserta bukti transaksi telah dikirim untuk ditinjau admin.</p>
+                            </div>
+                        `,
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3B82F6',
+                        background: '#FFFFFF'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: response.message || 'Terjadi kesalahan saat mengirim permintaan.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Terjadi kesalahan saat mengirim permintaan.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: errorMessage,
+                    confirmButtonText: 'OK'
+                });
+            },
+            complete: function() {
+                // Re-enable button
+                $('#submit-attachment').prop('disabled', false).html(
+                    '<span class="flex items-center">' +
+                        '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>' +
+                        '</svg>' +
+                        'Kirim Permintaan' +
+                    '</span>'
+                );
+            }
+        });
+    });
+
+    // Handle close upload modal
+    $(document).on('click', '[data-modal-hide="upload-attachment-modal"]', function(e) {
+        e.preventDefault();
+        closeUploadModal();
+    });
+
+    // Function to close upload modal with animation
+    function closeUploadModal() {
+        const uploadModal = document.getElementById('upload-attachment-modal');
+        const modalContent = document.getElementById('upload-modal-content');
+        
+        // Start closing animation (hanya modal content)
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        // Hide modal after animation completes
+        setTimeout(() => {
+            uploadModal.classList.add('hidden');
+            uploadModal.classList.remove('flex');
+            uploadModal.setAttribute('aria-hidden', 'true');
+            
+            // Reset form
+            $('#upload-attachment-form')[0].reset();
+            window.currentLedgerId = null;
+        }, 300);
+    }
 });
 
 function showSuccessMessage(message) {

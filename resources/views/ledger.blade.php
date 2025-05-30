@@ -182,6 +182,19 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('invoice.index') }}"
+                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path fill-rule="evenodd"
+                                d="M8 3a2 2 0 0 0-2 2v3h12V5a2 2 0 0 0-2-2H8Zm-3 7a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1V10H5Zm4 0v10h10a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H9Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Invoice</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('ledger.index') }}"
                         class="flex items-center p-2 {{ request()->routeIs('ledger.*') ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-gray-900 hover:bg-gray-100' }} rounded-lg dark:text-white dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 {{ request()->routeIs('ledger.*') ? 'text-white' : 'text-gray-500' }} transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -700,6 +713,99 @@
                     <button form="edit-ledger-form" type="submit"
                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Attachment Modal for Mark as Paid -->
+    <div id="upload-attachment-modal" tabindex="-1" aria-hidden="true"
+        class="hidden fixed inset-0 z-50 items-center justify-center overflow-y-auto backdrop-blur-sm bg-white/10 transition-all duration-300 ease-out">
+        <div class="relative p-4 w-full max-w-md max-h-full transform transition-all duration-300 ease-out scale-95 opacity-0" id="upload-modal-content">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow-2xl dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600 bg-gradient-to-r from-green-50 to-blue-50 dark:from-gray-800 dark:to-gray-700">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-green-100 rounded-lg dark:bg-green-800">
+                            <svg class="w-5 h-5 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            Upload Bukti Transaksi
+                        </h3>
+                    </div>
+                    <button type="button"
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-200"
+                        data-modal-hide="upload-attachment-modal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="p-6">
+                    <form id="upload-attachment-form" enctype="multipart/form-data">
+                        @csrf
+                        <div class="space-y-4">
+                            <div>
+                                <label for="attachment" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                    Pilih File Bukti Transaksi
+                                </label>
+                                <div class="relative">
+                                    <input type="file" id="attachment" name="attachment" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 transition-all duration-200 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                        required>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    Format yang didukung: JPG, PNG, PDF, DOC, DOCX (Max: 5MB)
+                                </p>
+                            </div>
+                            
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 dark:bg-blue-900 dark:border-blue-700 transform transition-all duration-200 hover:shadow-md">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="w-5 h-5 text-blue-400 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700 dark:text-blue-300">
+                                            Permintaan perubahan status ke PAID akan dikirim untuk review admin beserta bukti transaksi yang Anda upload.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
+                    <button type="button"
+                        class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600 transition-all duration-200 transform hover:scale-105"
+                        data-modal-hide="upload-attachment-modal">
+                        Batal
+                    </button>
+                    <button type="button" id="submit-attachment"
+                        class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 transition-all duration-200 transform hover:scale-105 hover:shadow-lg">
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            Kirim Permintaan
+                        </span>
                     </button>
                 </div>
             </div>

@@ -282,28 +282,83 @@ function displayProjectSummary(data) {
     if (data.projects_detail && data.projects_detail.length > 0) {
         data.projects_detail.forEach(function(project) {
             const projectCard = `
-                <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                    <div class="flex justify-between items-start mb-2">
+                <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-6">
+                    <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h6 class="font-semibold text-gray-900 dark:text-white">${project.coa}</h6>
+                            <h6 class="text-lg font-semibold text-gray-900 dark:text-white">${project.coa}</h6>
                             <p class="text-sm text-gray-600 dark:text-gray-400">${project.activity} - ${project.prodi} (${project.grade})</p>
                         </div>
-                        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full">
+                        <span class="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full">
                             ID: ${project.id}
                         </span>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                            <span class="text-gray-600 dark:text-gray-400">Revenue:</span>
-                            <p class="font-medium text-green-600 dark:text-green-400">${formatCurrency(project.gt_rev)}</p>
+                    
+                    <!-- Basic Financial Info -->
+                    <div class="grid grid-cols-3 gap-4 mb-4 pb-4 border-b border-gray-200 dark:border-gray-600">
+                        <div class="text-center">
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">Revenue</span>
+                            <p class="text-lg font-semibold text-green-600 dark:text-green-400">${formatCurrency(project.gt_rev)}</p>
                         </div>
-                        <div>
-                            <span class="text-gray-600 dark:text-gray-400">Cost:</span>
-                            <p class="font-medium text-red-600 dark:text-red-400">${formatCurrency(project.gt_cost)}</p>
+                        <div class="text-center">
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">Cost</span>
+                            <p class="text-lg font-semibold text-red-600 dark:text-red-400">${formatCurrency(project.gt_cost)}</p>
                         </div>
+                        <div class="text-center">
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">Margin</span>
+                            <p class="text-lg font-semibold text-purple-600 dark:text-purple-400">${formatCurrency(project.gt_margin)}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- AR/AP Details -->
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- AR Section -->
                         <div>
-                            <span class="text-gray-600 dark:text-gray-400">Margin:</span>
-                            <p class="font-medium text-purple-600 dark:text-purple-400">${formatCurrency(project.gt_margin)}</p>
+                            <h6 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Accounts Receivable</h6>
+                            <div class="space-y-1 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">SUM AR:</span>
+                                    <span class="font-medium text-gray-900 dark:text-white">${formatCurrency(project.sum_ar)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">AR Paid:</span>
+                                    <span class="font-medium text-green-600 dark:text-green-400">${formatCurrency(project.ar_paid)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">AR Outstanding:</span>
+                                    <span class="font-medium text-orange-600 dark:text-orange-400">${formatCurrency(project.ar_os)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- AP Section -->
+                        <div>
+                            <h6 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Accounts Payable</h6>
+                            <div class="space-y-1 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">SUM AP:</span>
+                                    <span class="font-medium text-gray-900 dark:text-white">${formatCurrency(project.sum_ap)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">AP Paid:</span>
+                                    <span class="font-medium text-green-600 dark:text-green-400">${formatCurrency(project.ap_paid)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">AP Outstanding:</span>
+                                    <span class="font-medium text-orange-600 dark:text-orange-400">${formatCurrency(project.ap_os)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Metrics -->
+                    <div class="grid grid-cols-2 gap-6 mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <div class="flex justify-between">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">TODO:</span>
+                            <span class="text-sm font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(project.todo)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">AR-AP:</span>
+                            <span class="text-sm font-semibold text-purple-600 dark:text-purple-400">${formatCurrency(project.ar_ap)}</span>
                         </div>
                     </div>
                 </div>
@@ -352,40 +407,46 @@ function initializeThemeToggle() {
     var themeToggleText = document.getElementById('theme-toggle-text');
     var themeToggleBtn = document.getElementById('theme-toggle');
 
+    // Check if theme toggle elements exist
+    if (!themeToggleBtn || !themeToggleDarkIcon || !themeToggleLightIcon || !themeToggleText) {
+        console.log('Theme toggle elements not found, skipping initialization');
+        return;
+    }
+
     // Change the icons inside the button based on previous settings
     if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        themeToggleLightIcon.classList.remove('hidden');
-        themeToggleText.textContent = 'Toggle Light Mode';
+        if (themeToggleLightIcon) themeToggleLightIcon.classList.remove('hidden');
+        if (themeToggleText) themeToggleText.textContent = 'Toggle Light Mode';
     } else {
-        themeToggleDarkIcon.classList.remove('hidden');
-        themeToggleText.textContent = 'Toggle Dark Mode';
+        if (themeToggleDarkIcon) themeToggleDarkIcon.classList.remove('hidden');
+        if (themeToggleText) themeToggleText.textContent = 'Toggle Dark Mode';
     }
 
     themeToggleBtn.addEventListener('click', function() {
         // Toggle icons
-        themeToggleDarkIcon.classList.toggle('hidden');
-        themeToggleLightIcon.classList.toggle('hidden');
+        if (themeToggleDarkIcon) themeToggleDarkIcon.classList.toggle('hidden');
+        if (themeToggleLightIcon) themeToggleLightIcon.classList.toggle('hidden');
 
         // If is set in localStorage
         if (localStorage.getItem('color-theme')) {
             if (localStorage.getItem('color-theme') === 'light') {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('color-theme', 'dark');
-                themeToggleText.textContent = 'Toggle Light Mode';
+                if (themeToggleText) themeToggleText.textContent = 'Toggle Light Mode';
             } else {
                 document.documentElement.classList.remove('dark');
                 localStorage.setItem('color-theme', 'light');
-                themeToggleText.textContent = 'Toggle Dark Mode';
+                if (themeToggleText) themeToggleText.textContent = 'Toggle Dark Mode';
             }
         } else {
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
                 localStorage.setItem('color-theme', 'light');
-                themeToggleText.textContent = 'Toggle Dark Mode';
+                if (themeToggleText) themeToggleText.textContent = 'Toggle Dark Mode';
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('color-theme', 'dark');
-                themeToggleText.textContent = 'Toggle Light Mode';
+                if (themeToggleText) themeToggleText.textContent = 'Toggle Light Mode';
             }
         }
     });

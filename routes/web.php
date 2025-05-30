@@ -10,6 +10,7 @@ use App\Http\Controllers\TutorController;
 use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\TutorScheduleController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\InvoiceController;
 
 // Root redirect
 Route::get('/', function () {
@@ -35,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
+    Route::get('/projects/{project}/details', [ProjectController::class, 'getDetails'])->name('projects.details');
     Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
     
@@ -63,6 +65,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tutor/{tutor}/available-sessions', [TutorScheduleController::class, 'getAvailableSessions'])->name('tutor.schedules.available');
     Route::get('/tutor/{tutor}/available-dates', [TutorScheduleController::class, 'getAvailableDates'])->name('tutor.schedules.dates');
 
+    // Invoice routes
+    Route::get('/invoice', [InvoiceController::class, 'index'])->name('invoice.index');
+    Route::get('/invoice/data', [InvoiceController::class, 'getData'])->name('invoice.data');
+    Route::get('/invoice/project-summary/{projectId?}', [InvoiceController::class, 'getProjectSummary'])->name('invoice.project-summary');
+    Route::get('/invoice/monthly-data', [InvoiceController::class, 'getMonthlyData'])->name('invoice.monthly-data');
+
     // Ledger routes
     Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');
     Route::get('/ledger/budget-options', [LedgerController::class, 'getBudgetOptions'])->name('ledger.budget-options');
@@ -72,6 +80,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/ledger/{ledger}', [LedgerController::class, 'update'])->name('ledger.update');
     Route::delete('/ledger/{ledger}', [LedgerController::class, 'destroy'])->name('ledger.destroy');
     Route::post('/ledger/{ledger}/mark-as-paid', [LedgerController::class, 'markAsPaid'])->name('ledger.mark-as-paid');
+    Route::post('/ledger/{ledger}/request-mark-as-paid', [LedgerController::class, 'requestMarkAsPaid'])->name('ledger.request-mark-as-paid');
 
     // Review routes
     Route::middleware('admin')->group(function () {

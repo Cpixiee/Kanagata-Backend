@@ -213,11 +213,60 @@ class LedgerController extends Controller
 
     public function markAsPaid(Ledger $ledger)
     {
+        // Hanya admin yang bisa langsung mark as paid
+        if (Auth::user()->role !== 'admin') {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Unauthorized. Only admin can directly mark as paid.'
+            ], 403);
+        }
+
         try {
             $ledger->update(['status' => Ledger::STATUS_PAID]);
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function requestMarkAsPaid(Request $request, Ledger $ledger)
+    {
+        $request->validate([
+            'attachment' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120' // 5MB max
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Upload file
+            $file = $request->file('attachment');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('attachments/ledger', $fileName, 'public');
+
+            // Create review request untuk mark as paid
+            $reviewRequest = ReviewRequest::create([
+                'user_id' => Auth::id(),
+                'action_type' => 'update',
+                'model_type' => 'Ledger',
+                'model_id' => $ledger->id,
+                'data' => array_merge($ledger->toArray(), ['status' => 'PAID']),
+                'attachment' => $filePath,
+                'status' => 'pending'
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Permintaan perubahan status ke PAID telah dikirim untuk review beserta bukti transaksi',
+                'request' => $reviewRequest
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
     }
 

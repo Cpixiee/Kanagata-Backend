@@ -13,6 +13,7 @@ class ReviewRequest extends Model
         'model_type',
         'model_id',
         'data',
+        'attachment',
         'status'
     ];
 

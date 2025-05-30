@@ -176,6 +176,19 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('invoice.index') }}"
+                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path fill-rule="evenodd"
+                                d="M8 3a2 2 0 0 0-2 2v3h12V5a2 2 0 0 0-2-2H8Zm-3 7a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1V10H5Zm4 0v10h10a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H9Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Invoice</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('ledger.index') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -550,6 +563,183 @@
                     </button>
                     <button form="edit-project-form" type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Details Modal -->
+    <div id="project-details-modal" tabindex="-1" aria-hidden="true"
+        class="hidden fixed inset-0 z-50 items-center justify-center overflow-y-auto">
+        <div class="relative p-4 w-full max-w-6xl max-h-[90vh]">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        Project Details
+                    </h3>
+                    <button type="button"
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        data-modal-hide="project-details-modal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                    <!-- Project Basic Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Basic Information</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">COA:</span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white" id="detail-coa">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Customer:</span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white" id="detail-customer">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Activity:</span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white" id="detail-activity">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Program:</span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white" id="detail-prodi">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Grade:</span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white" id="detail-grade">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 dark:bg-blue-900 rounded-lg p-4">
+                            <h4 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">Revenue Details</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-blue-600 dark:text-blue-300">Quantity:</span>
+                                    <span class="text-sm font-medium text-blue-900 dark:text-blue-100" id="detail-quantity-1">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-blue-600 dark:text-blue-300">Rate:</span>
+                                    <span class="text-sm font-medium text-blue-900 dark:text-blue-100" id="detail-rate-1">-</span>
+                                </div>
+                                <div class="flex justify-between border-t border-blue-200 dark:border-blue-700 pt-2">
+                                    <span class="text-sm font-semibold text-blue-600 dark:text-blue-300">GT Revenue:</span>
+                                    <span class="text-sm font-bold text-blue-900 dark:text-blue-100" id="detail-gt-rev">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-50 dark:bg-red-900 rounded-lg p-4">
+                            <h4 class="text-lg font-semibold text-red-900 dark:text-red-100 mb-3">Cost Details</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-red-600 dark:text-red-300">Quantity:</span>
+                                    <span class="text-sm font-medium text-red-900 dark:text-red-100" id="detail-quantity-2">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-red-600 dark:text-red-300">Rate:</span>
+                                    <span class="text-sm font-medium text-red-900 dark:text-red-100" id="detail-rate-2">-</span>
+                                </div>
+                                <div class="flex justify-between border-t border-red-200 dark:border-red-700 pt-2">
+                                    <span class="text-sm font-semibold text-red-600 dark:text-red-300">GT Cost:</span>
+                                    <span class="text-sm font-bold text-red-900 dark:text-red-100" id="detail-gt-cost">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Summary -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-green-50 dark:bg-green-900 rounded-lg p-4 text-center">
+                            <h5 class="text-sm font-semibold text-green-600 dark:text-green-300 mb-2">GT Margin</h5>
+                            <p class="text-xl font-bold text-green-900 dark:text-green-100" id="detail-gt-margin">Rp 0</p>
+                        </div>
+                        <div class="bg-purple-50 dark:bg-purple-900 rounded-lg p-4 text-center">
+                            <h5 class="text-sm font-semibold text-purple-600 dark:text-purple-300 mb-2">SUM AR</h5>
+                            <p class="text-xl font-bold text-purple-900 dark:text-purple-100" id="detail-sum-ar">Rp 0</p>
+                        </div>
+                        <div class="bg-orange-50 dark:bg-orange-900 rounded-lg p-4 text-center">
+                            <h5 class="text-sm font-semibold text-orange-600 dark:text-orange-300 mb-2">SUM AP</h5>
+                            <p class="text-xl font-bold text-orange-900 dark:text-orange-100" id="detail-sum-ap">Rp 0</p>
+                        </div>
+                        <div class="bg-indigo-50 dark:bg-indigo-900 rounded-lg p-4 text-center">
+                            <h5 class="text-sm font-semibold text-indigo-600 dark:text-indigo-300 mb-2">AR-AP</h5>
+                            <p class="text-xl font-bold text-indigo-900 dark:text-indigo-100" id="detail-ar-ap">Rp 0</p>
+                        </div>
+                    </div>
+
+                    <!-- AR/AP Breakdown -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Accounts Receivable</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center p-3 bg-white dark:bg-gray-700 rounded-lg">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">AR Paid:</span>
+                                    <span class="text-sm font-medium text-green-600 dark:text-green-400" id="detail-ar-paid">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-white dark:bg-gray-700 rounded-lg">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">AR Outstanding:</span>
+                                    <span class="text-sm font-medium text-orange-600 dark:text-orange-400" id="detail-ar-os">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-white dark:bg-gray-700 rounded-lg">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">ToDo:</span>
+                                    <span class="text-sm font-medium text-blue-600 dark:text-blue-400" id="detail-todo">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Accounts Payable</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center p-3 bg-white dark:bg-gray-700 rounded-lg">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">AP Paid:</span>
+                                    <span class="text-sm font-medium text-green-600 dark:text-green-400" id="detail-ap-paid">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-white dark:bg-gray-700 rounded-lg">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">AP Outstanding:</span>
+                                    <span class="text-sm font-medium text-orange-600 dark:text-orange-400" id="detail-ap-os">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logsheet Summary -->
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Logsheet Summary</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="text-center p-3 bg-white dark:bg-gray-700 rounded-lg">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Total Revenue (Logsheet)</span>
+                                <p class="text-lg font-semibold text-blue-600 dark:text-blue-400" id="detail-total-revenue">Rp 0</p>
+                            </div>
+                            <div class="text-center p-3 bg-white dark:bg-gray-700 rounded-lg">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Total Cost (Logsheet)</span>
+                                <p class="text-lg font-semibold text-red-600 dark:text-red-400" id="detail-total-cost">Rp 0</p>
+                            </div>
+                            <div class="text-center p-3 bg-white dark:bg-gray-700 rounded-lg">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Total Margin (Logsheet)</span>
+                                <p class="text-lg font-semibold text-green-600 dark:text-green-400" id="detail-total-margin">Rp 0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b dark:border-gray-600">
+                    <button type="button"
+                        class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                        data-modal-hide="project-details-modal">
+                        Close
                     </button>
                 </div>
             </div>

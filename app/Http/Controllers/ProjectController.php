@@ -127,4 +127,51 @@ class ProjectController extends Controller
             ]);
         }
     }
+
+    public function getDetails(Project $project)
+    {
+        // Load project with logsheets
+        $project->load('logsheets');
+        
+        // Calculate logsheet totals
+        $logsheetTotalRevenue = $project->logsheets->sum(function($logsheet) {
+            return $logsheet->quantity_1 * $logsheet->rate_1;
+        });
+        
+        $logsheetTotalCost = $project->logsheets->sum(function($logsheet) {
+            return $logsheet->quantity_2 * $logsheet->rate_2;
+        });
+        
+        $logsheetTotalMargin = $logsheetTotalRevenue - $logsheetTotalCost;
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $project->id,
+                'coa' => $project->coa,
+                'customer' => $project->customer,
+                'activity' => $project->activity,
+                'prodi' => $project->prodi,
+                'grade' => $project->grade,
+                'quantity_1' => $project->quantity_1,
+                'rate_1' => $project->rate_1,
+                'quantity_2' => $project->quantity_2,
+                'rate_2' => $project->rate_2,
+                'gt_rev' => $project->gt_rev,
+                'gt_cost' => $project->gt_cost,
+                'gt_margin' => $project->gt_margin,
+                'sum_ar' => $project->sum_ar,
+                'ar_paid' => $project->ar_paid,
+                'ar_os' => $project->ar_os,
+                'sum_ap' => $project->sum_ap,
+                'ap_paid' => $project->ap_paid,
+                'ap_os' => $project->ap_os,
+                'todo' => $project->todo,
+                'ar_ap' => $project->ar_ap,
+                'logsheet_total_revenue' => $logsheetTotalRevenue,
+                'logsheet_total_cost' => $logsheetTotalCost,
+                'logsheet_total_margin' => $logsheetTotalMargin
+            ]
+        ]);
+    }
 }
