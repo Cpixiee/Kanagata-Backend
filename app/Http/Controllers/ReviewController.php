@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\Ledger;
 use App\Models\Logsheet;
 use App\Models\ReviewRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -79,6 +80,8 @@ class ReviewController extends Controller
         try {
             DB::beginTransaction();
 
+            $modelName = $this->getModelName($request);
+
             switch ($request->model_type) {
                 case 'Project':
                     if ($request->action_type === 'create') {
@@ -128,6 +131,14 @@ class ReviewController extends Controller
             }
 
             $request->update(['status' => 'approved']);
+            
+            // Log approval activity
+            NotificationService::logApprove(
+                $request->model_type,
+                $modelName,
+                $request->user->name
+            );
+
             DB::commit();
 
             return response()->json(['message' => 'Request approved successfully']);
@@ -139,7 +150,17 @@ class ReviewController extends Controller
 
     public function reject(ReviewRequest $request)
     {
+        $modelName = $this->getModelName($request);
+        
         $request->update(['status' => 'rejected']);
+        
+        // Log rejection activity
+        NotificationService::logReject(
+            $request->model_type,
+            $modelName,
+            $request->user->name
+        );
+        
         return response()->json(['message' => 'Request rejected successfully']);
     }
 
@@ -161,9 +182,49 @@ class ReviewController extends Controller
             'status' => 'pending'
         ]);
 
+        // Log review request submission
+        $modelName = $this->getModelNameFromData($data);
+        NotificationService::logReviewRequest(
+            $data['model_type'],
+            $data['action_type'],
+            $modelName
+        );
+
         return response()->json([
             'message' => 'Review request created successfully',
             'request' => $reviewRequest
         ]);
+    }
+
+    private function getModelName(ReviewRequest $request)
+    {
+        $data = $request->data;
+        
+        switch ($request->model_type) {
+            case 'Project':
+                return $data['coa'] ?? 'Unknown Project';
+            case 'Ledger':
+                return ($data['category'] ?? 'Unknown') . ' - ' . ($data['budget'] ?? 'Unknown');
+            case 'Logsheet':
+                return ($data['coa'] ?? 'Unknown') . ' - ' . ($data['activity'] ?? 'Unknown');
+            default:
+                return 'Unknown';
+        }
+    }
+
+    private function getModelNameFromData(array $data)
+    {
+        $requestData = $data['data'];
+        
+        switch ($data['model_type']) {
+            case 'Project':
+                return $requestData['coa'] ?? 'Unknown Project';
+            case 'Ledger':
+                return ($requestData['category'] ?? 'Unknown') . ' - ' . ($requestData['budget'] ?? 'Unknown');
+            case 'Logsheet':
+                return ($requestData['coa'] ?? 'Unknown') . ' - ' . ($requestData['activity'] ?? 'Unknown');
+            default:
+                return 'Unknown';
+        }
     }
 } 

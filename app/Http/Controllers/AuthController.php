@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Cache\RateLimiter;
@@ -26,6 +27,9 @@ class AuthController extends Controller
         
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
+            
+            // Log login activity
+            NotificationService::logLogin();
             
             if ($request->ajax()) {
                 return response()->json([

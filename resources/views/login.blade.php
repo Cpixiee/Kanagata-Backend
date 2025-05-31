@@ -65,7 +65,9 @@
                 @endif
             </div>
         </div>
-        <div class="w-2/5 h-screen bg-gradient-to-r from-[#22236F] to-[#5E5FEF]"></div>
+        <div class="w-2/5 h-screen bg-gradient-to-l from-blue-900 via-blue-600 to-purple-600" 
+             style="background: linear-gradient(to left, #22236F, #5E5FEF, #FFFFFF);">
+        </div>
     </div>
 </body>
 </html>

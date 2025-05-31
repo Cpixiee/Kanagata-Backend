@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\ReviewRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,16 @@ class ProjectController extends Controller
 
         if (Auth::user()->role === 'admin') {
             $project = Project::create($data);
+            
+            // Log create activity
+            NotificationService::logCreate('Project', $data['coa'], [
+                'project_id' => $project->id,
+                'customer' => $data['customer'],
+                'activity' => $data['activity'],
+                'prodi' => $data['prodi'],
+                'grade' => $data['grade']
+            ]);
+            
             return response()->json([
                 'message' => 'Project created successfully',
                 'project' => $project
@@ -48,6 +59,14 @@ class ProjectController extends Controller
                 'model_type' => 'Project',
                 'data' => $data,
                 'status' => 'pending'
+            ]);
+
+            // Log review request
+            NotificationService::logReviewRequest('Project', 'create', $data['coa'], [
+                'customer' => $data['customer'],
+                'activity' => $data['activity'],
+                'prodi' => $data['prodi'],
+                'grade' => $data['grade']
             ]);
 
             return response()->json([
@@ -83,6 +102,16 @@ class ProjectController extends Controller
 
         if (Auth::user()->role === 'admin') {
             $project->update($data);
+            
+            // Log update activity
+            NotificationService::logUpdate('Project', $data['coa'], [
+                'project_id' => $project->id,
+                'customer' => $data['customer'],
+                'activity' => $data['activity'],
+                'prodi' => $data['prodi'],
+                'grade' => $data['grade']
+            ]);
+            
             return response()->json([
                 'message' => 'Project updated successfully',
                 'project' => $project
@@ -97,6 +126,14 @@ class ProjectController extends Controller
                 'status' => 'pending'
             ]);
 
+            // Log review request
+            NotificationService::logReviewRequest('Project', 'update', $data['coa'], [
+                'customer' => $data['customer'],
+                'activity' => $data['activity'],
+                'prodi' => $data['prodi'],
+                'grade' => $data['grade']
+            ]);
+
             return response()->json([
                 'message' => 'Your update request has been submitted for review',
                 'request' => $reviewRequest
@@ -107,6 +144,15 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         if (Auth::user()->role === 'admin') {
+            // Log delete activity before deletion
+            NotificationService::logDelete('Project', $project->coa, [
+                'project_id' => $project->id,
+                'customer' => $project->customer,
+                'activity' => $project->activity,
+                'prodi' => $project->prodi,
+                'grade' => $project->grade
+            ]);
+            
             $project->delete();
             return response()->json([
                 'message' => 'Project deleted successfully'
@@ -119,6 +165,14 @@ class ProjectController extends Controller
                 'model_id' => $project->id,
                 'data' => $project->toArray(),
                 'status' => 'pending'
+            ]);
+
+            // Log review request
+            NotificationService::logReviewRequest('Project', 'delete', $project->coa, [
+                'customer' => $project->customer,
+                'activity' => $project->activity,
+                'prodi' => $project->prodi,
+                'grade' => $project->grade
             ]);
 
             return response()->json([

@@ -1,0 +1,295 @@
+/* Notification Styling */
+.notification-dropdown {
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    max-width: 100vw;
+    z-index: 9999;
+}
+
+/* Dark mode dropdown */
+.dark .notification-dropdown {
+    border-color: #374151;
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Notification list container */
+.notification-list {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+}
+
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 3px;
+}
+
+.dark .notification-list::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+}
+
+/* Notification item styles */
+.notification-item {
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+.notification-item.unread {
+    background-color: #f0f9ff;
+}
+
+.dark .notification-item.unread {
+    background-color: #1e3a8a33;
+}
+
+.notification-item:hover {
+    background-color: #f9fafb;
+}
+
+.dark .notification-item:hover {
+    background-color: #374151;
+}
+
+/* Delete button styles */
+.delete-notification {
+    z-index: 10;
+    transition: all 0.2s ease-in-out;
+}
+
+.delete-notification:hover {
+    transform: scale(1.1);
+}
+
+/* Notification badge styles */
+.notification-badge {
+    position: relative;
+}
+
+.notification-badge::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+/* Animation classes */
+.animate-in {
+    animation-name: slideInFromTop;
+    animation-fill-mode: forwards;
+}
+
+.animate-out {
+    animation-name: slideOutToTop;
+    animation-fill-mode: forwards;
+}
+
+.slide-in-from-top-2 {
+    animation-name: slideInFromTop;
+}
+
+.slide-out-to-top-2 {
+    animation-name: slideOutToTop;
+}
+
+.fade-in-20 {
+    animation-name: fadeIn;
+}
+
+.fade-out-20 {
+    animation-name: fadeOut;
+}
+
+/* Keyframe animations */
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slideOutToTop {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Utility classes */
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 640px) {
+    .notification-dropdown {
+        width: 90vw;
+        right: 5vw !important;
+        left: auto !important;
+    }
+}
+
+/* Prevent text selection on buttons */
+.delete-notification,
+.notification-toggle {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Loading state */
+.notification-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Empty state */
+.notification-empty {
+    padding: 2rem;
+    text-align: center;
+    color: #6b7280;
+}
+
+.dark .notification-empty {
+    color: #9ca3af;
+}
+
+/* Fixed height for notification container */
+#notification-list {
+    height: 240px !important;
+    max-height: 240px !important;
+    min-height: 240px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    flex: 1 1 240px;
+}
+
+/* Ensure dropdown doesn't go off screen */
+@media (max-height: 600px) {
+    .notification-dropdown {
+        max-height: 400px;
+    }
+    
+    #notification-list {
+        height: 180px !important;
+        max-height: 180px !important;
+        min-height: 180px !important;
+    }
+}
+
+@media (max-height: 500px) {
+    .notification-dropdown {
+        max-height: 350px;
+    }
+    
+    #notification-list {
+        height: 150px !important;
+        max-height: 150px !important;
+        min-height: 150px !important;
+    }
+}
+
+/* Notification Animation Classes */
+.notification-item {
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.notification-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.notification-item:hover::before {
+    left: 100%;
+}
+
+.notification-item.read {
+    border-left: 3px solid transparent;
+}
+
+/* Icon animations */
+.notification-icon {
+    transition: transform 0.2s ease;
+}
+
+.notification-item:hover .notification-icon {
+    transform: scale(1.1);
+}
+
+/* Line clamp utilities */
+.notification-item:hover {
+    transform: translateX(2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth transitions for all interactive elements */
+.notification-dropdown * {
+    transition-property: color, background-color, border-color, opacity, transform;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+} 

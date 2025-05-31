@@ -11,6 +11,7 @@ use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\TutorScheduleController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\NotificationController;
 
 // Root redirect
 Route::get('/', function () {
@@ -31,6 +32,17 @@ Route::middleware(['auth'])->group(function () {
     // Insight routes
     Route::get('/insight', [LogsheetController::class, 'insight'])->name('insight');
     Route::get('/logsheets/chart-data', [LogsheetController::class, 'getChartData'])->name('logsheet.chart-data');
+    
+    // Notification routes
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    
+    // Test notification routes (for development/testing)
+    Route::get('/test-notification', [NotificationController::class, 'testNotification'])->name('notifications.test');
+    Route::post('/test-notification/create', [NotificationController::class, 'createTestNotification'])->name('notifications.test.create');
     
     // Projects routes
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');

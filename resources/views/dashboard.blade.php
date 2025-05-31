@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Kanagata - Dashboard</title>
     <link rel="stylesheet" href="{{ asset('src/output.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/notifications.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -36,6 +37,60 @@
                     <h1 class="self-center text-xl sm:text-2xl font-semibold dark:text-white">Dashboard</h1>
                 </div>
                 <div class="flex items-center">
+                    <!-- Notification Button -->
+                    <div class="relative mr-3">
+                        <button type="button" id="notification-toggle"
+                            class="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 transition-all duration-200">
+                            <span class="sr-only">View notifications</span>
+                            <!-- Updated Bell Icon -->
+                            <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5.365V3m0 2.365a5.338 5.338 0 0 1 5.133 5.368v1.8c0 2.386 1.867 2.982 1.867 4.175 0 .593 0 1.193-.538 1.193H5.538c-.538 0-.538-.6-.538-1.193 0-1.193 1.867-1.789 1.867-4.175v-1.8A5.338 5.338 0 0 1 12 5.365ZM8.733 18c.094.852.306 1.54.944 2.112a3.48 3.48 0 0 0 4.646 0c.638-.572 1.236-1.26.944-2.112"/>
+                            </svg>
+                            <!-- Notification Badge -->
+                            <div id="notification-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full hidden animate-pulse">
+                                <span id="notification-count" class="text-xs text-white font-bold flex items-center justify-center w-full h-full leading-none">0</span>
+                            </div>
+                        </button>
+                        
+                        <!-- Notification Dropdown -->
+                        <div id="notification-dropdown" class="notification-dropdown hidden absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-xl border border-gray-200 dark:bg-gray-800 dark:border-gray-600 z-50 transform transition-all duration-200 origin-top-right">
+                            <!-- Header -->
+                            <div class="p-4 border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-t-xl">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M17.133 12.632v-1.8a5.406 5.406 0 0 0-4.154-5.262.946.946 0 0 0 .021-.106V3.1a1 1 0 0 0-2 0v2.364a.946.946 0 0 0 .021.106 5.406 5.406 0 0 0-4.154 5.262v1.8C6.867 15.018 5 15.614 5 16.807 5 17.4 5 18 5.538 18h6.462a2 2 0 0 0 4 0h6.462c.538 0 .538-.6.538-1.193 0-1.193-1.867-1.789-1.867-4.175Z"/>
+                                        </svg>
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Notifikasi</h3>
+                                    </div>
+                                    <button id="mark-all-read" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200 hover:underline">
+                                        Mark all as read
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Notification List with Fixed Height & Scroll -->
+                            <div id="notification-list" class="notification-list" style="height: 240px; max-height: 240px; overflow-y: auto; overflow-x: hidden;">
+                                <!-- Notifications will be loaded here -->
+                                <div class="p-6 text-center text-gray-500 dark:text-gray-400">
+                                    <div class="mb-3">
+                                        <svg class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 5.365V3m0 2.365a5.338 5.338 0 0 1 5.133 5.368v1.8c0 2.386 1.867 2.982 1.867 4.175 0 .593 0 1.193-.538 1.193H5.538c-.538 0-.538-.6-.538-1.193 0-1.193 1.867-1.789 1.867-4.175v-1.8A5.338 5.338 0 0 1 12 5.365ZM8.733 18c.094.852.306 1.54.944 2.112a3.48 3.48 0 0 0 4.646 0c.638-.572 1.236-1.26.944-2.112"/>
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm font-medium">Loading notifications...</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Footer -->
+                            <div class="p-3 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-b-xl">
+                                <button id="view-all-notifications" class="w-full text-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium py-2 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors duration-200">
+                                    View All Notifications
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="flex items-center ms-3">
                         <div>
                             <button type="button"
@@ -234,19 +289,19 @@
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Gross Margin</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-gross-margin">Rp0</span>
                             </div>
-                                </div>
+                        </div>
                         <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="this-month-cost-operation">Rp0</span>
-                                </div>
-                                </div>
+                            </div>
+                        </div>
                         <div class="pb-2">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Profit/Loss</span>
                                 <span class="text-xl font-bold text-gray-800 dark:text-gray-200" id="this-month-profit-loss">Rp0</span>
-                                </div>
-                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -274,19 +329,19 @@
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Gross Margin</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-gross-margin">Rp0</span>
                             </div>
-                                </div>
+                        </div>
                         <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="summary-cost-operation">Rp0</span>
-                                </div>
-                                </div>
+                            </div>
+                        </div>
                         <div class="pb-2">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Profit/Loss</span>
                                 <span class="text-xl font-bold text-gray-800 dark:text-gray-200" id="summary-profit-loss">Rp0</span>
-                                </div>
-                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -302,7 +357,7 @@
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Revenue</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-revenue">Rp0</span>
                             </div>
-            </div>
+                        </div>
                         <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Project</span>
@@ -319,7 +374,7 @@
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Cost Operation</span>
                                 <span class="text-xl font-medium text-gray-800 dark:text-gray-200" id="average-cost-operation">Rp0</span>
-                </div>
+                            </div>
                         </div>
                         <div class="pb-2">
                             <div class="flex flex-col">
@@ -609,7 +664,10 @@
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="{{ asset('js/dashboard.js') }}"></script>
+    <script src="{{ asset('js/notifications.js') }}"></script>
 </body>
 
 </html>

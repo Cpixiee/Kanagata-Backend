@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ledger;
 use App\Models\Project;
 use App\Models\ReviewRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
@@ -93,6 +94,17 @@ class LedgerController extends Controller
 
             if (Auth::user()->role === 'admin') {
                 $ledger = Ledger::create($data);
+                
+                // Log create activity
+                $modelName = $data['category'] . ' - ' . $data['budget'];
+                NotificationService::logCreate('Ledger', $modelName, [
+                    'ledger_id' => $ledger->id,
+                    'category' => $data['category'],
+                    'budget' => $data['budget'],
+                    'recipient' => $data['recipient'],
+                    'amount' => $data['debit'] > 0 ? $data['debit'] : $data['credit']
+                ]);
+                
                 DB::commit();
                 return response()->json([
                     'message' => 'Ledger entry created successfully',
@@ -106,6 +118,16 @@ class LedgerController extends Controller
                     'data' => $data,
                     'status' => 'pending'
                 ]);
+                
+                // Log review request
+                $modelName = $data['category'] . ' - ' . $data['budget'];
+                NotificationService::logReviewRequest('Ledger', 'create', $modelName, [
+                    'category' => $data['category'],
+                    'budget' => $data['budget'],
+                    'recipient' => $data['recipient'],
+                    'amount' => $data['debit'] > 0 ? $data['debit'] : $data['credit']
+                ]);
+                
                 DB::commit();
                 return response()->json([
                     'message' => 'Your request has been submitted for review',
@@ -159,6 +181,17 @@ class LedgerController extends Controller
 
             if (Auth::user()->role === 'admin') {
                 $ledger->update($data);
+                
+                // Log update activity
+                $modelName = $data['category'] . ' - ' . $data['budget'];
+                NotificationService::logUpdate('Ledger', $modelName, [
+                    'ledger_id' => $ledger->id,
+                    'category' => $data['category'],
+                    'budget' => $data['budget'],
+                    'recipient' => $data['recipient'],
+                    'amount' => $data['debit'] > 0 ? $data['debit'] : $data['credit']
+                ]);
+                
                 DB::commit();
                 return response()->json([
                     'message' => 'Ledger entry updated successfully',
@@ -173,6 +206,16 @@ class LedgerController extends Controller
                     'data' => $data,
                     'status' => 'pending'
                 ]);
+                
+                // Log review request
+                $modelName = $data['category'] . ' - ' . $data['budget'];
+                NotificationService::logReviewRequest('Ledger', 'update', $modelName, [
+                    'category' => $data['category'],
+                    'budget' => $data['budget'],
+                    'recipient' => $data['recipient'],
+                    'amount' => $data['debit'] > 0 ? $data['debit'] : $data['credit']
+                ]);
+                
                 DB::commit();
                 return response()->json([
                     'message' => 'Your update request has been submitted for review',
@@ -190,6 +233,16 @@ class LedgerController extends Controller
     public function destroy(Ledger $ledger)
     {
         if (Auth::user()->role === 'admin') {
+            // Log delete activity before deletion
+            $modelName = $ledger->category . ' - ' . $ledger->budget;
+            NotificationService::logDelete('Ledger', $modelName, [
+                'ledger_id' => $ledger->id,
+                'category' => $ledger->category,
+                'budget' => $ledger->budget,
+                'recipient' => $ledger->recipient,
+                'amount' => $ledger->debit > 0 ? $ledger->debit : $ledger->credit
+            ]);
+            
             $ledger->delete();
             return response()->json([
                 'message' => 'Ledger entry deleted successfully'
@@ -202,6 +255,15 @@ class LedgerController extends Controller
                 'model_id' => $ledger->id,
                 'data' => $ledger->toArray(),
                 'status' => 'pending'
+            ]);
+
+            // Log review request
+            $modelName = $ledger->category . ' - ' . $ledger->budget;
+            NotificationService::logReviewRequest('Ledger', 'delete', $modelName, [
+                'category' => $ledger->category,
+                'budget' => $ledger->budget,
+                'recipient' => $ledger->recipient,
+                'amount' => $ledger->debit > 0 ? $ledger->debit : $ledger->credit
             ]);
 
             return response()->json([
@@ -223,6 +285,16 @@ class LedgerController extends Controller
 
         try {
             $ledger->update(['status' => Ledger::STATUS_PAID]);
+            
+            // Log mark as paid activity
+            $modelName = $ledger->category . ' - ' . $ledger->budget;
+            NotificationService::logMarkAsPaid('Ledger', $modelName, [
+                'ledger_id' => $ledger->id,
+                'category' => $ledger->category,
+                'budget' => $ledger->budget,
+                'amount' => $ledger->credit
+            ]);
+            
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);

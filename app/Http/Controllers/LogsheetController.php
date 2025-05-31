@@ -6,6 +6,7 @@ use App\Models\Logsheet;
 use App\Models\Project;
 use App\Models\Ledger;
 use App\Models\ReviewRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -49,6 +50,17 @@ class LogsheetController extends Controller
             if (Auth::user()->role === 'admin') {
                 $logsheet = Logsheet::create($data);
                 $logsheet->project->updateFinancials();
+                
+                // Log create activity
+                $modelName = $data['coa'] . ' - ' . $data['activity'];
+                NotificationService::logCreate('Logsheet', $modelName, [
+                    'logsheet_id' => $logsheet->id,
+                    'customer' => $data['customer'],
+                    'activity' => $data['activity'],
+                    'tutor' => $data['tutor'],
+                    'revenue' => $data['revenue']
+                ]);
+                
                 DB::commit();
 
                 return response()->json([
@@ -63,6 +75,15 @@ class LogsheetController extends Controller
                     'data' => $data,
                     'status' => 'pending'
                 ]);
+                
+                // Log review request
+                $modelName = $data['coa'] . ' - ' . $data['activity'];
+                NotificationService::logReviewRequest('Logsheet', 'create', $modelName, [
+                    'customer' => $data['customer'],
+                    'activity' => $data['activity'],
+                    'tutor' => $data['tutor']
+                ]);
+                
                 DB::commit();
 
                 return response()->json([
@@ -112,6 +133,16 @@ class LogsheetController extends Controller
                 
                 $logsheet->update($data);
                 
+                // Log update activity
+                $modelName = $data['coa'] . ' - ' . $data['activity'];
+                NotificationService::logUpdate('Logsheet', $modelName, [
+                    'logsheet_id' => $logsheet->id,
+                    'customer' => $data['customer'],
+                    'activity' => $data['activity'],
+                    'tutor' => $data['tutor'],
+                    'revenue' => $data['revenue']
+                ]);
+                
                 DB::commit();
                 return response()->json([
                     'success' => true,
@@ -126,6 +157,14 @@ class LogsheetController extends Controller
                     'model_id' => $logsheet->id,
                     'data' => $data,
                     'status' => 'pending'
+                ]);
+
+                // Log review request
+                $modelName = $data['coa'] . ' - ' . $data['activity'];
+                NotificationService::logReviewRequest('Logsheet', 'update', $modelName, [
+                    'customer' => $data['customer'],
+                    'activity' => $data['activity'],
+                    'tutor' => $data['tutor']
                 ]);
 
                 DB::commit();
@@ -147,6 +186,16 @@ class LogsheetController extends Controller
     public function destroy(Logsheet $logsheet)
     {
         if (Auth::user()->role === 'admin') {
+            // Log delete activity before deletion
+            $modelName = $logsheet->coa . ' - ' . $logsheet->activity;
+            NotificationService::logDelete('Logsheet', $modelName, [
+                'logsheet_id' => $logsheet->id,
+                'customer' => $logsheet->customer,
+                'activity' => $logsheet->activity,
+                'tutor' => $logsheet->tutor,
+                'revenue' => $logsheet->revenue
+            ]);
+            
             $logsheet->delete();
             return response()->json([
                 'message' => 'Logsheet entry deleted successfully'
@@ -159,6 +208,14 @@ class LogsheetController extends Controller
                 'model_id' => $logsheet->id,
                 'data' => $logsheet->toArray(),
                 'status' => 'pending'
+            ]);
+
+            // Log review request
+            $modelName = $logsheet->coa . ' - ' . $logsheet->activity;
+            NotificationService::logReviewRequest('Logsheet', 'delete', $modelName, [
+                'customer' => $logsheet->customer,
+                'activity' => $logsheet->activity,
+                'tutor' => $logsheet->tutor
             ]);
 
             return response()->json([
