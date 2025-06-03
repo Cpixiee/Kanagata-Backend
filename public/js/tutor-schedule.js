@@ -20,60 +20,60 @@ $(document).ready(function() {
     let selectedDate = null;
     let remainingSessions = 0;
 
-    // Initialize all modals
-    const scheduleModal = document.getElementById('schedule-modal');
-    const addScheduleModal = document.getElementById('add-schedule-modal');
-    const editScheduleModal = document.getElementById('edit-schedule-modal');
-    const cropModal = document.getElementById('crop-modal');
-
     // Initialize Flowbite modals
-    const modals = {
-        scheduleModal: new Modal(scheduleModal),
-        addScheduleModal: new Modal(addScheduleModal),
-        editScheduleModal: new Modal(editScheduleModal),
-        cropModal: new Modal(cropModal)
-    };
-
-    // Event handler untuk tombol close pada modal Schedule Calendar
-    const closeButtons = document.querySelectorAll('[data-modal-hide="schedule-modal"]');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            modals.scheduleModal.hide();
-            // Reset state saat modal ditutup
+    const scheduleModal = new Modal(document.getElementById('schedule-modal'), {
+        backdrop: 'static',
+        onShow: () => {
+            console.log('Schedule modal shown');
+        },
+        onHide: () => {
             selectedLogsheetId = null;
             if (calendar) {
                 calendar.destroy();
                 calendar = null;
             }
-            // Reset dropdown logsheet
             $('#logsheet_id').val('');
-            // Hapus konten kalender
             $('#schedule-calendar').empty();
-            // Hapus info sesi tersisa dan legend jika ada
             $('.remaining-sessions-info').remove();
             $('.calendar-legend').remove();
-        });
-    });
-
-    // Reset form saat modal ditutup
-    document.getElementById('schedule-modal').addEventListener('hidden.bs.modal', function () {
-        selectedLogsheetId = null;
-        if (calendar) {
-            calendar.destroy();
-            calendar = null;
         }
-        $('#logsheet_id').val('');
-        $('#schedule-calendar').empty();
-        $('.remaining-sessions-info').remove();
-        $('.calendar-legend').remove();
     });
 
-    document.getElementById('add-schedule-modal').addEventListener('hidden.bs.modal', function () {
-        $('#add-schedule-form').trigger('reset');
+    const addScheduleModal = new Modal(document.getElementById('add-schedule-modal'), {
+        backdrop: 'static',
+        onHide: () => {
+            $('#add-schedule-form').trigger('reset');
+        }
     });
 
-    document.getElementById('edit-schedule-modal').addEventListener('hidden.bs.modal', function () {
-        $('#edit-schedule-form').trigger('reset');
+    const editScheduleModal = new Modal(document.getElementById('edit-schedule-modal'), {
+        backdrop: 'static',
+        onHide: () => {
+            $('#edit-schedule-form').trigger('reset');
+        }
+    });
+
+    const cropModal = new Modal(document.getElementById('crop-modal'), {
+        backdrop: 'static'
+    });
+
+    // Mapping modal IDs to modal instances
+    const modalInstances = {
+        'schedule-modal': scheduleModal,
+        'add-schedule-modal': addScheduleModal,
+        'edit-schedule-modal': editScheduleModal,
+        'crop-modal': cropModal
+    };
+
+    // Event handler untuk tombol close pada semua modal
+    document.querySelectorAll('[data-modal-hide]').forEach(button => {
+        button.addEventListener('click', () => {
+            const modalId = button.getAttribute('data-modal-hide');
+            const modal = modalInstances[modalId];
+            if (modal) {
+                modal.hide();
+            }
+        });
     });
 
     function initializeCalendar() {
@@ -198,9 +198,7 @@ $(document).ready(function() {
                         remainingSessions = response.remaining_sessions;
                         
                         // Get all scheduled dates for this tutor (across all logsheets)
-                        const allScheduledDates = scheduleResponse.schedules.map(schedule => 
-                            new Date(schedule.start).toISOString().split('T')[0]
-                        );
+                        const allScheduledDates = response.existing_schedules;
                         
                         // Update semua sel kalender
                         const cells = document.querySelectorAll('.fc-daygrid-day');
@@ -215,15 +213,12 @@ $(document).ready(function() {
                             // Reset classes
                             cell.classList.remove('booked-date', 'available-date', 'past-date');
 
-                            // Cek apakah tanggal ini memiliki jadwal (di logsheet manapun)
-                            const hasAnySchedule = allScheduledDates.includes(date);
-
                             // Tanggal yang sudah lewat
                             if (cellDate < today) {
                                 cell.classList.add('past-date');
                             } 
                             // Tanggal yang sudah ada jadwal (di logsheet manapun)
-                            else if (hasAnySchedule) {
+                            else if (allScheduledDates.includes(date)) {
                                 cell.classList.add('booked-date');
                             }
                             // Tanggal yang masih available (future date) dan masih ada sesi tersisa
@@ -234,7 +229,7 @@ $(document).ready(function() {
 
                         // Update info sesi tersisa
                         const remainingSessionsInfo = document.createElement('div');
-                        remainingSessionsInfo.className = 'text-sm text-gray-600 mt-2';
+                        remainingSessionsInfo.className = 'text-sm text-gray-600 mt-2 remaining-sessions-info';
                         remainingSessionsInfo.textContent = `Sesi tersisa: ${remainingSessions} dari ${response.total_sessions}`;
                         
                         const calendarHeader = document.querySelector('.fc-header-toolbar');
@@ -242,7 +237,6 @@ $(document).ready(function() {
                         if (existingInfo) {
                             existingInfo.remove();
                         }
-                        remainingSessionsInfo.classList.add('remaining-sessions-info');
                         calendarHeader.appendChild(remainingSessionsInfo);
 
                         // Tambahkan keterangan warna
@@ -268,8 +262,14 @@ $(document).ready(function() {
                             existingLegend.remove();
                         }
                         document.getElementById('schedule-calendar').appendChild(legendContainer);
+                    },
+                    error: function() {
+                        console.error('Gagal memuat data tanggal tersedia');
                     }
                 });
+            },
+            error: function() {
+                console.error('Gagal memuat data jadwal');
             }
         });
     }
@@ -291,16 +291,43 @@ $(document).ready(function() {
             method: 'GET',
             data: { logsheet_id: selectedLogsheetId },
             success: function(response) {
+                if (!response.success) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Gagal memuat sesi yang tersedia'
+                    });
+                    return;
+                }
+
                 const sessionSelect = $('#session_number');
                 sessionSelect.empty();
                 sessionSelect.append('<option value="">Pilih nomor sesi</option>');
 
-                response.available_sessions.forEach(session => {
-                    sessionSelect.append(`<option value="${session}">Sesi ${session}</option>`);
+                if (response.available_sessions && response.available_sessions.length > 0) {
+                    response.available_sessions.forEach(session => {
+                        sessionSelect.append(`<option value="${session}">Sesi ${session}</option>`);
+                    });
+                    $('#schedule_date').val(selectedDate);
+                    addScheduleModal.show();
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Tidak Ada Sesi Tersedia',
+                        text: 'Semua sesi untuk logsheet ini sudah dijadwalkan'
+                    });
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Gagal memuat sesi yang tersedia';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage
                 });
-
-                $('#schedule_date').val(selectedDate);
-                modals.addScheduleModal.show();
             }
         });
     }
@@ -310,7 +337,7 @@ $(document).ready(function() {
         $('#edit_schedule_date').val(event.startStr);
         $('#edit_status').val(schedule.status);
         $('#edit_notes').val(schedule.notes);
-        modals.editScheduleModal.show();
+        editScheduleModal.show();
         $('#edit-schedule-form').data('scheduleId', event.id);
     }
 
@@ -377,7 +404,7 @@ $(document).ready(function() {
                         title: 'Berhasil',
                         text: response.message
                     });
-                    modals.addScheduleModal.hide();
+                    addScheduleModal.hide();
                     calendar.refetchEvents();
                     updateDateColors();
                 }
@@ -416,7 +443,7 @@ $(document).ready(function() {
                         title: 'Berhasil',
                         text: response.message
                     });
-                    modals.editScheduleModal.hide();
+                    editScheduleModal.hide();
                     calendar.refetchEvents();
                     updateDateColors();
                 }
@@ -456,7 +483,7 @@ $(document).ready(function() {
                                 response.message,
                                 'success'
                             );
-                            modals.editScheduleModal.hide();
+                            editScheduleModal.hide();
                             calendar.refetchEvents();
                             updateDateColors();
                         }
@@ -494,7 +521,7 @@ $(document).ready(function() {
                     logsheetSelect.append(`<option value="${logsheet.id}">${logsheet.activity} - ${logsheet.customer} (${logsheet.available_sessions.length} sesi tersisa)</option>`);
                 });
 
-                modals.scheduleModal.show();
+                scheduleModal.show();
                 
                 // Calendar akan diinisialisasi setelah logsheet dipilih
                 selectedLogsheetId = null;
