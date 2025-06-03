@@ -227,7 +227,7 @@
             <div class="grid lg:grid-cols-3 sm:grid-cols-1 gap-4 mb-4">
                 @foreach($tutors as $tutor)
                 <div class="flex flex-col justify-center items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-sm">
-                    <div class="flex flex-col items-center pb-4">
+                    <div class="flex flex-col items-center pb-4 w-full">
                         <div class="relative mb-4">
                             <img class="w-28 h-28 rounded-full shadow-lg" src="{{ $tutor->photo_url }}" alt="{{ $tutor->name }} image"/>
                             <button type="button" 
@@ -240,13 +240,13 @@
                                 </svg>
                             </button>
                         </div>
-                        <h5 class="text-2xl font-medium text-gray-900 dark:text-white cursor-pointer mb-1" data-modal-target="tutor-details-{{ $tutor->id }}" data-modal-toggle="tutor-details-{{ $tutor->id }}">{{ $tutor->name }}</h5>
+                        <h5 class="text-xl font-medium text-gray-900 dark:text-white cursor-pointer mb-1 text-center px-2 truncate w-full" data-modal-target="tutor-details-{{ $tutor->id }}" data-modal-toggle="tutor-details-{{ $tutor->id }}">{{ $tutor->name }}</h5>
                     </div>
 
-                    <div class="text-center">
-                        <p class="text-base text-gray-600 dark:text-gray-400">Born</p>
-                        <p class="text-base text-gray-600 dark:text-gray-400 mb-2">{{ $tutor->address }}</p>
-                        <p class="text-base text-gray-600 dark:text-gray-400">saya adalah tutor dari kanagata</p>
+                    <div class="text-center w-full">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 truncate px-2">{{ $tutor->email }}</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2 truncate px-2">{{ $tutor->address }}</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 px-2">{{ $tutor->description }}</p>
                     </div>
 
                     <div class="flex justify-center mt-4">
@@ -359,12 +359,16 @@
                                 <input type="text" name="name" id="edit_name" class="form-input" required>
                             </div>
                             <div class="form-field">
-                                <label for="address" class="form-label">Address</label>
-                                <input type="text" name="address" id="edit_address" class="form-input" required>
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" name="email" id="edit_email" class="form-input" required>
                             </div>
                             <div class="form-field">
-                                <label for="birth_year" class="form-label">Birth Year</label>
-                                <input type="number" name="birth_year" id="edit_birth_year" min="1950" max="{{ date('Y') }}" class="form-input" required>
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" name="phone" id="edit_phone" class="form-input" required>
+                            </div>
+                            <div class="form-field">
+                                <label for="address" class="form-label">Address</label>
+                                <input type="text" name="address" id="edit_address" class="form-input" required>
                             </div>
                             <div class="form-field">
                                 <label for="description" class="form-label">Description</label>
@@ -387,15 +391,16 @@
 
     <!-- Schedule Calendar Modal -->
     <div id="schedule-modal" tabindex="-1" aria-hidden="true" 
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full modal-backdrop"
-        data-modal="schedule-modal">
+        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative p-4 w-full max-w-4xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 modal-content">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 modal-header">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                         Schedule Calendar
                     </h3>
-                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white modal-button" data-modal-hide="schedule-modal">
+                    <button type="button" 
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        data-modal-hide="schedule-modal">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                         </svg>
@@ -416,16 +421,17 @@
     </div>
 
     <!-- Add Schedule Modal -->
-    <div id="add-schedule-modal" tabindex="-1" aria-hidden="true" 
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full modal-backdrop"
-        data-modal="add-schedule-modal">
+    <div id="add-schedule-modal" tabindex="-1" aria-hidden="true"
+        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative p-4 w-full max-w-md max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 modal-content">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 modal-header">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                         Add Schedule
                     </h3>
-                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white modal-button" data-modal-hide="add-schedule-modal">
+                    <button type="button" 
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        data-modal-hide="add-schedule-modal">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                         </svg>
@@ -463,16 +469,17 @@
     </div>
 
     <!-- Edit Schedule Modal -->
-    <div id="edit-schedule-modal" tabindex="-1" aria-hidden="true" 
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full modal-backdrop"
-        data-modal="edit-schedule-modal">
+    <div id="edit-schedule-modal" tabindex="-1" aria-hidden="true"
+        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative p-4 w-full max-w-md max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 modal-content">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 modal-header">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                         Edit Schedule
                     </h3>
-                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white modal-button" data-modal-hide="edit-schedule-modal">
+                    <button type="button" 
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        data-modal-hide="edit-schedule-modal">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                         </svg>
@@ -512,16 +519,17 @@
     </div>
 
     <!-- Crop Modal -->
-    <div id="crop-modal" tabindex="-1" aria-hidden="true" 
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full modal-backdrop"
-        data-modal="crop-modal">
+    <div id="crop-modal" tabindex="-1" aria-hidden="true"
+        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative p-4 w-full max-w-4xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 modal-content">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 modal-header">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                         Crop Image
                     </h3>
-                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white modal-button" data-modal-hide="crop-modal">
+                    <button type="button" 
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        data-modal-hide="crop-modal">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                         </svg>
