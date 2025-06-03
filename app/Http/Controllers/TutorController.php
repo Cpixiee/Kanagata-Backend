@@ -26,10 +26,9 @@ class TutorController extends Controller
         return response()->json([
             'id' => $tutor->id,
             'name' => $tutor->name,
-            'email' => substr($tutor->email, 0, 3) . '***@' . explode('@', $tutor->email)[1],
-            'phone' => substr($tutor->phone, 0, 4) . '****' . substr($tutor->phone, -4),
+            'email' => $tutor->email,
+            'phone' => $tutor->phone,
             'address' => $tutor->address,
-            'birth_year' => $tutor->birth_year,
             'description' => $tutor->description,
             'photo_url' => $tutor->photo_url,
             'is_active' => $tutor->is_active
@@ -40,8 +39,9 @@ class TutorController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
             'address' => 'required|string',
-            'birth_year' => 'required|integer|min:1950|max:' . date('Y'),
             'description' => 'required|string',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
@@ -77,7 +77,7 @@ class TutorController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Data tutor berhasil diperbarui',
-                'photo_url' => $tutor->photo_url // Tambahkan URL foto yang baru
+                'photo_url' => $tutor->photo_url
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -98,7 +98,7 @@ class TutorController extends Controller
         $startDate = \Carbon\Carbon::createFromFormat('Y-m', $request->month)->startOfMonth();
         $endDate = $startDate->copy()->endOfMonth();
 
-        // Ambil jadwal yang sudah ada
+        // Ambil jadwal yang sudah ada untuk bulan ini (semua logsheet)
         $existingSchedules = $tutor->schedules()
             ->whereBetween('schedule_date', [$startDate, $endDate])
             ->get()
@@ -108,17 +108,27 @@ class TutorController extends Controller
             })
             ->toArray();
 
-        // Hitung sesi yang tersedia
+        // Hitung sesi yang tersedia untuk logsheet ini
         $totalSessions = $logsheet->seq;
         $usedSessions = $tutor->schedules()
             ->where('logsheet_id', $logsheet->id)
             ->count();
         $remainingSessions = $totalSessions - $usedSessions;
 
+        // Ambil semua tanggal dalam bulan ini
+        $dates = [];
+        $currentDate = $startDate->copy();
+        while ($currentDate <= $endDate) {
+            $dateStr = $currentDate->format('Y-m-d');
+            $dates[] = $dateStr;
+            $currentDate->addDay();
+        }
+
         return response()->json([
             'existing_schedules' => $existingSchedules,
             'remaining_sessions' => $remainingSessions,
-            'total_sessions' => $totalSessions
+            'total_sessions' => $totalSessions,
+            'available_dates' => array_values(array_diff($dates, $existingSchedules))
         ]);
     }
 
@@ -165,5 +175,33 @@ class TutorController extends Controller
             ->values();
 
         return response()->json($logsheets);
+    }
+
+    public function getAvailableSessions(Request $request, Tutor $tutor)
+    {
+        $request->validate([
+            'logsheet_id' => 'required|exists:logsheets,id'
+        ]);
+
+        $logsheet = Logsheet::findOrFail($request->logsheet_id);
+        
+        // Ambil sesi yang sudah digunakan
+        $usedSessions = $tutor->schedules()
+            ->where('logsheet_id', $request->logsheet_id)
+            ->pluck('session_number')
+            ->toArray();
+        
+        // Buat array sesi yang tersedia
+        $availableSessions = [];
+        for ($i = 1; $i <= $logsheet->seq; $i++) {
+            if (!in_array($i, $usedSessions)) {
+                $availableSessions[] = $i;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'available_sessions' => $availableSessions
+        ]);
     }
 } 
