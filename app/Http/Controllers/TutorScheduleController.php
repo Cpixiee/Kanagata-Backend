@@ -12,13 +12,31 @@ class TutorScheduleController extends Controller
     /**
      * Display a listing of tutor schedules.
      */
-    public function index(Tutor $tutor)
+    public function index(Tutor $tutor, Request $request)
     {
-        $schedules = $tutor->schedules()->orderBy('date')->get();
+        $schedules = $tutor->schedules()
+            ->when($request->has('logsheet_id'), function($query) use ($request) {
+                return $query->where('logsheet_id', $request->logsheet_id);
+            })
+            ->orderBy('schedule_date')
+            ->get()
+            ->map(function($schedule) {
+                return [
+                    'id' => $schedule->id,
+                    'title' => "Sesi {$schedule->session_number}",
+                    'start' => $schedule->schedule_date,
+                    'className' => "status-{$schedule->status}",
+                    'extendedProps' => [
+                        'status' => $schedule->status,
+                        'notes' => $schedule->notes,
+                        'session_number' => $schedule->session_number
+                    ]
+                ];
+            });
         
         return response()->json([
             'success' => true,
-            'data' => $schedules
+            'schedules' => $schedules
         ]);
     }
 
@@ -28,20 +46,57 @@ class TutorScheduleController extends Controller
     public function store(Request $request, Tutor $tutor)
     {
         $validated = $request->validate([
-            'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'is_available' => 'boolean',
+            'logsheet_id' => 'required|exists:logsheets,id',
+            'session_number' => 'required|integer|min:1',
+            'schedule_date' => 'required|date|after_or_equal:today',
             'notes' => 'nullable|string'
         ]);
 
-        $schedule = $tutor->schedules()->create($validated);
+        // Cek apakah sesi sudah digunakan
+        $existingSchedule = $tutor->schedules()
+            ->where('logsheet_id', $validated['logsheet_id'])
+            ->where('session_number', $validated['session_number'])
+            ->first();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Schedule created successfully',
-            'data' => $schedule
-        ], 201);
+        if ($existingSchedule) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nomor sesi ini sudah digunakan'
+            ], 422);
+        }
+
+        // Cek apakah tanggal sudah ada jadwal
+        $existingDateSchedule = $tutor->schedules()
+            ->where('schedule_date', $validated['schedule_date'])
+            ->first();
+
+        if ($existingDateSchedule) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tanggal ini sudah memiliki jadwal'
+            ], 422);
+        }
+
+        try {
+            $schedule = $tutor->schedules()->create([
+                'logsheet_id' => $validated['logsheet_id'],
+                'session_number' => $validated['session_number'],
+                'schedule_date' => $validated['schedule_date'],
+                'notes' => $validated['notes'],
+                'status' => 'scheduled'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Jadwal berhasil dibuat',
+                'data' => $schedule
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat jadwal: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
