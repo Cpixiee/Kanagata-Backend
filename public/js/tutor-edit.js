@@ -40,6 +40,8 @@ $(document).ready(function() {
             .then(data => {
                 $('#edit_id').val(data.id);
                 $('#edit_name').val(data.name);
+                $('#edit_email').val(data.email);
+                $('#edit_phone').val(data.phone);
                 $('#edit_address').val(data.address);
                 $('#edit_birth_year').val(data.birth_year);
                 $('#edit_description').val(data.description);
