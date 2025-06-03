@@ -22,6 +22,7 @@ class Logsheet extends Model
         'rate_1',
         'ar_status',
         'tutor',
+        'tutor_id',
         'quantity_2',
         'rate_2',
         'ap_status'
@@ -70,8 +71,9 @@ class Logsheet extends Model
     public static function getTutorOptions()
     {
         return [
+            'Muhammad Andar Rahman',
             'wit urrohman',
-            'andar prakasa',
+            'Rizal Ramadhanu',
             'danu muhammad',
             'michale sudarsono',
             'brilian krisna mora',
@@ -87,6 +89,11 @@ class Logsheet extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function tutor(): BelongsTo
+    {
+        return $this->belongsTo(Tutor::class);
     }
 
     // Calculate AR amount based on status

@@ -114,7 +114,7 @@ class Ledger extends Model
     public static function getRecipientOptions(): array
     {
         return [
-            'ANDAR PRASKASA',
+            'MUHAMMAD ANDAR RAHMAN',
             'DANU STEVEN',
             'MICHALE SUDARSONO',
             'WIT URROHMAN',
@@ -125,7 +125,7 @@ class Ledger extends Model
     }
 
     // Generate COA options for Cost Operation and Kas Margin
-    public static function getCoaOptions(int $year = null): array
+    public static function getCoaOptions(?int $year = null): array
     {
         if (!$year) {
             $year = date('Y');

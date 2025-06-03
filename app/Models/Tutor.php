@@ -80,12 +80,12 @@ class Tutor extends Model
     public function getUnscheduledLogsheets()
     {
         return $this->logsheets()
-            ->whereRaw('seq > (
+            ->whereRaw('quantity_2 > (
                 SELECT COUNT(*) 
                 FROM tutor_schedules 
                 WHERE tutor_schedules.logsheet_id = logsheets.id
             )')
-            ->select('id', 'activity', 'customer', 'seq')
+            ->select('id', 'activity', 'customer', 'quantity_2')
             ->get()
             ->map(function($logsheet) {
                 $usedSessions = TutorSchedule::where('logsheet_id', $logsheet->id)
@@ -93,7 +93,7 @@ class Tutor extends Model
                     ->toArray();
                 
                 $availableSessions = [];
-                for ($i = 1; $i <= $logsheet->seq; $i++) {
+                for ($i = 1; $i <= $logsheet->quantity_2; $i++) {
                     if (!in_array($i, $usedSessions)) {
                         $availableSessions[] = $i;
                     }

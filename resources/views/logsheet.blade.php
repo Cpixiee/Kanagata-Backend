@@ -476,7 +476,7 @@
                             <label for="tutor" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tutor</label>
                             <select name="tutor" id="tutor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                                 <option value="">Select tutor</option>
-                                @foreach(['andar praskasa', 'danu steven', 'michale sudarsono', 'wit urrohman', 'ageng prasetyo'] as $tutor)
+                                @foreach(['Muhammad Andar Rahman', 'Rizal Ramadhanu'] as $tutor)
                                     <option value="{{ $tutor }}">{{ $tutor }}</option>
                                 @endforeach
                             </select>
@@ -598,7 +598,7 @@
                             <label for="edit_tutor" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tutor</label>
                             <select name="tutor" id="edit_tutor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
                                 <option value="">Select tutor</option>
-                                @foreach(['andar praskasa', 'danu steven', 'michale sudarsono', 'wit urrohman', 'ageng prasetyo'] as $tutor)
+                                @foreach(['Muhammad Andar Rahman', 'Rizal Ramadhanu'] as $tutor)
                                     <option value="{{ $tutor }}">{{ $tutor }}</option>
                                 @endforeach
                             </select>

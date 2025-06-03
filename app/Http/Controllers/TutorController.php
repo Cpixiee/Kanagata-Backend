@@ -134,47 +134,57 @@ class TutorController extends Controller
 
     public function getUnscheduledLogsheets(Tutor $tutor)
     {
-        $logsheets = Logsheet::where('tutor', $tutor->name)
-            ->get()
-            ->map(function($logsheet) use ($tutor) {
-                // Hitung sesi yang sudah digunakan
-                $usedSessions = TutorSchedule::where('tutor_id', $tutor->id)
-                    ->where('logsheet_id', $logsheet->id)
-                    ->count();
-                
-                // Hitung sesi yang tersisa
-                $remainingSessions = $logsheet->seq - $usedSessions;
-                
-                // Buat array nomor sesi yang tersedia
-                $availableSessions = [];
-                if ($remainingSessions > 0) {
-                    $usedSessionNumbers = TutorSchedule::where('tutor_id', $tutor->id)
+        try {
+            $logsheets = Logsheet::where('tutor_id', $tutor->id)
+                ->get()
+                ->map(function($logsheet) use ($tutor) {
+                    // Hitung sesi yang sudah digunakan
+                    $usedSessions = TutorSchedule::where('tutor_id', $tutor->id)
                         ->where('logsheet_id', $logsheet->id)
-                        ->pluck('session_number')
-                        ->toArray();
+                        ->count();
                     
-                    for ($i = 1; $i <= $logsheet->seq; $i++) {
-                        if (!in_array($i, $usedSessionNumbers)) {
-                            $availableSessions[] = $i;
+                    // Hitung sesi yang tersisa
+                    $remainingSessions = $logsheet->seq - $usedSessions;
+                    
+                    // Buat array nomor sesi yang tersedia
+                    $availableSessions = [];
+                    if ($remainingSessions > 0) {
+                        $usedSessionNumbers = TutorSchedule::where('tutor_id', $tutor->id)
+                            ->where('logsheet_id', $logsheet->id)
+                            ->pluck('session_number')
+                            ->toArray();
+                        
+                        for ($i = 1; $i <= $logsheet->seq; $i++) {
+                            if (!in_array($i, $usedSessionNumbers)) {
+                                $availableSessions[] = $i;
+                            }
                         }
                     }
-                }
 
-                return [
-                    'id' => $logsheet->id,
-                    'activity' => $logsheet->activity,
-                    'customer' => $logsheet->customer,
-                    'total_sessions' => $logsheet->seq,
-                    'remaining_sessions' => $remainingSessions,
-                    'available_sessions' => $availableSessions
-                ];
-            })
-            ->filter(function($logsheet) {
-                return $logsheet['remaining_sessions'] > 0;
-            })
-            ->values();
+                    return [
+                        'id' => $logsheet->id,
+                        'activity' => $logsheet->activity,
+                        'customer' => $logsheet->customer,
+                        'total_sessions' => $logsheet->seq,
+                        'remaining_sessions' => $remainingSessions,
+                        'available_sessions' => $availableSessions
+                    ];
+                })
+                ->filter(function($logsheet) {
+                    return $logsheet['remaining_sessions'] > 0;
+                })
+                ->values();
 
-        return response()->json($logsheets);
+            return response()->json([
+                'success' => true,
+                'data' => $logsheets
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error getting logsheets: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getAvailableSessions(Request $request, Tutor $tutor)

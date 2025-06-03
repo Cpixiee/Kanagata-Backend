@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Logsheet;
 use App\Models\Ledger;
+use App\Models\Tutor;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -110,6 +111,35 @@ class LogsheetObserver
         } catch (\Exception $e) {
             Log::error('Error deleting ledger entries: ' . $e->getMessage());
             throw $e;
+        }
+    }
+
+    /**
+     * Handle the Logsheet "creating" event.
+     */
+    public function creating(Logsheet $logsheet): void
+    {
+        $this->setTutorId($logsheet);
+    }
+
+    /**
+     * Handle the Logsheet "updating" event.
+     */
+    public function updating(Logsheet $logsheet): void
+    {
+        $this->setTutorId($logsheet);
+    }
+
+    /**
+     * Set tutor_id based on tutor name
+     */
+    private function setTutorId(Logsheet $logsheet): void
+    {
+        if ($logsheet->tutor) {
+            $tutor = Tutor::where('name', $logsheet->tutor)->first();
+            if ($tutor) {
+                $logsheet->tutor_id = $tutor->id;
+            }
         }
     }
 } 

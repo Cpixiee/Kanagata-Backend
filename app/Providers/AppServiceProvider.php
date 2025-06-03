@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Logsheet::observe(LogsheetObserver::class);
+        \App\Models\Logsheet::observe(\App\Observers\LogsheetObserver::class);
         Ledger::observe(LedgerObserver::class);
     }
 }
